@@ -3,4 +3,7 @@ export interface IMessage{
     role: 'system' | 'user' | 'bot';
     data:string;
     time:string;
+    modelTime:number;
+    serverTime:number;
+    name:string;
 }

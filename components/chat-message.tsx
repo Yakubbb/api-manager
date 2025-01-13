@@ -1,5 +1,6 @@
 import { IMessage } from "@/custom-types";
-
+import { TbServer } from "react-icons/tb";
+import { PiRobotBold } from "react-icons/pi";
 
 export function ChatMessage({
     messageData
@@ -23,16 +24,16 @@ function UserMessage({
     messageData: IMessage
 }) {
     return (
-        <div className="flex items-start gap-2.5 self-end">
-            <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-s-xl rounded-se-xl dark:bg-gray-700">
+        <article className="flex items-start gap-2.5 self-end max-w-fit">
+            <div className="flex flex-col w-full  leading-1.5 p-4 border-gray-200 rounded-s-xl rounded-se-xl bg-indigo-400">
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{messageData.role}</span>
-                    <span className="text-sm font-normal text-gray-500 dark:text-gray-400">{messageData.time}</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{messageData.name}</span>
+                    <span className="text-sm font-normal text-white">{messageData.time}</span>
                 </div>
-                <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">{messageData.data}</p>
+                <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white text-lg">{messageData.data}</p>
             </div>
-            <img className="size-9 self-end flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/de/a2/da/dea2dacfaddd5c6333977d95bb8b5cd5.jpg" alt="profile pic" />
-        </div>
+            <img className="size-9 self-end flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/b2/fd/78/b2fd78564b351007390f96c38a687050.jpg" alt="profile pic" />
+        </article>
     )
 }
 
@@ -42,15 +43,21 @@ function BotMessage({
     messageData: IMessage
 }) {
     return (
-        <div className="flex items-start gap-2.5 self-start">
-            <img className="size-9 self-start flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/de/a2/da/dea2dacfaddd5c6333977d95bb8b5cd5.jpg" alt="profile pic" />
-            <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{messageData.role}</span>
-                    <span className="text-sm font-normal text-gray-500 dark:text-gray-400">{messageData.time}</span>
-                </div>
-                <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">{messageData.data}</p>
+        <div className="max-w-fit">
+            <div className="flex flex-row pl-11 text-center items-center gap-1">
+                <TbServer />{messageData.serverTime + " sec"} 
+                <PiRobotBold />{messageData.modelTime + " sec"}
             </div>
+            <article className="flex items-start gap-2.5 self-start">
+                <img className="size-9 self-start flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/b2/fd/78/b2fd78564b351007390f96c38a687050.jpg" alt="profile pic" />
+                <div className="flex flex-col w-full leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                        <span className="text-sm font-semibold text-white ">{messageData.name}</span>
+                        <span className="text-sm font-normal text-white">{messageData.time}</span>
+                    </div>
+                    <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white text-lg">{messageData.data}</p>
+                </div>
+            </article>
         </div>
     )
 }
