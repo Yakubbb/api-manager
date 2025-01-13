@@ -11,7 +11,7 @@ export function SideBarComponent({
     description: string,
 }) {
     return (
-        <div className="flex flex-row items-center h-11  hover:bg-sky-700 ">
+        <div className="flex flex-row items-center h-11  hover:bg-sky-700 hover:rounded-xl  ">
             <BiBong className="" size={40} />
             <div className=" pl-4">
                 <p className="text-lg font-bold">{name}</p>

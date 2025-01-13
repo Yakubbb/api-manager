@@ -9,7 +9,7 @@ export function SideBar({
 
     }) {
     return (
-        <nav className="flex flex-col  pl-8 w-1/6 h-5/6 gap-5 ">
+        <nav className="flex flex-col w-1/6 h-5/6 gap-5 ">
             <SideBarComponent name="aboba" description="описание абобы"/>
             <SideBarComponent name="aboba" description="описание абобы"/>
             <SideBarComponent name="aboba" description="описание абобы"/>

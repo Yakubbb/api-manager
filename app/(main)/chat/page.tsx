@@ -29,7 +29,7 @@ const messages = [
 export default function Home() {
   return (
     <div>
-    <main className="flex flex-col bg-slate-950 h-dvh overflow-hidden">
+    <main className="flex flex-col bg-slate-950 h-dvh overflow-hidden p-3">
       <MainHeader />
       <section className="flex flex-row h-[95%] w-full gap-5 shrink-0 grow-0">
         <SideBar />
