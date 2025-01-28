@@ -1,8 +1,6 @@
 import Image from "next/image";
 import { ChatBlock } from "@/components/chat-block";
 import { IMessage } from "@/custom-types";
-import { MainHeader } from "@/components/header-main";
-import { SideBar } from "@/components/sidebar";
 import { ModelOptionsBar } from "@/components/model-options-bar";
 
 const messages = [
@@ -28,15 +26,9 @@ const messages = [
 //<MainHeader/>
 export default function Home() {
   return (
-    <div>
-    <main className="flex flex-col bg-slate-950 h-dvh overflow-hidden p-3">
-      <MainHeader />
-      <section className="flex flex-row h-[95%] w-full gap-5 shrink-0 grow-0">
-        <SideBar />
+      <section className="flex flex-row h-[100%] w-[80%] gap-5 shrink-0 grow-0">
         <ChatBlock id="1" history={messages} isReadonly={false} />
         <ModelOptionsBar/>
       </section>
-    </main>
-    </div>
   );
 }

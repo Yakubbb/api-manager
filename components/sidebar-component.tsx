@@ -1,22 +1,27 @@
 import { IMessage } from "@/custom-types";
 import { ChatMessage } from "./chat-message";
-import { BiBong } from "react-icons/bi";
 import { IconType } from "react-icons";
+import Link from "next/link";
+
 
 export function SideBarComponent({
+    href,
     name,
     description,
+    Icon,
 }: {
+    href:string,
     name: string,
     description: string,
+    Icon: IconType
 }) {
     return (
-        <div className="flex flex-row items-center h-11  hover:bg-sky-700 hover:rounded-xl  ">
-            <BiBong className="" size={40} />
+        <Link  className="flex flex-row items-center max-h-max  hover:bg-sky-700 hover:rounded-xl hover:cursor-pointer" href={href}>
+            <Icon className="flex-shrink-0" size={40} />
             <div className=" pl-4">
-                <p className="text-lg font-bold">{name}</p>
-                <p className="italic">{description}</p>
+                <p className="text-lg font-semi-bold">{name}</p>
+                <p className="text-xs">{description}</p>
             </div>
-        </div>
+        </Link >
     )
 }

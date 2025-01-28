@@ -1,3 +1,4 @@
+'use server'
 export interface IMessage{
     id:string;
     role: 'system' | 'user' | 'bot';
