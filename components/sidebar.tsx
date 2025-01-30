@@ -15,10 +15,10 @@ export function SideBar({
 
     }) {
     return (
-        <nav className="flex flex-col w-[20%] h-5/6 gap-5 ">
+        <nav className="flex flex-col w-[15%] h-[100%] shadow-xl shadow-indigo-600/40 gap-5 rounded-3xl p-3">
             <SideBarComponent name="Песочница" description="место, где можно протестировать различные модели" Icon={TbSandbox} href="/main/playground" />
             <SideBarComponent name="Мониторинг" description="посмотрите на работу ваших сервисов" Icon={BiStats} href="/main/monitor" />
-            <SideBarComponent name="Ключи" description="ключи доступа к вашим api" Icon={CgKey} href="/main/playground"/>
+            <SideBarComponent name="Ключи" description="ключи доступа к вашим api" Icon={CgKey} href="/main/keys"/>
             <SideBarComponent name="Баги" description="возникла проблема? - сообщите" Icon={GiBugNet} href="/main/playground"/>
         </nav>
     )

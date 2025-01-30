@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className="flex flex-col bg-slate-950 h-dvh overflow-hidden p-3">
+        <main className="flex flex-col bg-[#e9ecef] dark:bg-black text-[#363636] dark:text-white h-screen overflow-hidden font-sans">
           <MainHeader />
           {children}
         </main>
