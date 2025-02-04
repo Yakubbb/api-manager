@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { MainHeader } from "@/components/header-main";
-import GetAllUsers from "@/server-side/database-handler";
+
 
 
 export const metadata: Metadata = {
@@ -15,9 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      
       <body>
-        <main className="flex flex-col bg-[#e9ecef] dark:bg-black text-[#363636] dark:text-white h-screen overflow-hidden font-sans">
-          <MainHeader />
+        <main className="flex flex-col bg-[#e9ecef] dark:bg-black text-[#363636] dark:text-white h-screen overflow-hidden font-inter">
           {children}
         </main>
       </body>

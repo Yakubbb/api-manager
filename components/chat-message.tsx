@@ -1,7 +1,7 @@
+
 import { IMessage } from "@/custom-types";
 import { TbServer } from "react-icons/tb";
 import { PiRobotBold } from "react-icons/pi";
-import { IoInformationCircleOutline } from "react-icons/io5";
 import Markdown from 'react-markdown'
 
 export function ChatMessage({
@@ -13,7 +13,7 @@ export function ChatMessage({
     switch (messageData.role) {
         case 'user':
             return (<UserMessage messageData={messageData} />)
-        case 'bot':
+        case 'model':
             return (<BotMessage messageData={messageData} />)
         default:
             return (<UserMessage messageData={messageData} />)
@@ -32,7 +32,9 @@ function UserMessage({
                     <span className="text-sm font-semibold">{messageData.name}</span>
                     <span className="text-sm font-normal">{messageData.time}</span>
                 </div>
-                <Markdown className="text-md font-normal py-2.5 text-lg">{messageData.data}</Markdown>
+                <div className="text-md font-normal py-2.5 text-lg">{messageData.parts.map((part) => {
+                    return (<Markdown key={part}>{part}</Markdown>)
+                })}</div>
             </div>
             <img className="size-9 self-end flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/81/05/56/810556c228c093f06deea98a4c2081a9.jpg" alt="profile pic" />
         </article>
@@ -53,7 +55,9 @@ function BotMessage({
                         <span className="text-sm font-semibold">{messageData.name}</span>
                         <span className="text-sm font-normal ">{messageData.time}</span>
                     </div>
-                    <Markdown className="text-md font-normal py-2.5 text-lg">{messageData.data}</Markdown>
+                    <div className="text-md font-normal py-2.5 text-lg">{messageData.parts.map((part) => {
+                        return (<Markdown key={part}>{part}</Markdown>)
+                    })}</div>
                 </div>
             </article>
             <div className="flex flex-row pl-11 text-center items-center gap-1">

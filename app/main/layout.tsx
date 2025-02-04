@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
 import { SideBar } from "@/components/sidebar";
+import { cookies } from "next/headers";
+import { getUserData, getUserIdFromSession } from "@/server-side/database-handler";
 
 
 export const metadata: Metadata = {
   title: "api-manager",
 };
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const sessionId = await(await cookies()).get('session')?.value
+  const userId = await getUserIdFromSession(sessionId || '')
+  const userData = await getUserData(userId)
+
+  console.log(userData)
+
   return (
-    <section className="flex flex-row h-[95%] w-full gap-5 shrink-0 grow-0 pb-4">
+    <section className="flex flex-row grow-0 w-full h-full gap-4">
       <SideBar />
       {children}
     </section>
