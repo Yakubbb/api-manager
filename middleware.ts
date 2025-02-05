@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
 
     if (isNotProtected) {
         if (cookie) {
-            return NextResponse.redirect(new URL('/main/playground', req.url))
+            return NextResponse.redirect(new URL('/main/', req.url))
         }
         return
     }

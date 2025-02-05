@@ -7,9 +7,11 @@ import { CgKey } from "react-icons/cg";
 import { GiBugNet } from "react-icons/gi";
 import { RxExit } from "react-icons/rx";
 import { RiGeminiFill } from "react-icons/ri";
+import { FaHome } from "react-icons/fa";
 
 
 import { deleteCookie } from "@/server-side/work-with-cookie";
+import Link from "next/link";
 
 
 
@@ -43,12 +45,21 @@ export function SideBar({
                 <SideBarComponent name="Ключи" description="ключи доступа к вашим api" Icon={CgKey} href="/main/keys" />
                 <SideBarComponent name="Баги" description="возникла проблема? - сообщите" Icon={GiBugNet} href="/main/playground" />
             </nav>
-            <nav className="absolute bottom-3 flex flex-row gap-1 items-center text-center">
-                api-manager |
-                <button className="flex flex-row gap-1 items-center text-center" onClick={deleteCookie}>
-                    <RxExit />
-                    Выход
-                </button>
+            <nav className="absolute bottom-3">
+                <div className="flex flex-col gap-3">
+                    <Link className="text-2xl" href={'/main'}>
+                        <FaHome />
+                    </Link>
+
+                    <div className="flex flex-row gap-1 items-center text-center ">
+                        api-manager |
+                        <button className="flex flex-row gap-1 items-center text-center" onClick={deleteCookie}>
+                            <RxExit />
+                            Выход
+                        </button>
+                    </div>
+                </div>
+
             </nav>
         </div>
     )

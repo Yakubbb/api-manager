@@ -1,61 +1,36 @@
-import Image from "next/image";
-import { ChatBlock } from "@/components/chat-block";
-import { IChat, IMessage, IUserContext } from "@/custom-types";
-import { ModelOptionsBar } from "@/components/model-options-bar";
-import { getUserData, getUserIdFromSession } from "@/server-side/database-handler";
-import { cookies } from "next/headers";
+'use server'
+import { BiExpandHorizontal } from "react-icons/bi";
+import { IChat } from "@/custom-types";
+import { TbMoodLookDown } from "react-icons/tb";
+import Markdown from "react-markdown";
+import Link from "next/link";
+import YourChats from "@/components/your-chats";
 
 
-
-const messages = [
+const chats = [
   {
-    id: '1',
-    role: 'user',
-    parts: ['aboba'],
-    time: '11:02',
-    modelTime: 3.3,
-    serverTime: 5.3,
-    name: 'YD'
+    name: 'Шутки про смешариков',
+    desription: 'Артхаусные шутки про смешариков',
+    model: 'gemini-2.0-flash-exp'
   },
   {
-    id: '2',
-    role: 'model',
-    parts: ['boba'],
-    time: '11:02',
-    modelTime: 3.3,
-    serverTime: 5.3,
-    name: 'gpt-3.5'
-  },
-] as IMessage[]
-
-const chat = {
-  ai:'gemini',
-  model:'gemini-pro',
-  name: 'Пример названия чата с Gemini',
-  desription: 'описание 1',
-  messages: messages
-} as IChat
-
-const models = [
-  {
-    name: 'Gemini-2.0-flash-exp',
-    description: 'aboba',
-    value: 'models/gemini-2.0-flash-exp'
+    name: 'Шутки про смешариков',
+    desription: 'Артхаусные шутки про смешариков',
+    model: 'gemini-2.0-flash-exp'
   },
   {
-    name: 'Gemini-pro',
-    description: 'aboba',
-    value: 'models/gemini-pro'
+    name: 'Шутки про смешариков',
+    desription: 'Артхаусные шутки про смешариков',
+    model: 'gemini-2.0-flash-exp'
   }
-]
+] as IChat[]
 
-//        <ModelOptionsBar/>
-export default async function Home() {
+const emptyChats = [] as IChat[]
 
+export default async function MainPageDefault() {
   return (
-    <section className="flex flex-row w-[85%] gap-4">
-      <ChatBlock id="1" chat={chat} isReadonly={false} />
-      <ModelOptionsBar avalibleModels={models} />
+    <section className="flex flex-col h-[100%] w-[80%] gap-5 shrink-0 grow-0 p-2">
+      <YourChats chats={chats} />
     </section>
   );
 }

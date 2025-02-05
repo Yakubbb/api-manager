@@ -1,8 +1,10 @@
 'use server'
-import { MongoClient, ObjectId } from "mongodb";
+import { Collection, MongoClient, ObjectId } from "mongodb";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { hashSync, genSaltSync, compareSync } from "bcrypt-ts";
+import { getUserIdFromSession } from "./database-getter";
+import { IChat } from "@/custom-types";
 
 
 
@@ -11,15 +13,31 @@ const uri = process.env.MONGODB_URI as string
 
 const client = new MongoClient(uri);
 
+export async function getUserFromSession() {
 
-export async function getUserByCredentials(login: string, password: string) {
+    const database = client.db('api-manager')
+    const collection = database.collection('users')
+    const user = await collection.findOne({ _id: new ObjectId(await getUserIdFromSession()) })
+    return user
+}
+
+export async function getUsersCollection() {
+    const database = client.db('api-manager')
+    const collection: Collection<{
+        chats: IChat[]
+    }> = database.collection('users')
+    return collection
+}
+
+
+export async function getUserIdByCredentials(login: string, password: string) {
 
     client.connect()
     const database = client.db("api-manager");
     const collection = database.collection("users");
     const allData = await collection.findOne({ name: login });
 
-    if (allData?._id && compareSync(password,allData?.password)) {
+    if (allData?._id && compareSync(password, allData?.password)) {
         return allData?._id.toString()
     }
     return null
@@ -59,7 +77,7 @@ export async function validateUserCreds(state: any, formData: FormData) {
     if (!login || !password) {
         return { type: 'error', msg: 'введите логин и пароль' }
     }
-    const userId = await getUserByCredentials(login, password)
+    const userId = await getUserIdByCredentials(login, password)
     if (userId) {
         await createSession(userId)
         redirect('/main/playground')
@@ -81,29 +99,6 @@ export async function validateCookie(sessionId: string) {
 
 }
 
-export async function getUserIdFromSession(sessionId: string) {
-
-    client.connect()
-    const database = client.db("api-manager");
-    const collection = database.collection("sessions");
-
-    const session = await collection.findOne({ _id: new ObjectId(sessionId) });
-
-    return session?.user
-
-}
-
-export async function getUserData(userID: string) {
-    client.connect()
-    const database = client.db("api-manager");
-    const collection = database.collection("users");
-    const user = await collection.findOne({ _id: new ObjectId(userID) });
-
-    return user
-
-}
-
-
 export async function createUser(state: any, formData: FormData) {
 
     const login = formData.get('login')?.toString()
@@ -113,8 +108,8 @@ export async function createUser(state: any, formData: FormData) {
         return { type: 'error', msg: 'Введите логин и пароль' }
     }
 
-    
-    const hashedPassword =  hashSync(password, genSaltSync(10))
+
+    const hashedPassword = hashSync(password, genSaltSync(10))
 
     client.connect()
     const database = client.db("api-manager");
