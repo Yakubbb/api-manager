@@ -10,7 +10,7 @@ export default async function ({ chats }: {
     chats: IChat[]
 }) {
     return (
-        <div className="flex flex-col h-full w-[30%] rounded-3xl p-3 bg-[#A9A9A9] right">
+        <div className="flex flex-col h-full w-[30%] rounded-3xl p-3 bg-[#C8C8C8]">
             <p className="flex flex-row text-xl font-semibold mb-3">Ваши чаты с Gemini</p>
             {chats.length == 0 && <div className="mt-[50%] flex flex-col gap-1 self-center items-center text-center text-3xl"><TbMoodLookDown className="text-4xl" /> Здесь пока ничего нет</div>}
             {chats.map((chat, index) => {

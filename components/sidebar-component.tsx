@@ -23,7 +23,7 @@ export function SideBarComponent({
             <div className="flex flex-row items-center gap-1 ">
                 <Icon className="flex-shrink-0" size={20} />
                 <div >
-                    <Link href={href} className="text-xl font-semibold">{name}</Link>
+                    <Link href={href} className="text-xl">{name}</Link>
                 </div>
             </div>
             <div className="flex flex-col text-md ">
