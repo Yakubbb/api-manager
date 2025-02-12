@@ -25,7 +25,7 @@ export default async function MainPageDefault() {
           <p>Так как все запросы идут через сервер организации, работа возможна без VPN из любой части мира</p>
         </div>
         <div className="flex flex-row gap-2">
-          <button className="flex flex-row rounded-xl bg-[#00ff80] text-xl gap-2 h-[5%] w-[20%] text-center items-center p-3" onClick={createChat}>          <RiChatNewLine />
+          <button className="flex flex-row rounded-2xl bg-[#00ff80] text-xl gap-2 h-[5%] w-[20%] text-center items-center p-3" onClick={createChat}>          <RiChatNewLine />
             Новый чат
           </button>
         </div>

@@ -57,3 +57,7 @@ export interface IHistory{
     name:string,
     history:IMessage[]
 }
+
+export interface IApi{
+    name:string
+}
