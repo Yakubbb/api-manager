@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       
       <body>
-        <main className="flex flex-col bg-[#e9ecef] dark:bg-black text-[#363636] dark:text-white h-screen overflow-hidden font-inter">
+        <main className="flex flex-col bg-[#e9ecef] dark:bg-black text-[#363636] dark:text-white h-screen font-inter">
           {children}
         </main>
       </body>

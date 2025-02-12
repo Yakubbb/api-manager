@@ -1,10 +1,10 @@
-
+'use server'
 import { IMessage } from "@/custom-types";
 import { TbServer } from "react-icons/tb";
 import { PiRobotBold } from "react-icons/pi";
 import Markdown from 'react-markdown'
 
-export function ChatMessage({
+export async function ChatMessage({
     messageData
 }: {
     messageData: IMessage

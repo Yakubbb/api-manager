@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { hashSync, genSaltSync, compareSync } from "bcrypt-ts";
 import { getUserIdFromSession } from "./database-getter";
-import { IChat } from "@/custom-types";
+import { IChat, IUser } from "@/custom-types";
+import { convertIChatforFront } from "./chat-handler";
 
 
 
@@ -21,13 +22,36 @@ export async function getUserFromSession() {
     return user
 }
 
-export async function getUsersCollection() {
+export async function getUsersChatsCollection() {
     const database = client.db('api-manager')
     const collection: Collection<{
         chats: IChat[]
     }> = database.collection('users')
     return collection
 }
+
+export async function getChatById(id: string) {
+
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("users");
+
+    const userWithChat = await collection.findOne(
+        {
+            'chats._id': new ObjectId(id)
+        }
+    ) as IUser
+
+    const chat = userWithChat.chats.find((chat) => chat._id.toString() == id)
+    if (chat) {
+        return await convertIChatforFront(chat);
+    }
+    else {
+        return undefined
+    }
+
+}
+
 
 
 export async function getUserIdByCredentials(login: string, password: string) {
@@ -80,7 +104,7 @@ export async function validateUserCreds(state: any, formData: FormData) {
     const userId = await getUserIdByCredentials(login, password)
     if (userId) {
         await createSession(userId)
-        redirect('/main/playground')
+        redirect('/main/')
     }
     return { type: 'error', msg: 'Пользователя с такими данными нет' }
 }

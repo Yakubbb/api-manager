@@ -1,14 +1,17 @@
-'use server'
+'use client'
 import { ChatBlock } from "@/components/chat-block";
-import { IChat, IMessage } from "@/custom-types";
+import { IChat, IChatForFront, IMessage, IModel } from "@/custom-types";
 import { ModelOptionsBar } from "@/components/model-options-bar";
+import { useEffect, useState } from "react";
 
+import { useSearchParams } from 'next/navigation'
+import { getChatById } from "@/server-side/database-handler";
+import getAvalibleModels from "@/server-side/chat-handler";
 
 
 
 const messages = [
   {
-    id: '1',
     role: 'user',
     parts: ['aboba'],
     time: '11:02',
@@ -17,7 +20,6 @@ const messages = [
     name: 'YD'
   },
   {
-    id: '2',
     role: 'model',
     parts: ['boba'],
     time: '11:02',
@@ -27,7 +29,7 @@ const messages = [
   },
 ] as IMessage[]
 
-const chat = {
+const chatt = {
   ai: 'gemini',
   model: 'gemini-pro',
   name: 'Пример названия чата с Gemini',
@@ -35,7 +37,7 @@ const chat = {
   messages: messages
 } as IChat
 
-const models = [
+const modelss = [
   {
     name: 'Gemini-2.0-flash-exp',
     description: 'aboba',
@@ -48,8 +50,25 @@ const models = [
   }
 ]
 
-//        <ModelOptionsBar/>
-export default async function Home() {
+export default function Home() {
+
+  const searchParams = useSearchParams()
+  const chatId = searchParams.get('id')
+
+  const [chat, setChat] = useState<IChatForFront>()
+  const [models, setModels] = useState<IModel[]>()
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const models = await getAvalibleModels()
+      const recivedChat = await getChatById(chatId || '');
+      if (recivedChat) {
+        setChat(recivedChat)
+      }
+    }
+    fetchData()
+  }, [searchParams]);
 
   return (
     <section className="flex flex-row w-[85%] gap-4">
