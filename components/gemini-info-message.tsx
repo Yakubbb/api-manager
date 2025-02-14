@@ -16,7 +16,7 @@ export default function ({
 }) {
     return (
 
-        <div className="flex flex-col rounded-2xl p-3 bg-[#E0E0E0] h-[100%] w-[40%] justify-between">
+        <div className="flex flex-col rounded-2xl p-3 bg-[#E0E0E0] h-[100%] w-[40%] justify-between shadow-[0_3px_10px_rgb(0,0,0,0.2)] ">
             <div className="flex flex-row gap-2 text-xl font-semibold items-center text-center">
                 <Icon />
                 {name}

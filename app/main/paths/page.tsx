@@ -48,7 +48,7 @@ export default function Home() {
   model.addAll(node1, node2);
   engine.setModel(model);
   return (
-    <div className="flex flex-col w-[100%] h-[100%] gap-5 m-2 p-4">
+    <div className="flex flex-col w-[100%] h-[95%] gap-5 m-2 p-4 overflow-hidden">
       <CanvasWidget className=" flex w-[100%] h-[60%] touch-pinch-zoom rounded-xl bg-[#cccccc]" engine={engine} />
       <div className="flex flex-row w-[100%] h-[40%]">
         <div>

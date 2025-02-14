@@ -6,16 +6,17 @@ import { IoIosStats } from "react-icons/io";
 import { CgKey } from "react-icons/cg";
 import { GiBugNet } from "react-icons/gi";
 import { RxExit } from "react-icons/rx";
-import { RiGeminiFill } from "react-icons/ri";
+import { RiChatAiLine, RiGeminiFill } from "react-icons/ri";
 import { FaHome } from "react-icons/fa";
 import { FaProjectDiagram } from "react-icons/fa";
 import { VscLibrary } from "react-icons/vsc";
-
+import { IoIosAddCircleOutline } from "react-icons/io";
 
 import { deleteCookie } from "@/server-side/work-with-cookie";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getChatLinks } from "@/server-side/chat-handler";
+
 
 
 
@@ -50,7 +51,8 @@ export function SideBar({
             if (index < 5) {
                 newSideBarChats.push({
                     name: chat.name,
-                    href: `/main/gemini/chat?id=${chat._id}`
+                    href: `/main/gemini/chat?id=${chat._id}`,
+                    Icon: RiChatAiLine
                 })
             }
         })
@@ -66,7 +68,13 @@ export function SideBar({
         <div className="flex flex-col w-[15%] h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4">
             <nav className="flex flex-col gap-2">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
-                <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" />
+                <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
+                    {
+                        name: 'добавить',
+                        href: '/main/modules/create',
+                        Icon: IoIosAddCircleOutline
+                    }
+                ]} />
                 <SideBarComponent name="Мониторинг" description="посмотрите на работу ваших сервисов" Icon={IoIosStats} href="/main/monitor" />
                 <SideBarComponent name="Ключи" description="ключи доступа к вашим api" Icon={CgKey} href="/main/keys" />
                 <SideBarComponent name="Маршруты" description="ваши api маршруты" Icon={FaProjectDiagram} href="/main/paths" />

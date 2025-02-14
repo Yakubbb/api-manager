@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { hashSync, genSaltSync, compareSync } from "bcrypt-ts";
 import { getUserIdFromSession } from "./database-getter";
-import { IChat, IUser } from "@/custom-types";
+import { IApi, IChat, ITag, IUser } from "@/custom-types";
 import { convertIChatforFront } from "./chat-handler";
 
 
@@ -20,6 +20,27 @@ export async function getUserFromSession() {
     const collection = database.collection('users')
     const user = await collection.findOne({ _id: new ObjectId(await getUserIdFromSession()) })
     return user
+}
+
+export async function addNewModule(module: IApi) {
+    const database = client.db('api-manager')
+    const collection: Collection<IApi> = database.collection('modules')
+    collection.insertOne(module)
+}
+
+export async function getAllTags() {
+    const database = client.db('api-manager')
+    const collection: Collection<{ _id: ObjectId, name: string, color: string }> = database.collection('tags')
+    const frontTags: ITag[] = []
+    const allTags = await collection.find().toArray()
+    allTags.forEach((tag) => {
+        frontTags.push({
+            _id: tag._id.toString(),
+            name: tag.name,
+            color: tag.color
+        })
+    })
+    return frontTags
 }
 
 export async function getUsersChatsCollection() {
