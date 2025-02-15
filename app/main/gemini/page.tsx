@@ -17,8 +17,8 @@ export default async function MainPageDefault() {
     <section className="flex flex-row h-[100%] w-[85%] gap-8 p-2">
       <div className="flex flex-col h-full w-[70%] gap-5">
 
-        <div className="flex flex-col w-[100%] h-[20%] gap-1 rounded-3xl p-4 bg-[#7242f5] text-white-200">
-          <div className="text-xl font-semibold">
+        <div className="flex flex-col w-[100%] h-[20%] gap-1 rounded-3xl p-4 bg-[#7242f5] font-semibold">
+          <div className="text-xl">
             Gemini AI
           </div>
           <p>здесь вы сможете протестировать различные промпты для работы с Gemini.</p>

@@ -11,7 +11,11 @@ export default function ({ options, values, updateValues, deleteValue }: { optio
 
     const handleSelection = (value: ITag) => {
         updateValues(value)
-        setShowOptionsState(false)
+        console.log(options?.length)
+        if (options?.length == 1) {
+            setShowOptionsState(false)
+        }
+
     }
     const handleD = (value: ITag) => {
         deleteValue(value)
@@ -30,14 +34,16 @@ export default function ({ options, values, updateValues, deleteValue }: { optio
                 {showOptionsState && <IoIosArrowUp />}
                 {!showOptionsState && <IoIosArrowDown />}
             </div>
-            <div className="flex flex-col shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl ">
-                {showOptionsState && options?.map((option, index) => {
-                    return (
-                        <div key={index} className="flex justify-between p-4 text-slate-600 hover:cursor-pointer" onClick={() => handleSelection(option)}>
-                            {option.name}
-                        </div>
-                    )
-                })}
+            <div>
+                {showOptionsState &&
+                    <div className="flex flex-wrap shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl overflow-auto gap-1 p-4">
+                        {options?.map((option, index) => {
+                            return (
+                                <Tag key={option._id} value={option} onClick={handleSelection} />
+                            )
+                        })}
+                    </div>
+                }
             </div>
         </div>
     )

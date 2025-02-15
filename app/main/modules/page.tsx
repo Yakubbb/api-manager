@@ -80,6 +80,73 @@ const modules = [
     prewviewPhoto: 'https://i.pinimg.com/474x/96/a5/cf/96a5cfbf4fc22739dbf107766785a341.jpg',
     description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
   },
+  {
+    _id: new ObjectId(),
+    isOficial: false,
+    creatorId: new ObjectId(),
+    name: 'aboba api',
+    inputType: 'text',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
+  },
+  {
+    _id: new ObjectId(),
+    isOficial: true,
+    creatorId: new ObjectId(),
+    name: 'boba api',
+    inputType: 'Photo',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/474x/04/68/ea/0468ea5cac497cc71469bb5608279b61.jpg',
+  },
+  {
+    _id: new ObjectId(),
+    isOficial: true,
+    creatorId: new ObjectId(),
+    name: 'hoba api',
+    inputType: 'text',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
+  },
+  {
+    _id: new ObjectId(),
+    isOficial: false,
+    creatorId: new ObjectId(),
+    name: 'boba api',
+    inputType: 'text',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/474x/20/4d/64/204d648dda6fbed6233046e23d7cd542.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст'
+  },
+  {
+    _id: new ObjectId(),
+    isOficial: true,
+    creatorId: new ObjectId(),
+    name: 'hoba api',
+    inputType: 'Photo',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
+  }, {
+    _id: new ObjectId(),
+    isOficial: true,
+    creatorId: new ObjectId(),
+    name: 'boba api',
+    inputType: 'Fbx',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/474x/04/68/ea/0468ea5cac497cc71469bb5608279b61.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст'
+  },
+  {
+    _id: new ObjectId(),
+    isOficial: true,
+    creatorId: new ObjectId(),
+    name: 'hobaaaaaaaaaaaaaaa api',
+    inputType: 'text',
+    endpoint: 'http://localhost:3000/main/modules',
+    prewviewPhoto: 'https://i.pinimg.com/474x/96/a5/cf/96a5cfbf4fc22739dbf107766785a341.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
+  },
 ] as IApi[]
 
 
