@@ -13,7 +13,7 @@ export default async function MainLayout({
 }>) {
 
   return (
-    <section className="flex flex-row grow-0 w-full h-full gap-4">
+    <section className="flex flex-row w-full h-full gap-4">
       <SideBar userChats={[]} />
       {children}
     </section>

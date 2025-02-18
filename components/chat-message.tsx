@@ -3,41 +3,11 @@ import { IMessage } from "@/custom-types";
 import { FiCopy } from "react-icons/fi";
 import Markdown from 'react-markdown'
 import { useEffect, useState } from "react";
-import { generate2 } from "@/server-side/gemini";
-import { readStreamableValue } from "ai/rsc";
 
 
-export function ClientChatMessage({ message, history, setHistory, thisMessageIndex }:
-    { message: IMessage, history?: IMessage[], setHistory?: (history: IMessage[]) => void, thisMessageIndex: number }) {
+export function ClientChatMessage({ message }: { message: IMessage }) {
 
-    const [messageText, setMessageText] = useState<string>(message.parts[0].text)
-
-    const createMessage = async () => {
-
-        if (!history || !setHistory) {
-            return
-        }
-
-        const { output } = await generate2(history.filter((message, index) => index != thisMessageIndex));
-
-        for await (const delta of readStreamableValue(output)) {
-            console.log(delta)
-            setMessageText(messageText => `${messageText}${delta}`);
-        }
-
-        setHistory([
-            ...history.filter((aboba, index) => index != thisMessageIndex),
-            {
-                role: message.role,
-                parts: [
-                    {
-                        text: messageText
-                    }
-                ],
-                isCreating: false
-            }
-        ])
-    }
+    const [messageText, setMessageText] = useState<{ text: string }>(message.parts[0])
 
 
     const msgType: { [key: string]: string } = {
@@ -46,29 +16,12 @@ export function ClientChatMessage({ message, history, setHistory, thisMessageInd
         'system': ''
     }
 
-
     useEffect(() => {
-        setMessageText(message.parts[0].text)
+        setMessageText(message.parts[0])
 
-        if (message.isCreating) {
-            message.isCreating = false
-            if (setHistory && history) {
-                setHistory([
-                    ...history.filter((aboba, index) => index != thisMessageIndex),
-                    {
-                        role: message.role,
-                        parts: [
-                            {
-                                text: messageText
-                            }
-                        ],
-                        isCreating: false
-                    }
-                ])
-                createMessage()
-            }
-        }
     }, [message])
+
+
 
 
     return (
@@ -77,9 +30,9 @@ export function ClientChatMessage({ message, history, setHistory, thisMessageInd
             <div className="flex flex-wrap text-justify">
                 {message.parts.map((m, index) => {
                     return (
-                        <div className="w-100% h-100% p-2" key={index}>
-                            {messageText}
-                        </div>
+                        <Markdown className="w-100% h-100% p-2" key={index}>
+                            {messageText.text}
+                        </Markdown>
                     )
                 })}
             </div>

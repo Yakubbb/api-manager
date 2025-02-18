@@ -72,13 +72,28 @@ export async function getChatLinks() {
     return frontChats
 }
 
-export async function addMessageToChat(chatId: string, message: IMessage) {
+export async function addMessageToChat(chatId: string, messages: IMessage[]) {
 
     const chats = await getAllUsersChats()
     const user = await getUserFromSession()
     console.log(user)
-    await chats.updateOne({ _id: user?._id }, { $push: { "chats.$[chat].messages": message } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
+
+    messages.forEach(message => {
+        chats.updateOne({ _id: user?._id }, { $push: { "chats.$[chat].messages": message } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
+    })
+}
+
+export async function changeChatName(chatId: string, newName: string) {
+
+    const chats = await getAllUsersChats()
+    const user = await getUserFromSession()
+    console.log(user)
+    chats.updateOne({ _id: user?._id }, { $push: { "chats.$[chat].name": newName } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
+}
 
 
-
+export async function deleteChat(chatId:string) {
+    const chats = await getAllUsersChats()
+    const user = await getUserFromSession()
+    chats.updateOne({ _id: user?._id }, { $pull: { "chats":{ "_id": new ObjectId(chatId) }} })
 }

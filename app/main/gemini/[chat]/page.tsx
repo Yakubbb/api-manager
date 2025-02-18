@@ -47,9 +47,8 @@ export default function Home() {
   }, [searchParams]);
 
   return (
-    <section className="flex flex-row w-[85%] gap-4">
-      {chat && <ChatBlock chat={chat} />}
-      {chat && <ModelOptionsBar avalibleModels={models} />}
+    <section className="flex w-[85%]">
+      {chat && <ChatBlock chat={chat} avalibleModels={models} />}
     </section>
   );
 }

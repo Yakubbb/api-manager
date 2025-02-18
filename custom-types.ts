@@ -10,7 +10,6 @@ export interface IMessage {
             text: string
         }
     ]
-    isCreating: boolean
 }
 
 export interface IUserContext {

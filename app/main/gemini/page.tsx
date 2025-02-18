@@ -12,7 +12,6 @@ import getAvalibleModels, { createChat, getChatLinks } from "@/server-side/chat-
 
 export default async function MainPageDefault() {
   const models = await getAvalibleModels()
-  const chats = await getChatLinks()
   return (
     <section className="flex flex-row h-[100%] w-[85%] gap-8 p-2">
       <div className="flex flex-col h-full w-[70%] gap-5">
@@ -34,7 +33,7 @@ export default async function MainPageDefault() {
           Если вы не хотите хранить ключ у нас, вы всегда можете вводить ключ непосредственно на странице с чатом,
           при обновлении страницы придется вводить его заново
         </div>
-        <div className="flex flex-row h-[40%] w-[100%] gap-6 mt-5">
+        <div className="flex flex-row h-[40%] w-[100%] gap-6 mt-10">
 
           <GeminiInfoMessage
             name="Сессионные ключи"
@@ -58,7 +57,7 @@ export default async function MainPageDefault() {
           />
         </div>
       </div>
-      <YourChats chats={chats} />
+      <YourChats />
     </section>
   );
 }

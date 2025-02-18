@@ -9,8 +9,7 @@ import { TbHexagon3D } from "react-icons/tb";
 import { MdPhotoSizeSelectActual } from "react-icons/md";
 import { TiDocumentText } from "react-icons/ti";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
-import { MdOutlineArrowOutward } from "react-icons/md";
-import { IoMdAdd } from "react-icons/io";
+import { Suspense } from "react";
 
 const modules = [
   {
@@ -166,26 +165,28 @@ export default async function () {
           {modules.map((module, index) => {
             return (
               <Link href={`/main/modules?id=${module._id.toString()}`} className="flex flex-col rounded-xl bg-[#E0E0E0] w-md max-w-xl h-sm group/item p-2 grow  shadow-[0_3px_10px_rgb(0,0,0,0.2)] " key={index}>
-                <Image className=" w-[100%] h-60 oobject-cover rounded-md " src={module.prewviewPhoto!} alt="нет фото : (" width={100} height={100} />
-                <div className="flex justify-between font-semibold text-xl items-center text-justify">
-                  <div className="flex flex-row gap-1 items-center text-justify">
-                    {module.name}
-                    {module.isOficial && <IoShieldCheckmarkSharp className="text-[#26C281]" />}
+                <Suspense>
+                  <Image className=" w-[100%] h-60 oobject-cover rounded-md " src={module.prewviewPhoto!} alt="нет фото : (" width={100} height={100} />
+                  <div className="flex justify-between font-semibold text-xl items-center text-justify">
+                    <div className="flex flex-row gap-1 items-center text-justify">
+                      {module.name}
+                      {module.isOficial && <IoShieldCheckmarkSharp className="text-[#26C281]" />}
+                    </div>
+                    <div className="flex flex-row gap-1 font-normal items-center text-justify ">
+                      {
+                        module.inputType == 'Fbx' && <TbHexagon3D /> ||
+                        module.inputType == 'Photo' && <MdPhotoSizeSelectActual /> ||
+                        module.inputType == 'text' && <TiDocumentText />
+                      }
+                      {
+                        module.inputType
+                      }
+                    </div>
                   </div>
-                  <div className="flex flex-row gap-1 font-normal items-center text-justify ">
-                    {
-                      module.inputType == 'Fbx' && <TbHexagon3D /> ||
-                      module.inputType == 'Photo' && <MdPhotoSizeSelectActual /> ||
-                      module.inputType == 'text' && <TiDocumentText />
-                    }
-                    {
-                      module.inputType
-                    }
+                  <div className="flex text-justify p-2 w-sm grow">
+                    {module.description || 'без описания'}
                   </div>
-                </div>
-                <div className="flex text-justify p-2 w-sm grow">
-                  {module.description || 'без описания'}
-                </div>
+                </Suspense>
               </Link>
             )
           })}

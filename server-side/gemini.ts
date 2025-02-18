@@ -8,6 +8,7 @@ import { IMessage } from '@/custom-types';
 
 
 export async function generate(input: string) {
+    
     console.log('aboba')
     const google = createGoogleGenerativeAI({
         apiKey: process.env.GOOGLE_API_KEY
@@ -32,8 +33,7 @@ export async function generate(input: string) {
     return { output: stream.value };
 }
 
-export async function generate2(input: IMessage[]) {
-    console.log('aboba')
+export async function generate2(history: IMessage[]) {
     const google = createGoogleGenerativeAI({
         apiKey: process.env.GOOGLE_API_KEY
     });
@@ -42,7 +42,7 @@ export async function generate2(input: IMessage[]) {
 
     const messages = [] as CoreMessage[]
 
-    input.forEach(msg => {
+    history.forEach(msg => {
         let role: 'assistant' | 'user' | 'tool' | 'system' = 'assistant'
 
         switch (msg.role) {
@@ -69,9 +69,11 @@ export async function generate2(input: IMessage[]) {
 
     (async () => {
         const { textStream } = streamText({
-            model: google('gemini-pro'),
+            model: google('gemini-1.5-flash'),
             messages: messages,
-            onError: (error) => console.log(error)
+            onError: (error) => {
+                console.log(error)
+            }
         });
 
         for await (const delta of textStream) {

@@ -16,7 +16,7 @@ export default function ({ options, setValue, value }: { options: IModel[], setV
     }
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 relative">
             <div className="flex justify-between  rounded-2xl p-2 items-center hover:cursor-pointer" onClick={() => setShowOptionsState(!showOptionsState)}>
                 {value?.name || 'Выберите модель'}
                 {showOptionsState && <IoIosArrowUp />}
@@ -24,7 +24,7 @@ export default function ({ options, setValue, value }: { options: IModel[], setV
             </div>
             <div>
                 {showOptionsState &&
-                    <div className="flex flex-wrap shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl overflow-auto gap-1 p-4 ">
+                    <div className="flex flex-wrap shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl overflow-auto gap-1 p-4 absolute ">
                         {options?.map((option, index) => {
                             return (
                                 <div key={index} className="flex flex-row gap-1 hover:cursor-pointer hover:bg-[#cccccc] w-[100%] rounded-xl p-3" onClick={() => handleSelection(option)}>
