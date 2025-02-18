@@ -1,68 +1,91 @@
-'use server'
+'use client'
 import { IMessage } from "@/custom-types";
-import { TbServer } from "react-icons/tb";
-import { PiRobotBold } from "react-icons/pi";
+import { FiCopy } from "react-icons/fi";
 import Markdown from 'react-markdown'
+import { useEffect, useState } from "react";
+import { generate2 } from "@/server-side/gemini";
+import { readStreamableValue } from "ai/rsc";
 
-export async function ChatMessage({
-    messageData
-}: {
-    messageData: IMessage
-}) {
-    var element
-    switch (messageData.role) {
-        case 'user':
-            return (<UserMessage messageData={messageData} />)
-        case 'model':
-            return (<BotMessage messageData={messageData} />)
-        default:
-            return (<UserMessage messageData={messageData} />)
+
+export function ClientChatMessage({ message, history, setHistory, thisMessageIndex }:
+    { message: IMessage, history?: IMessage[], setHistory?: (history: IMessage[]) => void, thisMessageIndex: number }) {
+
+    const [messageText, setMessageText] = useState<string>(message.parts[0].text)
+
+    const createMessage = async () => {
+
+        if (!history || !setHistory) {
+            return
+        }
+
+        const { output } = await generate2(history.filter((message, index) => index != thisMessageIndex));
+
+        for await (const delta of readStreamableValue(output)) {
+            console.log(delta)
+            setMessageText(messageText => `${messageText}${delta}`);
+        }
+
+        setHistory([
+            ...history.filter((aboba, index) => index != thisMessageIndex),
+            {
+                role: message.role,
+                parts: [
+                    {
+                        text: messageText
+                    }
+                ],
+                isCreating: false
+            }
+        ])
     }
-}
 
-function UserMessage({
-    messageData
-}: {
-    messageData: IMessage
-}) {
+
+    const msgType: { [key: string]: string } = {
+        'model': 'self-start bg-[#cccccc] rounded-e-xl rounded-es-xl',
+        'user': 'self-end bg-indigo-400 rounded-s-xl rounded-se-xl',
+        'system': ''
+    }
+
+
+    useEffect(() => {
+        setMessageText(message.parts[0].text)
+
+        if (message.isCreating) {
+            message.isCreating = false
+            if (setHistory && history) {
+                setHistory([
+                    ...history.filter((aboba, index) => index != thisMessageIndex),
+                    {
+                        role: message.role,
+                        parts: [
+                            {
+                                text: messageText
+                            }
+                        ],
+                        isCreating: false
+                    }
+                ])
+                createMessage()
+            }
+        }
+    }, [message])
+
+
     return (
-        <article className="flex items-start gap-2.5 self-end max-w-fit">
-            <div className="flex flex-col w-full  leading-1.5 p-4 border-gray-200 rounded-s-xl rounded-se-xl bg-indigo-400">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span className="text-sm font-semibold">{messageData.name}</span>
-                    <span className="text-sm font-normal">{messageData.time}</span>
-                </div>
-                <div className="text-md font-normal py-2.5 text-lg">{messageData.parts.map((part) => {
-                    return (<Markdown key={part}>{part}</Markdown>)
-                })}</div>
+        <div className={`flex flex-col min-w-20 max-w-xl p-2 ${msgType[message.role]}`}>
+
+            <div className="flex flex-wrap text-justify">
+                {message.parts.map((m, index) => {
+                    return (
+                        <div className="w-100% h-100% p-2" key={index}>
+                            {messageText}
+                        </div>
+                    )
+                })}
             </div>
-            <img className="size-9 self-end flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/81/05/56/810556c228c093f06deea98a4c2081a9.jpg" alt="profile pic" />
-        </article>
-    )
-}
 
-function BotMessage({
-    messageData
-}: {
-    messageData: IMessage
-}) {
-    return (
-        <div className="max-w-fit">
-            <article className="flex items-start gap-2.5 self-start">
-                <img className="size-9 self-start flex-none object-cover rounded-full" src="https://i.pinimg.com/736x/d6/dc/58/d6dc586bbc300a71b307fd980f0be89e.jpg" alt="profile pic" />
-                <div className="flex flex-col w-full leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                        <span className="text-sm font-semibold">{messageData.name}</span>
-                        <span className="text-sm font-normal ">{messageData.time}</span>
-                    </div>
-                    <div className="text-md font-normal py-2.5 text-lg">{messageData.parts.map((part) => {
-                        return (<Markdown key={part}>{part}</Markdown>)
-                    })}</div>
-                </div>
-            </article>
-            <div className="flex flex-row pl-11 text-center items-center gap-1">
-                <TbServer />{messageData.serverTime + " sec"}
-                <PiRobotBold />{messageData.modelTime + " sec"}
+            <div className="flex justify-end w-[100%] p-2 text-xl ">
+                <FiCopy className="flex self-end" />
             </div>
         </div>
     )

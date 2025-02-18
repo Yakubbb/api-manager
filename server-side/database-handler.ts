@@ -43,7 +43,7 @@ export async function getAllTags() {
     return frontTags
 }
 
-export async function getUsersChatsCollection() {
+export async function getAllUsersChats() {
     const database = client.db('api-manager')
     const collection: Collection<{
         chats: IChat[]
@@ -51,7 +51,7 @@ export async function getUsersChatsCollection() {
     return collection
 }
 
-export async function getChatById(id: string) {
+export async function getChatForFrontById(id: string) {
 
     client.connect()
     const database = client.db("api-manager");

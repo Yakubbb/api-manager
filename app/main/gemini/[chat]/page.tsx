@@ -5,37 +5,8 @@ import { ModelOptionsBar } from "@/components/model-options-bar";
 import { useEffect, useState } from "react";
 
 import { useSearchParams } from 'next/navigation'
-import { getChatById } from "@/server-side/database-handler";
+import { getChatForFrontById } from "@/server-side/database-handler";
 import getAvalibleModels from "@/server-side/chat-handler";
-
-
-
-const messages = [
-  {
-    role: 'user',
-    parts: ['aboba'],
-    time: '11:02',
-    modelTime: 3.3,
-    serverTime: 5.3,
-    name: 'YD'
-  },
-  {
-    role: 'model',
-    parts: ['boba'],
-    time: '11:02',
-    modelTime: 3.3,
-    serverTime: 5.3,
-    name: 'gpt-3.5'
-  },
-] as IMessage[]
-
-const chatt = {
-  ai: 'gemini',
-  model: 'gemini-pro',
-  name: 'Пример названия чата с Gemini',
-  desription: 'описание 1',
-  messages: messages
-} as IChat
 
 const modelss = [
   {
@@ -53,7 +24,6 @@ const modelss = [
 export default function Home() {
 
   const searchParams = useSearchParams()
-  const chatId = searchParams.get('id')
 
   const [chat, setChat] = useState<IChatForFront>()
   const [models, setModels] = useState<IModel[]>()
@@ -61,19 +31,25 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const models = await getAvalibleModels()
-      const recivedChat = await getChatById(chatId || '');
-      if (recivedChat) {
-        setChat(recivedChat)
+      const id = searchParams.get('id')
+      if (id) {
+        const models = await getAvalibleModels()
+        const recivedChat = await getChatForFrontById(id);
+        if (recivedChat) {
+          console.log(recivedChat)
+          setChat(recivedChat)
+          setModels(models)
+        }
       }
+
     }
     fetchData()
   }, [searchParams]);
 
   return (
     <section className="flex flex-row w-[85%] gap-4">
-      <ChatBlock id="1" chat={chat} isReadonly={false} />
-      <ModelOptionsBar avalibleModels={models} />
+      {chat && <ChatBlock chat={chat} />}
+      {chat && <ModelOptionsBar avalibleModels={models} />}
     </section>
   );
 }

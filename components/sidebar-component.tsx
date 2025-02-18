@@ -30,20 +30,26 @@ export function SideBarComponent({
     const params = useSearchParams()
     const id = params.get('id') || 'none'
 
+
     return (
         <div className={`flex flex-col`}>
             <div className={`flex flex-row items-center gap-1 ${(pathname == href || pathname == `${href}/chat`) && 'bg-[#cccccc]'} rounded-2xl w-[100%] p-1 hover:bg-[#cccccc]`}>
                 <Icon className="flex-shrink-0" size={20} />
                 <div className="flex justify-between gap-1 items-center">
                     <Link href={href} className="text-xl">{name}</Link>
-                    {children && displayChildren && <IoIosArrowUp onClick={() => setDisplayChildren(false)} />}
-                    {children && !displayChildren && <IoIosArrowDown onClick={() => setDisplayChildren(true)} />}
+                    {children && displayChildren && children.length > 0 && <IoIosArrowUp onClick={() => setDisplayChildren(false)} />}
+                    {children && !displayChildren && children.length > 0 && <IoIosArrowDown onClick={() => setDisplayChildren(true)} />}
                 </div>
             </div>
             <div className="flex flex-col text-justify text-md mt-2 mb-2">
                 {displayChildren && children?.map((element, index) => {
+                    let classN = 'flex flex-row gap-1 items-center text-center pl-6 text-slate-700 rounded-[6px] hover:bg-[#7242f5]'
+
+                    if (`${pathname}?id=${id}` == element.href || `${pathname}` == element.href) {
+                        classN = `${classN} bg-[#7242f5]`
+                    }
                     return (
-                        <Link key={index} href={element.href} className={`${`${pathname}?id=${id}` == element.href || `${pathname}` == element.href && 'bg-[#7242f5]'} flex flex-row gap-1 items-center text-center pl-6 text-slate-700 rounded-[6px] hover:bg-[#7242f5]`}>
+                        <Link key={index} href={element.href} className={classN}>
                             <element.Icon />
                             {element.name}
                         </Link>)

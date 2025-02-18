@@ -4,12 +4,13 @@ import { ObjectId } from "mongodb"
 import { IconType } from "react-icons"
 
 export interface IMessage {
-    role: 'system' | 'user' | 'model'
-    parts: string[]
-    time: string
-    modelTime: number
-    serverTime: number
-    name: string
+    role: 'system' | 'user' | 'model' | 'tool'
+    parts: [
+        {
+            text: string
+        }
+    ]
+    isCreating: boolean
 }
 
 export interface IUserContext {
@@ -74,16 +75,16 @@ export interface IApi {
 }
 
 
-export interface ITag{
+export interface ITag {
     _id: string
     name: string,
     color: string
 }
 
 export interface IUserDisplayInfo {
-    id:string,
-    name:string,
-    avatar?:string
-    accesLevels?:string[],
+    id: string,
+    name: string,
+    avatar?: string
+    accesLevels?: string[],
 }
 

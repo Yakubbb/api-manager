@@ -1,7 +1,7 @@
 'use server'
 import { IChat, IChatForFront, IMessage, IModel } from "@/custom-types";
 import { MongoClient, ObjectId } from "mongodb";
-import { getUserFromSession, getUsersChatsCollection } from "./database-handler";
+import { getUserFromSession, getAllUsersChats } from "./database-handler";
 import { redirect } from "next/navigation";
 
 
@@ -23,7 +23,7 @@ export async function createChat(event: any) {
         messages: messages
     } as IChat
 
-    const users = await getUsersChatsCollection()
+    const users = await getAllUsersChats()
     const createdChat = await users.updateOne({ _id: user?._id }, { $push: { chats: newChat } })
     console.log(createdChat)
     redirect(`/main/gemini/chat?id=${newChatId.toString()}`)
@@ -62,7 +62,7 @@ export default async function getAvalibleModels(): Promise<IModel[]> {
 
 export async function getChatLinks() {
     const user = await getUserFromSession()
-    const users = await getUsersChatsCollection()
+    const users = await getAllUsersChats()
     const userChats = await users.findOne({ _id: user?._id })
     const frontChats = [] as IChatForFront[]
 
@@ -70,4 +70,15 @@ export async function getChatLinks() {
         frontChats.push(await convertIChatforFront(chat))
     })
     return frontChats
+}
+
+export async function addMessageToChat(chatId: string, message: IMessage) {
+
+    const chats = await getAllUsersChats()
+    const user = await getUserFromSession()
+    console.log(user)
+    await chats.updateOne({ _id: user?._id }, { $push: { "chats.$[chat].messages": message } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
+
+
+
 }

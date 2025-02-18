@@ -16,6 +16,7 @@ import { deleteCookie } from "@/server-side/work-with-cookie";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getChatLinks } from "@/server-side/chat-handler";
+import { useSearchParams } from "next/navigation";
 
 
 
@@ -43,6 +44,7 @@ export function SideBar({
 }) {
 
     const [sidebarChats, setSidebarChats] = useState<ISidebarChildren[]>([])
+    const searchParams = useSearchParams()
 
     const updateChats = async () => {
         const chats = await getChatLinks()
@@ -62,7 +64,7 @@ export function SideBar({
 
     useEffect(() => {
         updateChats()
-    }, []);
+    }, [searchParams]);
 
     return (
         <div className="flex flex-col w-[15%] h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4">
