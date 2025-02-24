@@ -16,7 +16,7 @@ export default async function MainPageDefault() {
     <section className="flex flex-row h-[100%] w-[85%] gap-8 p-2">
       <div className="flex flex-col h-full w-[70%] gap-5">
 
-        <div className="flex flex-col w-[100%] h-[20%] gap-1 rounded-3xl p-4 bg-[#7242f5] font-semibold">
+        <div className="flex flex-col w-[100%] h-[20%] gap-1 rounded-3xl p-4 bg-[#7242f5] font-semibold text-[#e9ecef]">
           <div className="text-xl">
             Gemini AI
           </div>
@@ -24,7 +24,7 @@ export default async function MainPageDefault() {
           <p>Так как все запросы идут через сервер организации, работа возможна без VPN из любой части мира</p>
         </div>
         <div className="flex flex-row gap-2">
-          <button className="flex flex-row rounded-2xl bg-[#00ff80] text-xl gap-2 h-[5%] w-[20%] text-center items-center p-3" onClick={createChat}>          <RiChatNewLine />
+          <button className="flex flex-row rounded-xl bg-[#00ff80] text-xl gap-2 size-xs text-center items-center p-2" onClick={createChat}>          <RiChatNewLine />
             Новый чат
           </button>
         </div>

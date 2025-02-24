@@ -1,8 +1,3 @@
-import { IMessage } from "@/custom-types";
-import { ChatMessage } from "./chat-message";
-import { GiShamblingZombie } from "react-icons/gi";
-import { CiUser } from "react-icons/ci";
-
 export function MainHeader({
 
 }: {

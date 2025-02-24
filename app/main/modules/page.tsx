@@ -19,7 +19,7 @@ const modules = [
     name: 'aboba api',
     inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
+    prewviewPhoto: 'https://i.pinimg.com/736x/57/4c/06/574c061aaae7f2f6177986cf8c71d439.jpg',
   },
   {
     _id: new ObjectId(),
@@ -28,56 +28,8 @@ const modules = [
     name: 'boba api',
     inputType: 'Photo',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/04/68/ea/0468ea5cac497cc71469bb5608279b61.jpg',
-  },
-  {
-    _id: new ObjectId(),
-    isOficial: true,
-    creatorId: new ObjectId(),
-    name: 'hoba api',
-    inputType: 'text',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
-  },
-  {
-    _id: new ObjectId(),
-    isOficial: false,
-    creatorId: new ObjectId(),
-    name: 'boba api',
-    inputType: 'text',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/20/4d/64/204d648dda6fbed6233046e23d7cd542.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст'
-  },
-  {
-    _id: new ObjectId(),
-    isOficial: true,
-    creatorId: new ObjectId(),
-    name: 'hoba api',
-    inputType: 'Photo',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
-  }, {
-    _id: new ObjectId(),
-    isOficial: true,
-    creatorId: new ObjectId(),
-    name: 'boba api',
-    inputType: 'Fbx',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/04/68/ea/0468ea5cac497cc71469bb5608279b61.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст'
-  },
-  {
-    _id: new ObjectId(),
-    isOficial: true,
-    creatorId: new ObjectId(),
-    name: 'hobaaaaaaaaaaaaaaa api',
-    inputType: 'text',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/96/a5/cf/96a5cfbf4fc22739dbf107766785a341.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
+    prewviewPhoto: 'https://i.pinimg.com/474x/ec/4e/db/ec4edbdfecb6c60f4d91a495b5fc2ce2.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст'
   },
   {
     _id: new ObjectId(),
@@ -86,7 +38,7 @@ const modules = [
     name: 'aboba api',
     inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
+    prewviewPhoto: 'https://i.pinimg.com/474x/31/3d/3c/313d3c942e1dad95f5149c7a5e27c9f6.jpg',
   },
   {
     _id: new ObjectId(),
@@ -95,56 +47,35 @@ const modules = [
     name: 'boba api',
     inputType: 'Photo',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/04/68/ea/0468ea5cac497cc71469bb5608279b61.jpg',
-  },
-  {
-    _id: new ObjectId(),
-    isOficial: true,
-    creatorId: new ObjectId(),
-    name: 'hoba api',
-    inputType: 'text',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
+    prewviewPhoto: 'https://i.pinimg.com/474x/28/0b/14/280b14841159ed7540df35b72ff2174a.jpg',
+    description: 'текст текст текст текст текст текст текст текст текст текст текст текст'
   },
   {
     _id: new ObjectId(),
     isOficial: false,
     creatorId: new ObjectId(),
-    name: 'boba api',
+    name: 'aboba api',
     inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/20/4d/64/204d648dda6fbed6233046e23d7cd542.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст'
+    prewviewPhoto: 'https://i.pinimg.com/474x/a5/eb/39/a5eb394261c167f92cacad15a48b2666.jpg',
   },
   {
     _id: new ObjectId(),
-    isOficial: true,
+    isOficial: false,
     creatorId: new ObjectId(),
-    name: 'hoba api',
-    inputType: 'Photo',
+    name: 'aboba api',
+    inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/736x/21/99/6c/21996cafd2ab9d2a40166bfef7d78e29.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
-  }, {
-    _id: new ObjectId(),
-    isOficial: true,
-    creatorId: new ObjectId(),
-    name: 'boba api',
-    inputType: 'Fbx',
-    endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/04/68/ea/0468ea5cac497cc71469bb5608279b61.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст'
+    prewviewPhoto: 'https://i.pinimg.com/474x/b3/07/f4/b307f48f85a4a32502e2f509a3aa8c6d.jpg',
   },
   {
     _id: new ObjectId(),
-    isOficial: true,
+    isOficial: false,
     creatorId: new ObjectId(),
-    name: 'hobaaaaaaaaaaaaaaa api',
+    name: 'aboba api',
     inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/96/a5/cf/96a5cfbf4fc22739dbf107766785a341.jpg',
-    description: 'текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст  текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст'
+    prewviewPhoto: 'https://i.pinimg.com/474x/04/de/fa/04defa539418b359d16f0f069e959200.jpg',
   },
 ] as IApi[]
 
@@ -155,12 +86,12 @@ const imageLoader = ({ src, width, quality }: any) => {
 
 export default async function () {
   return (
-    <div className="flex flex-col w-[100%] h-[100%] items-center p-4">
-      <div className="flex flex-row shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl  w-[40%] p-1 mb-1 bg-transparent text-xl items-center">
-        <IoIosSearch />
-        <input className="focus:outline-none select-none flex bg-transparent items-center pl-3 p-1" placeholder="поиск" type="text" ></input>
-      </div>
-      <div className="flex flex-col w-[100%] h-[100%] overflow-auto">
+    <div className="flex flex-col w-[100%] h-[100%] items-center ">
+      <div className="flex flex-col w-[100%] h-[100%] p-4 overflow-auto">
+        <div className="sticky top-0 flex flex-row shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl  w-[40%] p-1 bg-transparent text-xl items-center bg-white self-center">
+          <IoIosSearch />
+          <input className="focus:outline-none select-none flex bg-transparent items-center pl-3 p-1" placeholder="поиск" type="text" ></input>
+        </div>
         <div className="flex flex-wrap gap-3 p-5 self-center">
           {modules.map((module, index) => {
             return (
@@ -183,9 +114,11 @@ export default async function () {
                       }
                     </div>
                   </div>
+                  {module.description && 
                   <div className="flex text-justify p-2 w-sm grow">
-                    {module.description || 'без описания'}
+                    {module.description}
                   </div>
+                  }
                 </Suspense>
               </Link>
             )

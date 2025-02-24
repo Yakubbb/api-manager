@@ -10,6 +10,11 @@ export interface IMessage {
             text: string
         }
     ]
+    isCreating?: boolean
+    error?: string
+    model?: string
+    person?: string
+    time?: string
 }
 
 export interface IUserContext {
@@ -85,5 +90,30 @@ export interface IUserDisplayInfo {
     name: string,
     avatar?: string
     accesLevels?: string[],
+}
+
+
+export interface IPerson {
+    id: ObjectId,
+    name: string,
+    avatar?: string,
+    description?: string
+    tags?: ITag[]
+}
+
+
+export interface IDiagramModule {
+    name: 'aboba',
+    inputs: {
+        name: string,
+        type: 'text' | 'Fbx' | 'Photo'
+        value?: any
+    }[],
+    outputs:
+    {
+        name: string,
+        type: 'text' | 'Fbx' | 'Photo'
+        value?: any
+    }[],
 }
 

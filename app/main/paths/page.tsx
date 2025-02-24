@@ -1,69 +1,102 @@
-"use client"
-import { BaseEntityEvent, BaseEvent, CanvasWidget, DiagramListener, LinkModelListener } from "@projectstorm/react-diagrams";
+'use client'
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  MiniMap,
+  Controls,
+  Background,
+  BackgroundVariant,
+} from '@xyflow/react';
 
-import createEngine, {
-  DefaultLinkModel,
-  DefaultNodeModel,
-  DiagramModel
-} from '@projectstorm/react-diagrams';
+import '@xyflow/react/dist/base.css';
+import { CustomNode } from '@/diagramComponents/moduleComponent';
+import { IDiagramModule } from '@/custom-types';
 
-//        <ModelOptionsBar/>
-export default function Home() {
+const nodeTypes = {
+  custom: CustomNode,
+};
 
-  const engine = createEngine();
-  const node1 = new DefaultNodeModel({
-    id: '1',
-    name: 'Node 1',
-    color: 'rgb(103, 103, 103)',
-
-  });
-  node1.setPosition(100, 100);
-  let port1 = node1.addOutPort('Out');
-
-  const node2 = new DefaultNodeModel({
-    id: '2',
-    name: 'Node 2',
-    color: 'rgb(243, 0, 0)',
-  });
-  node2.setPosition(100, 200);
-
-  let port2 = node2.addOutPort('Out');
-  let port3 = node2.addInPort('in');
-
-
-
-
-  const model = new DiagramModel();
-
-  model.registerListener({
-    linksUpdated: (event) => {
-      event.link.registerListener({
-        targetPortChanged: (event) => {
-          console.log(event.port?.getParent().getOptions().name);
-        }
-      } as LinkModelListener)
+const m: IDiagramModule = {
+  name: 'aboba',
+  inputs: [
+    {
+      name: 'key',
+      type: 'Photo',
+      value: 'aboba'
+    },
+    {
+      name: 'prompt',
+      type: 'text',
+      value: 'aboba'
+    },
+    {
+      name: 'sys',
+      type: 'Fbx',
+      value: 'aboba'
     }
-  } as DiagramListener)
+  ],
+  outputs: [
+    {
+      name: 'id',
+      type: 'text',
+      value: 'aboba'
+    }
+  ]
+}
 
-  model.addAll(node1, node2);
-  engine.setModel(model);
+const initNodes = [
+  {
+    id: '1',
+    type: 'custom',
+    data: m,
+    position: { x: 0, y: 50 },
+  },
+  {
+    id: '2',
+    type: 'custom',
+    data: m,
+
+    position: { x: -200, y: 200 },
+  },
+  {
+    id: '3',
+    type: 'custom',
+    data: m,
+    position: { x: 200, y: 200 },
+  },
+];
+
+
+export default function () {
+  const [nodes, setNodes, onNodesChange] = useNodesState<any>(initNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
+
+  const onConnect = useCallback(
+    (params: any) => {
+      setEdges((eds) => addEdge(params, eds))
+    },
+    [],
+  );
+
+
   return (
-    <div className="flex flex-col w-[100%] h-[95%] gap-5 m-2 p-4 overflow-hidden">
-      <CanvasWidget className=" flex w-[100%] h-[60%] touch-pinch-zoom rounded-xl bg-[#cccccc]" engine={engine} />
-      <div className="flex flex-row w-[100%] h-[40%]">
-        <div>
-          Описание
-        </div>
-        <div>
-          Описание
-        </div>
-        <div>
-          Описание
-        </div>
-        <div>
-          Описание
-        </div>
+    <div className='w-[100%] h-[100%] p-4 '>
+      <div className='w-[100%] h-[60%] bg-neutral-300 rounded-md'>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          fitView
+        >
+          <Controls />
+        </ReactFlow>
       </div>
     </div>
   );
-}
+};

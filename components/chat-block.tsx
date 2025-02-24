@@ -9,6 +9,7 @@ import { generate2 } from "@/server-side/gemini";
 import { readStreamableValue } from "ai/rsc";
 import { ModelOptionsBar } from "./model-options-bar";
 
+
 export function ChatBlock({
     chat,
     avalibleModels,
@@ -20,6 +21,7 @@ export function ChatBlock({
     const [messages, setMessages] = useState<IMessage[]>([])
 
     const [currentBotMessage, setCurrentBotMessage] = useState<IMessage>()
+    const [model, setModel] = useState<IModel>()
     const [currentBotMessageText, setCurrentBotMessageText] = useState<string>()
 
     const [chatName, setChatName] = useState<string>('')
@@ -30,15 +32,20 @@ export function ChatBlock({
 
         console.log(messages)
 
-        const { output } = await generate2(messages.concat([lastQuestion]));
+        const history = messages.concat([lastQuestion]).filter(msg => msg.error == undefined && msg.parts[0].text != '')
+        const selectedModel = model
+
+
+        const { output } = await generate2(history, 'gemini-2.0-flash', 2, '', [] as IMessage[]);
 
         let newMSg = botMessage
         let currentText = ''
 
         for await (const delta of readStreamableValue(output)) {
 
-
-            currentText = `${currentText}${delta}`;
+            if (delta?.type != 'error') {
+                currentText = `${currentText}${delta?.msg}`;
+            }
 
             newMSg = {
                 role: 'model',
@@ -46,14 +53,19 @@ export function ChatBlock({
                     {
                         text: currentText
                     }
-                ]
+                ],
+                isCreating: true,
+                model: delta?.model,
+                person: delta?.person,
+                error: delta?.type == 'error' ? delta.msg : undefined
             } as IMessage
 
             setCurrentBotMessage(newMSg)
             console.log(currentText)
         }
-        setCurrentBotMessage(undefined)
 
+        setCurrentBotMessage(undefined)
+        newMSg.isCreating = false
         const newMessages = [...messages.concat([lastQuestion]), newMSg]
 
         setMessages(newMessages)
@@ -73,6 +85,13 @@ export function ChatBlock({
         container.current?.scrollTo(0, scrollHeight)
 
     }, [messages])
+
+    useEffect(() => {
+
+        const { scrollHeight } = container.current as HTMLDivElement
+        container.current?.scrollTo(0, scrollHeight)
+
+    }, [currentBotMessage])
 
     const logeega = async (event: FormData) => {
         const msg = event.get('msg')?.toString()
@@ -134,7 +153,7 @@ export function ChatBlock({
                 </div>
                 <div className="pt-3 gap-10 w-full">
                     <form className="flex justify-between shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl p-4 mb-2 " action={logeega}>
-                        <input name="msg" className="  text-xl focus:outline-none select-none flex bg-transparent w-11/12 items-center   " placeholder="привет мир!" type="text" />
+                        <input name="msg" className="  text-xl focus:outline-none select-none flex bg-transparent w-11/12 items-center   " placeholder="привет мир!" type="text" autoComplete="off" />
                         <button type="submit" className="flex flex-row select-none bg-transparent text-center items-center">
                             <IoMdSend className="flex text-[#7242f5]" size={30} />
                         </button>

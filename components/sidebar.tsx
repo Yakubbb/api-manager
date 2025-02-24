@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getChatLinks } from "@/server-side/chat-handler";
 import { useSearchParams } from "next/navigation";
+import { RiMessage3Line } from "react-icons/ri";
 
 
 
@@ -54,7 +55,7 @@ export function SideBar({
                 newSideBarChats.push({
                     name: chat.name,
                     href: `/main/gemini/chat?id=${chat._id}`,
-                    Icon: RiChatAiLine
+                    Icon: RiMessage3Line
                 })
             }
         })

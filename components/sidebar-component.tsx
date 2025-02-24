@@ -2,9 +2,6 @@
 import { ISidebarChildren } from "@/custom-types";
 import { IconType } from "react-icons";
 import Link from "next/link";
-import { TbRobot } from "react-icons/tb";
-import { FaRobot } from "react-icons/fa6";
-import { RiChatAiLine } from "react-icons/ri";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -43,10 +40,11 @@ export function SideBarComponent({
             </div>
             <div className="flex flex-col text-justify text-md mt-2 mb-2">
                 {displayChildren && children?.map((element, index) => {
-                    let classN = 'flex flex-row gap-1 items-center text-center pl-6 text-slate-700 rounded-[6px] hover:bg-[#7242f5]'
+                    let classN = 'flex flex-row gap-1 items-center text-center pl-6 rounded-[6px] hover:bg-[#7242f5] hover:text-[#e9ecef]'
 
                     if (`${pathname}?id=${id}` == element.href || `${pathname}` == element.href) {
-                        classN = `${classN} bg-[#7242f5]`
+                        classN = `${classN} bg-[#7242f5] text-[#e9ecef]`
+                        console.log(element.name)
                     }
                     return (
                         <Link key={index} href={element.href} className={classN}>

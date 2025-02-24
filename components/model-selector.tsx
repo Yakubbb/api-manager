@@ -24,7 +24,7 @@ export default function ({ options, setValue, value }: { options: IModel[], setV
             </div>
             <div>
                 {showOptionsState &&
-                    <div className="flex flex-wrap shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl overflow-auto gap-1 p-4 absolute ">
+                    <div className="flex flex-wrap shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-2xl overflow-auto gap-1 p-4 absolute backdrop-blur-xl ">
                         {options?.map((option, index) => {
                             return (
                                 <div key={index} className="flex flex-row gap-1 hover:cursor-pointer hover:bg-[#cccccc] w-[100%] rounded-xl p-3" onClick={() => handleSelection(option)}>

@@ -15,4 +15,5 @@ export default {
     },
   },
   plugins: [require('tailwindcss-font-inter')],
+  important: true,
 } satisfies Config;

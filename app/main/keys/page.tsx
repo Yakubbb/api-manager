@@ -29,9 +29,9 @@ export default function Home() {
       <div>
         <div className="flex flex-row gap-2 text-3xl font-bold items-center">
           <LuCookie />
-          Сессионные ключи
+          Ваши сессионные ключи
         </div>
-        <div className="flex flex-wrap gap-2 p-2">
+        <div className="flex flex-col gap-2 p-2">
           {keys.map((key, index) => {
             return (
               <div key={index} className="p-3 h-xl w-xl rounded-2xl bg-[#E0E0E0]">
@@ -39,7 +39,9 @@ export default function Home() {
                   <div className="font-semibold">
                     Название сервиса:
                   </div>
-                  {key.name}
+                  <div>
+                    {key.name}
+                  </div>
                 </div>
                 <div className="flex flex-row gap-1">
                   <div className="font-semibold">
