@@ -5,11 +5,10 @@ import { ObjectId } from "mongodb";
 import Image from "next/image";
 import Link from "next/link";
 import { IoIosSearch } from "react-icons/io";
-import { TbHexagon3D } from "react-icons/tb";
-import { MdPhotoSizeSelectActual } from "react-icons/md";
-import { TiDocumentText } from "react-icons/ti";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
 import { Suspense } from "react";
+import { typesStyles } from "@/custom-constants";
+import { ImFileEmpty } from "react-icons/im";
 
 const modules = [
   {
@@ -26,7 +25,7 @@ const modules = [
     isOficial: true,
     creatorId: new ObjectId(),
     name: 'boba api',
-    inputType: 'Photo',
+    inputType: 'photo',
     endpoint: 'http://localhost:3000/main/modules',
     prewviewPhoto: 'https://i.pinimg.com/474x/ec/4e/db/ec4edbdfecb6c60f4d91a495b5fc2ce2.jpg',
     description: 'текст текст текст текст текст текст текст текст текст текст текст текст'
@@ -45,7 +44,7 @@ const modules = [
     isOficial: true,
     creatorId: new ObjectId(),
     name: 'boba api',
-    inputType: 'Photo',
+    inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
     prewviewPhoto: 'https://i.pinimg.com/474x/28/0b/14/280b14841159ed7540df35b72ff2174a.jpg',
     description: 'текст текст текст текст текст текст текст текст текст текст текст текст'
@@ -94,6 +93,10 @@ export default async function () {
         </div>
         <div className="flex flex-wrap gap-3 p-5 self-center">
           {modules.map((module, index) => {
+            let Icon = ImFileEmpty
+            if (typesStyles[module.inputType]) {
+              Icon = typesStyles[module.inputType].Icon
+            }
             return (
               <Link href={`/main/modules?id=${module._id.toString()}`} className="flex flex-col rounded-xl bg-[#E0E0E0] w-md max-w-xl h-sm group/item p-2 grow  shadow-[0_3px_10px_rgb(0,0,0,0.2)] " key={index}>
                 <Suspense>
@@ -105,19 +108,17 @@ export default async function () {
                     </div>
                     <div className="flex flex-row gap-1 font-normal items-center text-justify ">
                       {
-                        module.inputType == 'Fbx' && <TbHexagon3D /> ||
-                        module.inputType == 'Photo' && <MdPhotoSizeSelectActual /> ||
-                        module.inputType == 'text' && <TiDocumentText />
+                        <Icon />
                       }
                       {
                         module.inputType
                       }
                     </div>
                   </div>
-                  {module.description && 
-                  <div className="flex text-justify p-2 w-sm grow">
-                    {module.description}
-                  </div>
+                  {module.description &&
+                    <div className="flex text-justify p-2 w-sm grow">
+                      {module.description}
+                    </div>
                   }
                 </Suspense>
               </Link>

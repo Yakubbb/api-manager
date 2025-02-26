@@ -2,6 +2,10 @@
 
 import { ObjectId } from "mongodb"
 import { IconType } from "react-icons"
+import { MdPhotoSizeSelectActual } from "react-icons/md"
+import { TbHexagon3D } from "react-icons/tb"
+import { TiDocumentText } from "react-icons/ti"
+import { CgKey } from "react-icons/cg";
 
 export interface IMessage {
     role: 'system' | 'user' | 'model' | 'tool'
@@ -74,7 +78,7 @@ export interface IApi {
     descPhotos?: string[]
     description?: string
     color?: string
-    inputType: 'text' | 'Fbx' | 'Photo'
+    inputType: string
     endpoint: string
 }
 
@@ -106,14 +110,20 @@ export interface IDiagramModule {
     name: 'aboba',
     inputs: {
         name: string,
-        type: 'text' | 'Fbx' | 'Photo'
+        type: string
         value?: any
     }[],
     outputs:
     {
         name: string,
-        type: 'text' | 'Fbx' | 'Photo'
+        type: string
         value?: any
     }[],
 }
+
+export interface DataType {
+    style: string,
+    Icon: IconType
+}
+
 

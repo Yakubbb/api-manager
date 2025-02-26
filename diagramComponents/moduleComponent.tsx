@@ -7,16 +7,10 @@ import { TbHexagon3D } from 'react-icons/tb';
 import { IconType } from 'react-icons';
 import { MdPhotoSizeSelectActual } from 'react-icons/md';
 import { TiDocumentText } from 'react-icons/ti';
+import { typesStyles } from '@/custom-constants';
 
 
-
-const typesStyles: { [key: string]: { style: string, Icon: IconType } } = {
-    "text": { style: '#c67a1c', Icon: TiDocumentText },
-    "Photo": { style: '#19a15f', Icon: MdPhotoSizeSelectActual },
-    "Fbx": { style: '#0077ff', Icon: TbHexagon3D },
-}
-
-function CustomInputHandle({ onChange, inp }:
+export function CustomInputHandle({ onChange, inp }:
     {
         id: string,
         onChange: (node: any) => void,
@@ -71,7 +65,7 @@ function CustomInputHandle({ onChange, inp }:
     );
 }
 
-function CustomOutputHandle({ out }:
+export function CustomOutputHandle({ out }:
     {
         out: any
     }) {

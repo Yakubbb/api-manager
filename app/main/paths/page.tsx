@@ -14,9 +14,13 @@ import {
 import '@xyflow/react/dist/base.css';
 import { CustomNode } from '@/diagramComponents/moduleComponent';
 import { IDiagramModule } from '@/custom-types';
+import { ConstantNode } from '@/diagramComponents/constComponent';
+import singleConst from '@/diagramComponents/singleConst';
 
 const nodeTypes = {
   custom: CustomNode,
+  const: ConstantNode,
+  singleConst: singleConst
 };
 
 const m: IDiagramModule = {
@@ -24,7 +28,7 @@ const m: IDiagramModule = {
   inputs: [
     {
       name: 'key',
-      type: 'Photo',
+      type: 'key',
       value: 'aboba'
     },
     {
@@ -34,14 +38,14 @@ const m: IDiagramModule = {
     },
     {
       name: 'sys',
-      type: 'Fbx',
+      type: 'fbx',
       value: 'aboba'
     }
   ],
   outputs: [
     {
       name: 'id',
-      type: 'text',
+      type: 'photo',
       value: 'aboba'
     }
   ]
@@ -63,9 +67,14 @@ const initNodes = [
   },
   {
     id: '3',
-    type: 'custom',
-    data: m,
+    type: 'singleConst',
+    data: {name:'aboba',type:'text',value:'aboba'},
     position: { x: 200, y: 200 },
+  },
+  {
+    id: '4',
+    type: 'const',
+    position: { x: 300, y: 200 },
   },
 ];
 
@@ -95,6 +104,7 @@ export default function () {
           fitView
         >
           <Controls />
+          <Background variant={BackgroundVariant.Dots}/>
         </ReactFlow>
       </div>
     </div>
