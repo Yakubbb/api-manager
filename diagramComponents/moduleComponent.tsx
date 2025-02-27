@@ -3,10 +3,6 @@ import React, { memo, useEffect } from 'react';
 import { Handle, Position, useHandleConnections, useNodeConnections, useNodesData } from '@xyflow/react';
 import { IDiagramModule } from '@/custom-types';
 import { DiCode } from "react-icons/di";
-import { TbHexagon3D } from 'react-icons/tb';
-import { IconType } from 'react-icons';
-import { MdPhotoSizeSelectActual } from 'react-icons/md';
-import { TiDocumentText } from 'react-icons/ti';
 import { typesStyles } from '@/custom-constants';
 
 
@@ -114,7 +110,7 @@ export const CustomNode = ({ data }: { data: IDiagramModule }) => {
     return (
         <div className="w-xl h-xl rounded-xl bg-white border-2" style={
             {
-                paddingBottom: '20px'
+                paddingBottom: '10px'
             }
         }>
 
@@ -124,7 +120,7 @@ export const CustomNode = ({ data }: { data: IDiagramModule }) => {
                     {data.name}
                 </div>
                 <div className='flex flex-col gap-1 '>
-                    <div className='flex flex-col gap-5'>
+                    <div className='flex flex-col gap-1'>
                         {data.inputs.map((inp, index) => {
                             const Icon = typesStyles[inp.type].Icon
                             return (
@@ -133,7 +129,7 @@ export const CustomNode = ({ data }: { data: IDiagramModule }) => {
                             )
                         })}
                     </div>
-                    <div className='flex flex-col gap-5 '>
+                    <div className='flex flex-col gap-1 '>
                         {data.outputs.map((out, index) => {
                             return (
                                 <CustomOutputHandle out={out} key={index} />
