@@ -26,7 +26,7 @@ export function ModelOptionsBar({
     }
 
     return (
-        <nav className="flex flex-col shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4 w-[20%] gap-2">
+        <nav className="flex flex-col shadow-[0_3px_10px_rgb(0,0,0,0.2)]  p-4 w-[20%] gap-2">
 
             <div className="flex flex-col gap-3 p-4 border-2 border-2 border-[#cccccc] rounded-xl z-30">
                 <div className="flex flex-row gap-1 items-center">

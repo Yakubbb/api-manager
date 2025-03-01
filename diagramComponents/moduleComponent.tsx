@@ -25,7 +25,7 @@ export function CustomInputHandle({ onChange, inp }:
     const Icon = typesStyles[inp.type].Icon
 
     return (
-        <div className={`flex justify-between gap-5 rounded-md p-2`}>
+        <div className={`flex justify-between gap-5 rounded-md p-1`}>
             <div className='flex justify-start'>
                 <Handle
                     type="target"
@@ -37,7 +37,6 @@ export function CustomInputHandle({ onChange, inp }:
                             width: '20px',
                             height: '20px',
                             borderRadius: '15px',
-                            border: '4px solid #edeff5',
                             display: 'flex',
                             position: 'relative'
                         }
@@ -94,7 +93,7 @@ export function CustomOutputHandle({ out }:
                             width: '20px',
                             height: '20px',
                             borderRadius: '15px',
-                            border: '4px solid #edeff5',
+                
                             display: 'flex',
                             position: 'relative'
                         }

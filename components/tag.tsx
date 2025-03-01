@@ -1,6 +1,7 @@
 import { ITag } from "@/custom-types";
+import { MdOutlineDeleteForever } from "react-icons/md";
 
-export default function ({ value, onClick }: { value: ITag, onClick: (tag: ITag) => void }) {
+export default function ({ value, onClick, deleting }: { value: ITag, onClick: (tag: ITag) => void, deleting?: Boolean }) {
 
     const colors: { [key: string]: string } = {
         "rose": 'border-2 border-rose-500 text-rose-500',
@@ -11,11 +12,21 @@ export default function ({ value, onClick }: { value: ITag, onClick: (tag: ITag)
         "orange": 'border-2 border-black bg-[#eb9234] text-black ',
         "happy": 'border-2 border-black bg-gradient-to-r from-fuchsia-600 to-yellow-500 text-white',
         "aaa": 'border-2 border-black bg-gradient-to-r from-violet-300 to-fuchsia-100  text-indigo-600',
+        "calm": 'border-2 border-black bg-gradient-to-r from-violet-300 to-fuchsia-100  text-indigo-600',
+        "not-calm": 'border-2 border-black bg-gradient-to-r from-violet-300 to-fuchsia-100  text-indigo-600',
     }
 
     return (
-        <div onClick={() => onClick(value)} className={`text-center font-normal  min-w-xs h-[5%] items-center  ${colors[value.color]} hover:cursor-pointer`}>
-            {value.name}
+        <div onClick={() => onClick(value)} className={`group/item text-center font-semibold  min-w-xs h-xs items-center  ${colors[value.color]} hover:cursor-pointer rounded-md p-1`}>
+            {deleting &&
+                <div>
+                    <div className="group-hover/item:hidden block ">
+                        {value.name}
+                    </div>
+                    <div className="flex flex-row group-hover/item:block hidden w-10 items-center text-center">
+                        <MdOutlineDeleteForever className="self-center ml-[25%]" size={25} />
+                    </div>
+                </div> || value.name}
         </div>
     )
 }

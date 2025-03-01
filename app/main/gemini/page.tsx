@@ -13,27 +13,30 @@ import getAvalibleModels, { createChat, getChatLinks } from "@/server-side/chat-
 export default async function MainPageDefault() {
   const models = await getAvalibleModels()
   return (
-    <section className="flex flex-row h-[100%] w-[85%] gap-8 p-2">
-      <div className="flex flex-col h-full w-[70%] gap-5">
+    <section className="flex flex-row h-[100%] w-[85%] gap-8 p-4">
+      <div className="flex flex-col h-full w-[70%] gap-10">
 
-        <div className="flex flex-col w-[100%] h-[20%] gap-1 rounded-3xl p-4 bg-[#7242f5] font-semibold text-[#e9ecef]">
-          <div className="text-xl">
+        <div className="flex flex-col w-[100%] h-[20%] text-xl  text-center gap-1 rounded-3xl p-4 text-md mt-10">
+          <div className="text-3xl font-bold">
             Gemini AI
           </div>
-          <p>здесь вы сможете протестировать различные промпты для работы с Gemini.</p>
+          <p>Здесь вы сможете протестировать различные промпты для работы с Gemini.</p>
           <p>Так как все запросы идут через сервер организации, работа возможна без VPN из любой части мира</p>
         </div>
-        <div className="flex flex-row gap-2">
-          <button className="flex flex-row rounded-xl bg-[#00ff80] text-xl gap-2 size-xs text-center items-center p-2" onClick={createChat}>          <RiChatNewLine />
-            Новый чат
+        <div className="flex flex-row gap-2 self-center w-[50%] h-10 items-center">
+          <button className="flex flex-col rounded-3xl bg-[#7242f5] text-[#e9ecef] text-center items-center w-[100%] h-[100%]" onClick={createChat}>
+            <div className="flex flex-row text-xl gap-2 p-1 text-center items-center">
+              <RiChatNewLine />
+              Новый чат
+            </div>
           </button>
         </div>
-        <div className="flex flex-row w-[100%] gap-2 items-center text-md p-2">
+        <div className="flex flex-row w-[100%] gap-2  text-sm p-2 text-[#5b5966]">
           <BiGhost size={40} />
           Если вы не хотите хранить ключ у нас, вы всегда можете вводить ключ непосредственно на странице с чатом,
           при обновлении страницы придется вводить его заново
         </div>
-        <div className="flex flex-row h-[40%] w-[100%] gap-6 mt-10">
+        <div className="flex flex-row h-[40%] w-[100%] gap-6">
 
           <GeminiInfoMessage
             name="Сессионные ключи"

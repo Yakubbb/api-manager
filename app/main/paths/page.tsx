@@ -56,12 +56,12 @@ const m: IDiagramModule = {
       value: 'aboba'
     },
     {
-      name: 'cock',
+      name: 'text1',
       type: 'text',
       value: 'aboba'
     },
     {
-      name: 'cock2',
+      name: 'fbx1',
       type: 'fbx',
       value: 'aboba'
     }
@@ -100,28 +100,45 @@ export default function () {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<any>(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
-  const [constants,setConstants] = useState<{ name: string, type: any, value: any }[]>([])
-  const [modules,setModules] = useState<IDiagramModule[]>([])
+  const [constants, setConstants] = useState<{ name: string, type: any, value: any }[]>([])
+  const [modules, setModules] = useState<IDiagramModule[]>([])
 
 
-  const getTypeByParams = (params: { source: any, sourceHandle: any }) => {
+  const getTypeByParams = (params: { source: any, target: any, sourceHandle: any, targetHandle: any }) => {
+
     const sourceNode = nodes.find(n => n.id == params.source!);
-    let handleType = 'blank'
+    const targetNode = nodes.find(n => n.id == params.target!);
+
+    let sourceType = 'blank'
+    let targetType = 'blank'
+
 
 
     if (sourceNode) {
       switch (sourceNode.type) {
         case 'singleConst':
-          handleType = sourceNode.data.type
+          sourceType = sourceNode.data.type
           break;
         case 'custom':
           const outputs = sourceNode.data.outputs as { name: string, type: any }[]
-          handleType = outputs.find(o => o.name == params.sourceHandle!)?.type
+          sourceType = outputs.find(o => o.name == params.sourceHandle!)?.type
           break;
       }
     }
 
-    return handleType
+    if (targetNode) {
+      switch (targetNode.type) {
+        case 'singleConst':
+          targetType = targetNode.data.type
+          break;
+        case 'custom':
+          const inputs = targetNode.data.inputs as { name: string, type: any }[]
+          targetType = inputs.find(o => o.name == params.targetHandle!)?.type
+          break;
+      }
+    }
+
+    return { sourceType: sourceType, targetType: targetType }
   }
 
   const onConnect = useCallback(
@@ -130,8 +147,12 @@ export default function () {
       if (params.source == params.target) {
         return
       }
-      const handleType = getTypeByParams(params)
-      setEdges((eds) => addEdge({ ...params, style: { stroke: typesStyles[handleType].style, strokeWidth: 5 } }, eds))
+      const types = getTypeByParams(params)
+
+      if (types.sourceType != types.targetType) {
+        return
+      }
+      setEdges((eds) => addEdge({ ...params, style: { stroke: typesStyles[types.sourceType].style, strokeWidth: 5 } }, eds))
     },
     [],
   );

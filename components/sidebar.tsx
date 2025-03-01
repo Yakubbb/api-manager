@@ -6,7 +6,7 @@ import { IoIosStats } from "react-icons/io";
 import { CgKey } from "react-icons/cg";
 import { GiBugNet } from "react-icons/gi";
 import { RxExit } from "react-icons/rx";
-import { RiChatAiLine, RiGeminiFill } from "react-icons/ri";
+import { RiGeminiFill } from "react-icons/ri";
 import { FaHome } from "react-icons/fa";
 import { FaProjectDiagram } from "react-icons/fa";
 import { VscLibrary } from "react-icons/vsc";
@@ -66,9 +66,9 @@ export function SideBar({
     useEffect(() => {
         updateChats()
     }, [searchParams]);
-
+    
     return (
-        <div className="flex flex-col w-[15%] h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4">
+        <div className="flex flex-col w-[15%] h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4 ">
             <nav className="flex flex-col gap-2">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
                 <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
