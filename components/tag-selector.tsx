@@ -34,7 +34,7 @@ export default function ({ options, values, updateValues, deleteValue }: { optio
                         )
                     })}
                     {options?.length != 0 &&
-                        <div onClick={() => setShowOptionsState(!showOptionsState)}>
+                        <div onClick={() => setShowOptionsState(!showOptionsState)} className="text-[#7242f5] hover:cursor-pointer">
                             {showOptionsState && <IoMdCloseCircle size={30} />}
                             {!showOptionsState && <IoMdAddCircle size={30} />}
                         </div>

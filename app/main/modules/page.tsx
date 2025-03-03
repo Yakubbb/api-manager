@@ -65,7 +65,7 @@ const modules = [
     name: 'aboba api',
     inputType: 'text',
     endpoint: 'http://localhost:3000/main/modules',
-    prewviewPhoto: 'https://i.pinimg.com/474x/b3/07/f4/b307f48f85a4a32502e2f509a3aa8c6d.jpg',
+    prewviewPhoto: 'https://i.pinimg.com/474x/13/e1/c3/13e1c329187e6ad5f8ad614406dbf96d.jpg',
   },
   {
     _id: new ObjectId(),
@@ -98,9 +98,9 @@ export default async function () {
               Icon = typesStyles[module.inputType].Icon
             }
             return (
-              <Link href={`/main/modules?id=${module._id.toString()}`} className="flex flex-col rounded-xl bg-[#E0E0E0] w-md max-w-xl h-sm group/item p-2 grow  shadow-[0_3px_10px_rgb(0,0,0,0.2)] " key={index}>
+              <Link href={`/main/modules?id=${module._id.toString()}`} className="flex flex-col rounded-xl bg-[#ffffff] w-md max-w-xl h-sm group/item p-2 grow  shadow-[0_3px_10px_rgb(0,0,0,0.2)] " key={index}>
                 <Suspense>
-                  <Image className=" w-[100%] h-60 oobject-cover rounded-md " src={module.prewviewPhoto!} alt="нет фото : (" width={100} height={100} />
+                  <Image className=" w-[100%] h-60 oobject-cover rounded-md  " src={module.prewviewPhoto!} alt="нет фото : (" width={100} height={100} />
                   <div className="flex justify-between font-semibold text-xl items-center text-justify">
                     <div className="flex flex-row gap-1 items-center text-justify">
                       {module.name}
@@ -116,7 +116,7 @@ export default async function () {
                     </div>
                   </div>
                   {module.description &&
-                    <div className="flex text-justify p-2 w-sm grow">
+                    <div className="flex text-justify p-2 w-sm grow text-[#5b5966]">
                       {module.description}
                     </div>
                   }

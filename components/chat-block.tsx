@@ -132,7 +132,7 @@ export function ChatBlock({
 
 
     return (
-        <div className="flex flex-row w-[100%] gap-4">
+        <div className="flex flex-row w-[100%] gap-6 p-3">
             <div className=" flex flex-col grow w-[85%] gap-3 pt-1 pb-1">
                 <div className="flex justify-between">
                     <div className="flex flex-row gap-1 items-center ">
@@ -141,7 +141,7 @@ export function ChatBlock({
                     </div>
                     <div className=" text-slate-600">{chat?.model}</div>
                 </div>
-                <div className="flex flex-col gap-4 mx-auto p-4 rounded-xl w-full  grow rounded-3xl overflow-auto shadow-[0_3px_10px_rgb(0,0,0,0.2)] " ref={container}  >
+                <div className="flex flex-col gap-4 mx-auto p-4 rounded-xl w-full  grow rounded-3xl overflow-auto shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] " ref={container}  >
                     {messages.map((message, index) => {
                         return (
                             <ClientChatMessage key={index} message={message} />
@@ -152,7 +152,7 @@ export function ChatBlock({
                     }
                 </div>
                 <div className="pt-3 gap-10 w-full">
-                    <form className="flex justify-between shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-3xl p-4 mb-2 " action={logeega}>
+                    <form className="flex justify-between shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] rounded-3xl p-4 mb-2 " action={logeega}>
                         <input name="msg" className="  text-xl focus:outline-none select-none flex bg-transparent w-11/12 items-center   " placeholder="привет мир!" type="text" autoComplete="off" />
                         <button type="submit" className="flex flex-row select-none bg-transparent text-center items-center">
                             <IoMdSend className="flex text-[#7242f5]" size={30} />

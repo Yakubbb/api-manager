@@ -71,7 +71,7 @@ export function ClientChatMessage({ message }: { message: IMessage }) {
                 }
 
 
-                <FiCopy className="flex self-end hover:cursor-pointer" onClick={() => navigator.clipboard.writeText(message.parts[0].text)} />
+                <FiCopy className="flex self-end hover:cursor-pointer " onClick={() => navigator.clipboard.writeText(message.parts[0].text)} />
             </div>
         </div>
     )
