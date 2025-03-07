@@ -13,3 +13,7 @@ export const typesStyles: { [key: string]: DataType } = {
     "fbx": { style: '#0077ff', Icon: TbHexagon3D },
 }
 
+export const names = [
+    ''
+]
+

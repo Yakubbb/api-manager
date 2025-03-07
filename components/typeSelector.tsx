@@ -1,5 +1,5 @@
 import { IModel } from "@/custom-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { HiOutlineLightBulb } from "react-icons/hi2";
 import { typesStyles } from "@/custom-constants";
@@ -37,6 +37,48 @@ export default function ({ options, setValue, value }: { options: string[], setV
                     </div>
                 }
             </div>
+        </div>
+    )
+}
+
+
+export function TypeSelectorForHandler({ avalibleTypes, setInput, input }: {
+    avalibleTypes: string[],
+    setInput: (value: { name: string, type: string }) => void
+    input: { name: string, type: string }
+}) {
+
+    const [currentMarker, setCurrentMarker] = useState<number>(avalibleTypes.findIndex(v => v == input.type))
+
+
+    const handleSelection = (inp: number) => {
+        setCurrentMarker(currentMarker + inp)
+    }
+
+    useEffect(() => {
+        if (currentMarker >= avalibleTypes.length) {
+            setCurrentMarker(0)
+        }
+        else if (currentMarker < 0) {
+            setCurrentMarker(avalibleTypes.length - 1)
+        }
+        else {
+            setInput({ name: input.name, type: avalibleTypes[currentMarker] })
+        }
+    }, [currentMarker])
+
+
+    return (
+        <div className="flex flex-row justify-center items-center text-center gap-2 w-[40%] ">
+            <button onClick={() => handleSelection(-1)} className="w-[30%] rounded-full bg-[#7242f5] text-white items-center text-center">
+                {' < '}
+            </button>
+            <div className="w-[80%] self-center">
+                {input.type}
+            </div>
+            <button onClick={() => handleSelection(1)} className="w-[30%] rounded-full bg-[#7242f5] text-white items-center text-center">
+                {' > '}
+            </button>
         </div>
     )
 }

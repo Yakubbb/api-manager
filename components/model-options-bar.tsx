@@ -1,11 +1,12 @@
 'use client'
 import { IModel } from "@/custom-types";
 import ModelSelector from "./model-selector";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CgSmileUpside } from "react-icons/cg";
 import { BsKey } from "react-icons/bs";
 import { GiScreaming } from "react-icons/gi";
 import { RiRobot2Line } from "react-icons/ri";
+import { getRudePersons } from "@/server-side/database-handler";
 
 
 
@@ -16,14 +17,26 @@ export function ModelOptionsBar({
     avalibleModels?: IModel[]
 }) {
 
-    const [selectedModel, setSelectedModel] = useState<IModel>()
-    const [person, setPerson] = useState<IModel>()
+    const [selectedModel, setSelectedModel] = useState<IModel | undefined>(avalibleModels?.[0])
+    const [person, setPerson] = useState<any>()
     const [systemPrompt, setSystemPrompt] = useState<string>()
     const [temperture, setTemperture] = useState<number>(0.4)
 
     const handleTempertureChange = async (event: any) => {
         setTemperture(event.target.value)
     }
+
+    const getRudePersonsFromServer = async () => {
+
+        console.log('aboba')
+        console.log(await getRudePersons())
+    }
+
+
+    useEffect(() => {
+        console.log()
+        getRudePersonsFromServer()
+    }, [])
 
     return (
         <nav className="flex flex-col shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-lightCoolBaseBg bg-mono-cool-radial-bg   p-4 w-[20%] gap-2 rounded-xl">

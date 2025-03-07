@@ -9,7 +9,7 @@ import { useActionState, useState } from "react";
 import { MdError } from "react-icons/md";
 import { useSearchParams } from 'next/navigation'
 
-export default function Loading() {
+export default function () {
 
   let userName = useSearchParams().get('name')
 

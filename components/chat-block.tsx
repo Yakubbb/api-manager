@@ -21,9 +21,8 @@ export function ChatBlock({
     const [messages, setMessages] = useState<IMessage[]>([])
 
     const [currentBotMessage, setCurrentBotMessage] = useState<IMessage>()
-    const [model, setModel] = useState<IModel>()
+    const [model, setModel] = useState<IModel | undefined>(avalibleModels?.[0])
     const [currentBotMessageText, setCurrentBotMessageText] = useState<string>()
-
     const [chatName, setChatName] = useState<string>('')
 
     const container = useRef<HTMLDivElement>(null)
@@ -155,7 +154,7 @@ export function ChatBlock({
                     <form className="flex justify-between shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] rounded-3xl p-4 mb-2 " action={logeega}>
                         <input name="msg" className="  text-xl focus:outline-none select-none flex bg-transparent w-11/12 items-center   " placeholder="привет мир!" type="text" autoComplete="off" />
                         <button type="submit" className="flex flex-row select-none bg-transparent text-center items-center">
-                            <IoMdSend className="flex text-[#7242f5]" size={30} />
+                            <IoMdSend className="flex text-mainTextColor" size={30} />
                         </button>
                     </form>
                 </div>

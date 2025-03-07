@@ -1,6 +1,6 @@
 export default function ({ inputs, name }: { inputs: any[], name: string }) {
     return (
-        <div className="flex flex-col gap-2 rounded-xl w-[100%] h-[100%] p-4 ">
+        <div className="flex flex-col gap-2 rounded-xl  w-[50%] h-[100%] p-4 ">
             <div className="text-xl font-semibold">
                 {name}
             </div>
@@ -13,9 +13,8 @@ export default function ({ inputs, name }: { inputs: any[], name: string }) {
                         <div>"</div>
                         <div>:</div>
                         <div>"</div>
-                        <div>any</div>
                         <div className="text-[#7242f5]">{inp.type}</div>
-                        <div>value</div>
+                        <div>значение</div>
                         <div>"</div>
                         <div>,</div>
                     </div>

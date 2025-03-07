@@ -73,6 +73,23 @@ export async function getChatForFrontById(id: string) {
 
 }
 
+export async function getRudePersons() {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = (await database.collection("persons").find().toArray()).map(person => {
+        return (
+            {
+                _id: person._id.toString(),
+                name: person.name,
+                description: person.description,
+                history: person.history
+            }
+        )
+    });
+    console.log(collection)
+    return collection
+}
+
 
 
 export async function getUserIdByCredentials(login: string, password: string) {

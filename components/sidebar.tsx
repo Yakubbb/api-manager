@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { getChatLinks } from "@/server-side/chat-handler";
 import { useSearchParams } from "next/navigation";
 import { RiMessage3Line } from "react-icons/ri";
+import { AiFillExperiment } from "react-icons/ai";
 
 
 
@@ -67,11 +68,12 @@ export function SideBar({
     useEffect(() => {
         updateChats()
     }, [searchParams]);
-    
+
     return (
         <div className="flex flex-col w-[15%] h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4 ">
             <nav className="flex flex-col gap-2">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
+                <SideBarComponent name="Конфигурация" description="место, где можно протестировать различные модели" Icon={AiFillExperiment} href="/main/configure" />
                 <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
                     {
                         name: 'добавить',
