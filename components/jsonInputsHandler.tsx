@@ -22,13 +22,13 @@ export default function ({ name, inputs, handleAddingNewInput, handleInputNameCh
                     } />
                 </div>
             </div>
-            <div className="flex flex-col gap-2 w-[100%] rounded-xl grow p-4 overflow-auto border-2 border-borderColorForm rounded-xl">
+            <div className="flex flex-col gap-2 w-[100%] rounded-xl grow p-4 overflow-auto border-2 border-[#9ca3af] rounded-xl">
                 {inputs.map((e, idex) => {
                     console.log(inputs)
                     return (
                         <div className="flex flex-row justify-between gap-1 shadow-[0_3px_10px_rgb(0,0,0,0.1)] rounded-xl w-[100%]" key={idex}>
-                            <MdDeleteOutline className="hover:text-errTextColor text-mainTextColor hover:cursor-pointer" size={40} onClick={() => handleInputDeleting(idex)} />
-                            <input className="" type="text" value={e.name} onChange={(event) => handleInputNameChange(event.target.value, idex)} />
+                            <MdDeleteOutline className="hover:text-[#ff3333] text-[#363636] hover:cursor-pointer" size={30} onClick={() => handleInputDeleting(idex)} />
+                            <input className="rounded-md focus:outline-none select-none bg-transparent" type="text" value={e.name} onChange={(event) => handleInputNameChange(event.target.value, idex)} />
                             <TypeSelectorForHandler avalibleTypes={avalibleTypes} input={e} setInput={(value) => handleInputNameChange(value.name, idex, value.type)} />
                         </div>
                     )

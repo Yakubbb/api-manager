@@ -17,13 +17,13 @@ export default function ({ value, onClick, deleting }: { value: ITag, onClick: (
     }
 
     return (
-        <div onClick={() => onClick(value)} className={`group/item text-center font-semibold  min-w-xs h-xs items-center  ${colors[value.color]} hover:cursor-pointer rounded-md p-1`}>
+        <div onClick={() => onClick(value)} className={`group/item text-center font-semibold  min-w-xs h-xs items-center justify-center  ${colors[value.color]} hover:cursor-pointer rounded-md p-1`}>
             {deleting &&
                 <div>
-                    <div className="group-hover/item:hidden block ">
+                    <div className="group-hover/item:hidden block  justify-center ">
                         {value.name}
                     </div>
-                    <div className="flex flex-row group-hover/item:block hidden w-10 items-center text-center">
+                    <div className="flex flex-row group-hover/item:block hidden w-10 items-center text-center  justify-center">
                         <MdOutlineDeleteForever className="self-center ml-[25%]" size={25} />
                     </div>
                 </div> || value.name}

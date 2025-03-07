@@ -50,7 +50,7 @@ export default function ({ inputs, setInputs, outputs, setOutputs, avalibleTypes
     }
 
     return (
-        <div className="flex flex-col justify-center h-[100%] w-[70%] p-2 gap-4 ">
+        <div className="flex flex-col justify-center h-[100%]  w-[100%] p-4 gap-4 ">
             <div className="w-full h-1/2 flex flex-row gap-2 rounded-xl shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] ">
                 <JsonInputsHandler
                     name="переменные запроса"
