@@ -19,6 +19,10 @@ import { getChatLinks } from "@/server-side/chat-handler";
 import { useSearchParams } from "next/navigation";
 import { RiMessage3Line } from "react-icons/ri";
 import { AiFillExperiment } from "react-icons/ai";
+import { FaBuffer } from "react-icons/fa6";
+
+import { FaToolbox } from "react-icons/fa";
+import { AiOutlineTool } from "react-icons/ai";
 
 
 
@@ -70,10 +74,26 @@ export function SideBar({
     }, [searchParams]);
 
     return (
-        <div className="flex flex-col w-[15%] h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.2)] p-4 ">
-            <nav className="flex flex-col gap-2">
+        <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.1)] p-4 bg-[#ffffff] ">
+            <nav className="flex flex-col gap-1">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
-                <SideBarComponent name="Конфигурация" description="место, где можно протестировать различные модели" Icon={AiFillExperiment} href="/main/configure" />
+                <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={AiOutlineTool} href="/main/configure" children={[
+                    {
+                        name: 'промпты',
+                        href: '/main/configure/prompts',
+                        Icon: FaBuffer
+                    },
+                    {
+                        name: 'админ',
+                        href: '/main/configure/sys',
+                        Icon: FaBuffer
+                    },
+                    {
+                        name: 'истории чата',
+                        href: '/main/configure/chats',
+                        Icon: FaBuffer
+                    }
+                ]} />
                 <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
                     {
                         name: 'добавить',
@@ -86,21 +106,16 @@ export function SideBar({
                 <SideBarComponent name="Маршруты" description="ваши api маршруты" Icon={FaProjectDiagram} href="/main/paths" />
                 <SideBarComponent name="Баги" description="возникла проблема? - сообщите" Icon={GiBugNet} href="/main/playground" />
             </nav>
-            <nav className="absolute bottom-3">
-                <div className="flex flex-col gap-1">
+            <nav className="absolute bottom-3 w-[100%]">
+                <div className="flex flex-row gap-1 items-center text-center ">
                     <Link className="text-2xl" href={'/main'}>
                         <FaHome />
                     </Link>
-
-                    <div className="flex flex-row gap-1 items-center text-center ">
-                        api-manager |
-                        <button className="flex flex-row gap-1 items-center text-center" onClick={deleteCookie}>
-                            <RxExit />
-                            Выход
-                        </button>
-                    </div>
+                    <button className="flex flex-row gap-1 items-center text-center" onClick={deleteCookie}>
+                        <RxExit />
+                        Выход
+                    </button>
                 </div>
-
             </nav>
         </div>
     )

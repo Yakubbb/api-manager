@@ -13,11 +13,10 @@ import getAvalibleModels, { createChat, getChatLinks } from "@/server-side/chat-
 export default async function MainPageDefault() {
   const models = await getAvalibleModels()
   return (
-    <section className="flex flex-row h-[100%] w-[85%] gap-8 p-4">
-      <div className="flex flex-col h-full w-[70%] gap-10">
-
-        <div className="flex flex-col w-[100%] h-[20%] text-xl  text-center gap-1 rounded-3xl p-4 text-md mt-10">
-          <div className="text-3xl font-bold">
+    <section className="flex flex-row h-[100%] w-[100%] gap-8 p-4">
+      <div className="flex flex-col h-[100%] w-[70%] gap-10 justify-between">
+        <div className="flex flex-col w-[100%] h-[20%] text-xl  text-center gap-1 rounded-3xl p-4 text-md ">
+          <div className="text-3xl font-bold ">
             Gemini AI
           </div>
           <p>Здесь вы сможете протестировать различные промпты для работы с Gemini.</p>
@@ -25,13 +24,13 @@ export default async function MainPageDefault() {
         </div>
         <div className="flex flex-row gap-2 self-center w-[50%] h-10 items-center">
           <button className="flex flex-col rounded-3xl bg-[#7242f5] text-[#e9ecef] text-center items-center w-[100%] h-[100%]" onClick={createChat}>
-            <div className="flex flex-row text-xl gap-2 p-1 text-center items-center">
+            <div className="flex flex-row text-xl gap-2 p-1 text-center items-center justify-center ">
               <RiChatNewLine />
               Новый чат
             </div>
           </button>
         </div>
-        <div className="flex flex-row w-[100%] gap-2  text-sm p-2 text-[#5b5966]">
+        <div className="flex flex-row w-[100%] gap-2  text-md p-2 text-[#5b5966]">
           <BiGhost size={40} />
           Если вы не хотите хранить ключ у нас, вы всегда можете вводить ключ непосредственно на странице с чатом,
           при обновлении страницы придется вводить его заново

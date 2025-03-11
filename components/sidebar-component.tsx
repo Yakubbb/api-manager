@@ -40,7 +40,7 @@ export function SideBarComponent({
             </div>
             <div className="flex flex-col text-justify text-md mt-2 mb-2">
                 {displayChildren && children?.map((element, index) => {
-                    let classN = 'flex flex-row gap-1 items-center text-center pl-6 rounded-[6px] hover:font-semibold  hover:text-xl hover:text-[#7242f5]'
+                    let classN = 'flex flex-row gap-1 items-center pl-6 rounded-[6px] hover:font-semibold  hover:text-xl hover:text-[#7242f5]'
 
                     if (`${pathname}?id=${id}` == element.href || `${pathname}` == element.href) {
                         classN = `${classN} text-[#7242f5] font-semibold text-xl`

@@ -21,7 +21,7 @@ export default function ({
                 <Icon />
                 {name}
             </div>
-            <p>{description}</p>
+            <p className="">{description}</p>
 
             <Link className="flex flex-row gap-1 items-center mt-10 text-center text-md text-[#7242f5]" href={href}>
                 Перейти

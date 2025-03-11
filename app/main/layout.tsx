@@ -14,11 +14,15 @@ export default async function MainLayout({
 }>) {
 
   return (
-    <section className="flex flex-row w-full h-full gap-4">
-      <SideBar userChats={[]} />
-      <Suspense fallback={<Loading />}>
-        {children}
-      </Suspense>
+    <section className="flex flex-row w-[100%] h-full gap-4">
+      <div className="h-[100%] w-[15%]">
+        <SideBar userChats={[]} />
+      </div>
+      <div className="h-[100%] w-[85%]">
+        <Suspense fallback={<Loading />}>
+          {children}
+        </Suspense>
+      </div>
     </section>
   );
 }

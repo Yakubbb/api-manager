@@ -64,10 +64,18 @@ export function ModelOptionsBar({
                 <ModelSelector options={avalibleModels || []} value={selectedModel} setValue={setSelectedModel} />
             </div>
 
-            <div className="bg-[#ffffff] flex flex-col gap-3 p-4 border-2 border-2 border-[#cccccc] rounded-xl z-10">
+            <div className="bg-[#ffffff] flex flex-col gap-3 p-4 border-2 border-2 border-[#ff96e0] rounded-xl z-10">
                 <div className="flex flex-row gap-1 items-center">
                     <GiScreaming className="text-indigo-400" size={20} />
-                    Персоны
+                    История чата
+                </div>
+                <ModelSelector options={avalibleModels || []} value={selectedModel} setValue={setSelectedModel} />
+            </div>
+
+            <div className="bg-[#ffffff] flex flex-col gap-3 p-4 border-2 border-2 border-[#47baac] rounded-xl z-10">
+                <div className="flex flex-row gap-1 items-center">
+                    <GiScreaming className="text-indigo-400" size={20} />
+                    Системный промпт
                 </div>
                 <ModelSelector options={avalibleModels || []} value={selectedModel} setValue={setSelectedModel} />
             </div>

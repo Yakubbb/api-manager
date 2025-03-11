@@ -25,7 +25,7 @@ const keys = [
 ]
 export default function Home() {
   return (
-    <section className="flex flex-row h-[100%] w-[80%] gap-5 p-4 overflow-y-scroll">
+    <section className="flex flex-row h-[100%] w-[100%] gap-5 p-4 overflow-y-scroll">
       <div>
         <div className="flex flex-row gap-2 text-3xl font-bold items-center">
           <LuCookie />

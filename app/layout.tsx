@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { MainHeader } from "@/components/header-main";
+import localFont from 'next/font/local'
+
+// Font files can be colocated inside of `pages`
+const myFont = localFont({ src: './InterTight-VariableFont_wght.ttf', variable: '--mainFont' })
+const myFont2 = localFont({ src: './JetBrainsMono-VariableFont_wght.ttf', variable: '--mainFont2' })
 
 export const metadata: Metadata = {
   title: "api-manager",
@@ -15,8 +19,8 @@ export default function RootLayout({
   //bg-lightCoolBaseBg bg-mono-cool-radial-bg
   return (
     <html lang="en">
-      <body>
-        <main className="flex flex-col h-screen font-inter text-[#363636] dark:text-white dark:bg-black bg-lightCoolBaseBg bg-mono-cool-radial-bg">
+      <body className={`${myFont.variable} ${myFont2.variable} overflow-hidden`}>
+        <main className=" h-screen font-main text-[#363636] dark:text-white dark:bg-black bg-lightCoolBaseBg bg-mono-cool-radial-bg">
           {children}
         </main>
       </body>
