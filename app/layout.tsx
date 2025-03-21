@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${myFont.variable} ${myFont2.variable} overflow-hidden`}>
-        <main className=" h-screen font-main text-[#363636] dark:text-white dark:bg-black bg-lightCoolBaseBg bg-mono-cool-radial-bg">
+        <main className=" h-screen font-main text-[#363636] bg-[#ffffff]">
           {children}
         </main>
       </body>

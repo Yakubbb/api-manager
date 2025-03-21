@@ -4,162 +4,184 @@ import { ClientChatMessage } from "./chat-message";
 import { IoMdSend } from "react-icons/io";
 import React, { useEffect, useRef, useState } from "react";
 import { MdOutlineEdit } from "react-icons/md";
-import { addMessageToChat } from "@/server-side/chat-handler";
+import { addMessageToChat, updateChatHistory } from "@/server-side/chat-handler";
 import { generate2 } from "@/server-side/gemini";
 import { readStreamableValue } from "ai/rsc";
-import { ModelOptionsBar } from "./model-options-bar";
+import { IModelOptions, ModelOptionsBar } from "./model-options-bar";
+
+interface ChatBlockProps {
+    chat: IChatForFront;
+    avalibleModels?: IModel[];
+}
+
+
 
 
 export function ChatBlock({
     chat,
     avalibleModels,
-}: {
-    chat: IChatForFront,
-    avalibleModels?: IModel[]
-}) {
+}: ChatBlockProps) {
 
-    const [messages, setMessages] = useState<IMessage[]>([])
+    const defaultOptions: IModelOptions = {
+        selectedModel: avalibleModels?.[0],
+        person: undefined,
+        systemPrompt: '',
+        temperature: 0.4,
+        apiKey: '',
+        chatHistoryEnabled: true
+    }
 
-    const [currentBotMessage, setCurrentBotMessage] = useState<IMessage>()
-    const [model, setModel] = useState<IModel | undefined>(avalibleModels?.[0])
-    const [currentBotMessageText, setCurrentBotMessageText] = useState<string>()
-    const [chatName, setChatName] = useState<string>('')
+    const [messages, setMessages] = useState<IMessage[]>([]);
+    const [currentBotMessage, setCurrentBotMessage] = useState<IMessage>();
+    const [chatName, setChatName] = useState<string>('');
+    const messagesContainer = useRef<HTMLDivElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
+    const [modelOptions, setModelOptions] = useState<IModelOptions>(defaultOptions)
 
-    const container = useRef<HTMLDivElement>(null)
+
+    const updateMessageHistory = async (messages: IMessage[]) => {
+        setMessages(messages)
+        await updateChatHistory(chat._id, messages)
+    }
 
     const generateResponse = async (lastQuestion: IMessage, botMessage: IMessage) => {
+        const history = messages
+            .concat([lastQuestion])
+            .filter(msg => msg.error == undefined && msg.parts[0].text != '');
 
-        console.log(messages)
+        const { output } = await generate2(
+            history,
+            modelOptions.selectedModel?.modelName || 'gemini-2.0-flash',
+            modelOptions.temperature,
+            modelOptions.systemPrompt || ''
+            , [] as IMessage[]);
 
-        const history = messages.concat([lastQuestion]).filter(msg => msg.error == undefined && msg.parts[0].text != '')
-        const selectedModel = model
-
-
-        const { output } = await generate2(history, 'gemini-2.0-flash', 2, '', [] as IMessage[]);
-
-        let newMSg = botMessage
-        let currentText = ''
+        let newBotMessage = botMessage;
+        let currentText = '';
 
         for await (const delta of readStreamableValue(output)) {
-
-            if (delta?.type != 'error') {
-                currentText = `${currentText}${delta?.msg}`;
+            if (delta?.type !== 'error') {
+                currentText += delta?.msg;
             }
 
-            newMSg = {
+            newBotMessage = {
                 role: 'model',
-                parts: [
-                    {
-                        text: currentText
-                    }
-                ],
+                parts: [{ text: currentText }],
                 isCreating: true,
                 model: delta?.model,
                 person: delta?.person,
-                error: delta?.type == 'error' ? delta.msg : undefined
-            } as IMessage
+                error: delta?.type === 'error' ? delta.msg : undefined,
+                temp: delta?.temp
+            } as IMessage;
 
-            setCurrentBotMessage(newMSg)
-            console.log(currentText)
+            setCurrentBotMessage(newBotMessage);
         }
 
-        setCurrentBotMessage(undefined)
-        newMSg.isCreating = false
-        const newMessages = [...messages.concat([lastQuestion]), newMSg]
-
-        setMessages(newMessages)
-        addMessageToChat(chat._id, [lastQuestion, newMSg])
-    }
-
+        setCurrentBotMessage(undefined);
+        newBotMessage.isCreating = false;
+        const updatedMessages = [...messages, lastQuestion, newBotMessage];
+        updateMessageHistory(updatedMessages);
+    };
 
     useEffect(() => {
-        setMessages(chat.messages)
-        setChatName(chat.name)
+        setMessages(chat.messages);
+        setChatName(chat.name);
     }, [chat]);
 
-
     useEffect(() => {
+        if (messagesContainer.current) {
+            messagesContainer.current.scrollTop = messagesContainer.current.scrollHeight;
+        }
+    }, [messages, currentBotMessage]);
 
-        const { scrollHeight } = container.current as HTMLDivElement
-        container.current?.scrollTo(0, scrollHeight)
 
-    }, [messages])
-
-    useEffect(() => {
-
-        const { scrollHeight } = container.current as HTMLDivElement
-        container.current?.scrollTo(0, scrollHeight)
-
-    }, [currentBotMessage])
-
-    const logeega = async (event: FormData) => {
-        const msg = event.get('msg')?.toString()
+    const createMessage = async (event: FormData) => {
+        const msg = event.get('msg')?.toString();
         if (msg) {
-
             const newUserMessage: IMessage = {
                 role: 'user',
-                parts: [
-                    {
-                        text: msg
-                    }
-                ],
-            }
-
-            const futureBotMessage: IMessage = {
+                parts: [{ text: msg }],
+            };
+            const botMessageTemplate: IMessage = {
                 role: 'model',
-                parts: [
-                    {
-                        text: ''
-                    }
-                ],
-            }
+                parts: [{ text: '' }],
+            };
 
-
-            setMessages([
-                ...messages,
-                newUserMessage,
-            ])
-
-            generateResponse(newUserMessage, futureBotMessage)
-            //await addMessageToChat(chat?._id, newUserMessage)
+            setMessages(prevMessages => [...prevMessages, newUserMessage]);
+            generateResponse(newUserMessage, botMessageTemplate);
         }
+    };
+
+    const handleChatNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setChatName(event.target.value);
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.ctrlKey && event.key === 'Enter') {
+            event.preventDefault();
+            formRef.current?.requestSubmit();
+        }
+    };
+
+    const handleEditMsg = async (msgNumber: number, msgText: string) => {
+
     }
 
-    const updateChatName = async (event: any) => {
-        setChatName(event.target.value)
+    const handleRegenerateMsg = (msgNumber: number) => {
+
     }
 
 
     return (
-        <div className="flex flex-row w-[100%] gap-6 p-3">
-            <div className=" flex flex-col grow w-[85%] gap-3 pt-1 pb-1">
-                <div className="flex justify-between">
-                    <div className="flex flex-row gap-1 items-center ">
-                        <MdOutlineEdit />
-                        <input className="font-semibold text-slate-600 focus:outline-none bg-transparent" onInput={updateChatName} defaultValue={chat?.name} />
+        <div className="flex flex-row w-full ">
+            <div className="flex flex-col w-full gap-3 border">
+                <div
+                    className="flex flex-col  grow  overflow-hidden ">
+                    <div className="flex p-4 pb-2 bg-[#f3f3f6] p-2 m-2 rounded-xl border">
+                        <h2 className="text-xl font-semibold">{chatName}</h2>
                     </div>
-                    <div className=" text-slate-600">{chat?.model}</div>
+                    <div
+                        ref={messagesContainer}
+                        className="flex flex-col gap-4 mx-auto pt-2  w-[90%]  h-[calc(100%-120px)] overflow-y-auto overflow-x-hidden   p-3" >
+                        {
+                            modelOptions.systemPrompt &&
+                            <ClientChatMessage message={{
+                                role: 'system',
+                                parts: [
+                                    {
+                                        text: modelOptions.systemPrompt
+                                    }
+                                ]
+                            }} />
+                        }
+                        {messages.length > 0 && messages.map((message, index) => (
+                            <ClientChatMessage key={index} message={message} regenerateHook={() => handleRegenerateMsg(index)} />
+                        ))}
+                        {currentBotMessage && <ClientChatMessage message={currentBotMessage} />}
+                    </div>
+                    <div className="sticky bottom-0 w-[90%] self-center pb-2 ">
+                        <form
+                            className="flex justify-between border-2 border-[#cccccc]  rounded-3xl p-2"
+                            action={createMessage}
+                            ref={formRef}
+                        >
+                            <textarea
+                                name="msg"
+                                className="focus:outline-none select-none flex bg-transparent w-11/12 items-center placeholder:text-slate-500 p-3 "
+                                placeholder="Ваше сообщение"
+                                autoComplete="off"
+                                style={{ resize: 'none' }}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <button type="submit" className="flex flex-row select-none bg-transparent text-center items-center">
+                                <IoMdSend className="flex text-mainTextColor" size={24} />
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div className="flex flex-col gap-4 mx-auto p-4 rounded-xl w-full  grow rounded-3xl overflow-auto shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] " ref={container}  >
-                    {messages.map((message, index) => {
-                        return (
-                            <ClientChatMessage key={index} message={message} />
-                        )
-                    })}
-                    {
-                        currentBotMessage && <ClientChatMessage message={currentBotMessage} />
-                    }
-                </div>
-                <div className="pt-3 gap-10 w-full">
-                    <form className="flex justify-between shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] rounded-3xl p-4 mb-2 " action={logeega}>
-                        <input name="msg" className="  text-xl focus:outline-none select-none flex bg-transparent w-11/12 items-center   " placeholder="привет мир!" type="text" autoComplete="off" />
-                        <button type="submit" className="flex flex-row select-none bg-transparent text-center items-center">
-                            <IoMdSend className="flex text-mainTextColor" size={30} />
-                        </button>
-                    </form>
-                </div>
+
             </div>
-            <ModelOptionsBar avalibleModels={avalibleModels} />
+            <ModelOptionsBar avalibleModels={avalibleModels} modelOptions={modelOptions} setModelOptions={setModelOptions} />
         </div>
-    )
+    );
 }

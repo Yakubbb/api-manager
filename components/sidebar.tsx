@@ -74,7 +74,7 @@ export function SideBar({
     }, [searchParams]);
 
     return (
-        <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] shadow-[0_3px_10px_rgb(0,0,0,0.1)] p-4 bg-[#ffffff] ">
+        <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] p-4 bg-[#f3f3f6] ">
             <nav className="flex flex-col gap-1">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
                 <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={AiOutlineTool} href="/main/configure" children={[

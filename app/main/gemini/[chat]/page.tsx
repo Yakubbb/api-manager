@@ -36,7 +36,6 @@ export default function Home() {
         const models = await getAvalibleModels()
         const recivedChat = await getChatForFrontById(id);
         if (recivedChat) {
-          console.log(recivedChat)
           setChat(recivedChat)
           setModels(models)
         }

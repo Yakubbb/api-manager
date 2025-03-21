@@ -2,10 +2,7 @@
 
 import { ObjectId } from "mongodb"
 import { IconType } from "react-icons"
-import { MdPhotoSizeSelectActual } from "react-icons/md"
-import { TbHexagon3D } from "react-icons/tb"
-import { TiDocumentText } from "react-icons/ti"
-import { CgKey } from "react-icons/cg";
+
 
 export interface IMessage {
     role: 'system' | 'user' | 'model' | 'tool'
@@ -19,6 +16,7 @@ export interface IMessage {
     model?: string
     person?: string
     time?: string
+    temp?:string
 }
 
 export interface IUserContext {

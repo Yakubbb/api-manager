@@ -48,14 +48,30 @@ export async function convertIChatforFront(chat: IChat): Promise<IChatForFront> 
 export default async function getAvalibleModels(): Promise<IModel[]> {
     const staticModels = [
         {
-            name: 'gemini-pro',
-            modelName: 'models/gemini-pro'
+            name: 'gemini-1.5-pro',
+            modelName: 'gemini-1.5-pro'
         },
         {
-            name: 'gemini-pro-1.5',
-            modelName: 'models/gemini-1.5-pro'
+            name: 'gemini-1.5-flash',
+            modelName: 'gemini-1.5-flash'
         },
-    ] as IModel[]
+        {
+            name: 'gemini-2.0-flash',
+            modelName: 'gemini-2.0-flash'
+        },
+        {
+            name: 'gemini-2.0-flash-lite',
+            modelName: 'gemini-2.0-flash-lite'
+        },
+        {
+            name: 'gemini-2.0-pro-exp-02-05',
+            modelName: 'gemini-2.0-pro-exp-02-05'
+        },
+        {
+            name: 'gemini-1.5-flash-8b',
+            modelName: 'gemini-1.5-flash-8b'
+        }
+    ] as IModel[];
 
     return staticModels
 }
@@ -79,8 +95,25 @@ export async function addMessageToChat(chatId: string, messages: IMessage[]) {
     console.log(user)
 
     messages.forEach(message => {
+        console.log(message)
         chats.updateOne({ _id: user?._id }, { $push: { "chats.$[chat].messages": message } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
     })
+}
+
+export async function updateChatHistory(chatId: string, messages: IMessage[]) {
+    const chats = await getAllUsersChats();
+    const user = await getUserFromSession();
+
+    if (!user || !chats) return;
+
+    try {
+        await chats.updateOne(
+            { _id: new ObjectId(user._id), "chats._id": new ObjectId(chatId) },
+            { $set: { "chats.$.messages": messages } }
+        );
+    } catch (error) {
+        console.error("Error updating chat history:", error);
+    }
 }
 
 export async function changeChatName(chatId: string, newName: string) {
@@ -92,8 +125,9 @@ export async function changeChatName(chatId: string, newName: string) {
 }
 
 
-export async function deleteChat(chatId:string) {
+export async function deleteChat(chatId: string) {
     const chats = await getAllUsersChats()
     const user = await getUserFromSession()
-    chats.updateOne({ _id: user?._id }, { $pull: { "chats":{ "_id": new ObjectId(chatId) }} })
+    chats.updateOne({ _id: user?._id }, { $pull: { "chats": { "_id": new ObjectId(chatId) } } })
 }
+

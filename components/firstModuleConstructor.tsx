@@ -30,7 +30,10 @@ export default function ({ photo, setPhoto, name, setName, tags, setTags, url, s
                             </div>
                         }
                     </div>
-                    <input required type="file" className="font-semibold bg-transparent focus:outline-none mt-3" onInput={setPhoto} placeholder="название" name="image" />
+
+                    <input required type="file"
+                        className="mt-2 file:mr-4 file:rounded-full file:border-0 file:bg-violet-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-violet-700 hover:file:bg-violet-100"
+                        onInput={setPhoto} placeholder="название" name="image" />
                 </div>
                 <div className="flex flex-col gap-1 rounded-xl shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-[#ffffff] h-[20%] p-2">
                     <div className="font-semibold">

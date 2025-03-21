@@ -29,7 +29,7 @@ export function SideBarComponent({
 
 
     return (
-        <div className={`flex flex-col`}>
+        <div className={`flex flex-col text-sm`}>
             <div className={`flex flex-row items-center gap-1 ${(pathname == href || pathname == `${href}/chat`) && 'bg-[#7242f5] text-[#e9ecef]'} rounded-2xl w-[100%] p-1 hover:bg-[#7242f5] hover:text-[#e9ecef]`}>
                 <Icon className="flex-shrink-0" size={20} />
                 <div className="flex justify-between pr-2 items-center w-[100%]">

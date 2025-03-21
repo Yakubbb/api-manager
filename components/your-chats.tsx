@@ -32,7 +32,7 @@ export default function () {
     }, [])
 
     return (
-        <div className="flex flex-col h-full w-[30%] gap-2 rounded-3xl p-3 bg-lightCoolBaseBg bg-mono-cool-radial-bg shadow-[0_3px_10px_rgb(0,0,0,0.2)]  overflow-y-scroll">
+        <div className="flex flex-col h-full w-[30%] gap-2 rounded-3xl p-3  bg-[#f3f3f6]   overflow-y-scroll">
             <div className="flex flex-row gap-3 text-xl mb-3">
                 <div className="flex font-semibold">Ваши чаты с Gemini</div>
                 <div className="flex text-md">{chats?.length}</div>
@@ -40,7 +40,7 @@ export default function () {
             {chats?.length == 0 && <div className="mt-[50%] flex flex-col self-center items-center text-center text-3xl"><TbMoodLookDown className="text-4xl" /> Здесь пока ничего нет</div>}
             {chats?.reverse().map((chat, index) => {
                 return (
-                    <div className="flex flex-col bg-[#ffffff] rounded-2xl text-[#7242f5] p-2 " key={index}>
+                    <div className="flex flex-col bg-[#ffffff] rounded-2xl text-[#7242f5]   shadow-[0_3px_10px_rgb(0,0,0,0.1)]  p-2 " key={index}>
                         <div className="flex justify-between gap-1 text-xl font-semibold items-center text-center">
                             <Link href={`/main/gemini/chat?id=${chat._id}`} className=" rounded-xl p-2">
                                 {chat.name}

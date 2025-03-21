@@ -14,7 +14,7 @@ export default async function MainLayout({
 }>) {
 
   return (
-    <section className="flex flex-row w-[100%] h-full gap-4">
+    <section className="flex flex-row w-[100%] h-full">
       <div className="h-[100%] w-[15%]">
         <SideBar userChats={[]} />
       </div>
