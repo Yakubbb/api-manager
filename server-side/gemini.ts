@@ -4,6 +4,29 @@ import { createStreamableValue } from 'ai/rsc';
 import { IMessage } from '@/custom-types';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
+const safetySettings = [
+    {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    },
+    {
+        category: HarmCategory.HARM_CATEGORY_UNSPECIFIED,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+    }
+];
+
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -20,29 +43,6 @@ export async function generate2(
     }
 
 ) {
-
-    const safetySettings = [
-        {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_UNSPECIFIED,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-        }
-    ];
 
     const stream = createStreamableValue<{ type: 'error' | 'think' | 'text', msg: string, model?: string, person?: string, temp?: number } | undefined>();
 
@@ -92,3 +92,4 @@ export async function generate2(
 
     return { output: stream.value };
 }
+

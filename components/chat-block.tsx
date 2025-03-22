@@ -3,7 +3,7 @@ import { IChatForFront, IMessage, IModel } from "@/custom-types";
 import { ClientChatMessage } from "./chat-message";
 import { IoMdSend } from "react-icons/io";
 import React, { useEffect, useRef, useState } from "react";
-import { MdOutlineEdit } from "react-icons/md";
+import { CiTrash } from "react-icons/ci";
 import { addMessageToChat, updateChatHistory } from "@/server-side/chat-handler";
 import { generate2 } from "@/server-side/gemini";
 import { readStreamableValue } from "ai/rsc";
@@ -94,6 +94,12 @@ export function ChatBlock({
         }
     }, [messages, currentBotMessage]);
 
+    useEffect(() => {
+        if (messages.length == 2) {
+            
+        }
+    }, [messages]);
+
 
     const createMessage = async (event: FormData) => {
         const msg = event.get('msg')?.toString();
@@ -173,9 +179,14 @@ export function ChatBlock({
                                 style={{ resize: 'none' }}
                                 onKeyDown={handleKeyDown}
                             />
-                            <button type="submit" className="flex flex-row select-none bg-transparent text-center items-center">
-                                <IoMdSend className="flex text-mainTextColor" size={24} />
-                            </button>
+                            <div className="flex flex-row gap-2 items-center h-full self-center">
+                                <button type="submit" className="select-none bg-transparent items-center p-2 hover:bg-gray-100 focus:bg-gray-100 rounded-md">
+                                    <IoMdSend className="text-mainTextColor" size={24} />
+                                </button>
+                                <button onClick={() => updateMessageHistory([])} className="p-2 h-max w-max select-none bg-transparent items-center hover:bg-gray-100 focus:bg-gray-100 rounded-md">
+                                    <CiTrash className="text-mainTextColor" size={24} />
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
