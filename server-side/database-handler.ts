@@ -6,6 +6,7 @@ import { hashSync, genSaltSync, compareSync } from "bcrypt-ts";
 import { getUserIdFromSession } from "./database-getter";
 import { IApi, IChat, ITag, IUser } from "@/custom-types";
 import { convertIChatforFront } from "./chat-handler";
+import { ChatState } from "@/components/history-configure";
 
 
 
@@ -129,6 +130,55 @@ export async function createSession(userID: string) {
 
     console.log(cookieStore)
 
+}
+
+export async function addNewHistory(history: ChatState) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("histories");
+    const user = await getUserFromSession()
+    const userID = user?._id
+    if (userID) {
+        const data = await collection.insertOne({
+            ...history, author: userID
+        })
+    }
+}
+
+export async function getHistories(author?: string) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("histories");
+    const histories = await collection.find({ 'isPrivate': false })
+    const foundedHistories = await histories.map(h => {
+        return (
+            {
+                historyName: h.historyName,
+                historyDescription: h.historyDescription,
+                messages: h.messages,
+                isPrivate: h.isPrivate,
+                author:  h.author.toString()
+            }
+        )
+    }).toArray()
+
+    if (author) {
+        return foundedHistories.filter(h => h.author == author)
+    }
+    return foundedHistories
+}
+
+export async function getUserNameById(id: string) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("users");
+    const user = await collection.findOne({ _id: new ObjectId(id) })
+    if (user) {
+        return user.name
+    }
+    else {
+        return 'аккаунт удален'
+    }
 }
 
 
