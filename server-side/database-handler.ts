@@ -7,6 +7,7 @@ import { getUserIdFromSession } from "./database-getter";
 import { IApi, IChat, ITag, IUser } from "@/custom-types";
 import { convertIChatforFront } from "./chat-handler";
 import { ChatState } from "@/components/history-configure";
+import { PromptState } from "@/components/promptConfig";
 
 
 
@@ -145,27 +146,112 @@ export async function addNewHistory(history: ChatState) {
     }
 }
 
-export async function getHistories(author?: string) {
+export async function addNewPrompt(prompt: PromptState) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("prompts");
+    const user = await getUserFromSession()
+    const userID = user?._id
+    if (userID) {
+        const data = await collection.insertOne({
+            ...prompt, author: userID
+        })
+    }
+}
+
+
+export async function getPrompts(onlyYours: boolean) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("prompts");
+
+    let histories: any = undefined
+    const userId = await getUserIdFromSession()
+    if (onlyYours) {
+
+        histories = await collection.find({ 'author': new ObjectId(userId) })
+    }
+    else {
+        histories = await collection.find({ 'isPrivate': false })
+    }
+
+    const foundedHistories = await histories.map(
+        (h: {
+            promptName: any;
+            promptDescription: any;
+            promptText: any;
+            isPrivate: any;
+            isSystemPrompt: any;
+            author: { toString: () => any; };
+        }) => {
+            return (
+                {
+                    promptName: h.promptName,
+                    promptDescription: h.promptDescription,
+                    promptText: h.promptText,
+                    isPrivate: h.isPrivate,
+                    isSystemPrompt: h.isSystemPrompt,
+                    author: h.author.toString()
+                }
+            )
+        }).toArray()
+
+    let aboba: any[] = []
+
+
+    aboba = await Promise.all(foundedHistories.map(async (h: { author: string; }) => {
+        return {
+            ...h,
+            authorName: await getUserNameById(h.author),
+            isEditable: h.author == userId,
+        };
+    }));
+
+    return aboba
+}
+
+
+
+export async function getHistories(onlyYours: boolean) {
     client.connect()
     const database = client.db("api-manager");
     const collection = database.collection("histories");
-    const histories = await collection.find({ 'isPrivate': false })
-    const foundedHistories = await histories.map(h => {
-        return (
-            {
-                historyName: h.historyName,
-                historyDescription: h.historyDescription,
-                messages: h.messages,
-                isPrivate: h.isPrivate,
-                author:  h.author.toString()
-            }
-        )
-    }).toArray()
 
-    if (author) {
-        return foundedHistories.filter(h => h.author == author)
+    let histories: any = undefined
+    const userId = await getUserIdFromSession()
+    if (onlyYours) {
+
+        histories = await collection.find({ 'author': new ObjectId(userId) })
     }
-    return foundedHistories
+    else {
+        histories = await collection.find({ 'isPrivate': false })
+    }
+
+    const foundedHistories = await histories.map(
+        (h: { historyName: any; historyDescription: any; messages: any; isPrivate: any; author: { toString: () => any; }; }) => {
+            return (
+                {
+                    historyName: h.historyName,
+                    historyDescription: h.historyDescription,
+                    messages: h.messages,
+                    isPrivate: h.isPrivate,
+                    author: h.author.toString()
+                }
+            )
+        }).toArray()
+
+    let aboba: any[] = []
+
+
+    aboba = await Promise.all(foundedHistories.map(async (h: { author: string; }) => {
+        return {
+            ...h,
+            authorName: await getUserNameById(h.author),
+            isEditable: h.author == userId
+        };
+    }));
+
+    return aboba
 }
 
 export async function getUserNameById(id: string) {

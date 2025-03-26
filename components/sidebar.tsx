@@ -24,6 +24,7 @@ import { FaBuffer } from "react-icons/fa6";
 import { FaToolbox } from "react-icons/fa";
 import { AiOutlineTool } from "react-icons/ai";
 
+import { FaSearch } from "react-icons/fa";
 
 
 
@@ -79,19 +80,9 @@ export function SideBar({
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
                 <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={AiOutlineTool} href="/main/configure" children={[
                     {
-                        name: 'промпты',
-                        href: '/main/configure/prompts',
-                        Icon: FaBuffer
-                    },
-                    {
-                        name: 'админ',
-                        href: '/main/configure/sys',
-                        Icon: FaBuffer
-                    },
-                    {
-                        name: 'истории чата',
-                        href: '/main/configure/chats',
-                        Icon: FaBuffer
+                        name: 'Библиотека',
+                        href: '/main/configure/browse',
+                        Icon: FaSearch
                     }
                 ]} />
                 <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[

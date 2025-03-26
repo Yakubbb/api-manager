@@ -1,6 +1,7 @@
 'use client'
 import { IMessage } from "@/custom-types"
 import { addNewHistory } from "@/server-side/database-handler";
+import { redirect } from "next/navigation";
 import { useState, useRef, useEffect, ReactNode } from "react"
 import { IoMdAdd, IoMdSave, IoMdTrash } from "react-icons/io";
 
@@ -26,15 +27,16 @@ interface ButtonProps {
     className?: string;
     type?: 'button' | 'submit' | 'reset';
     htmlFor?: string;
+    disabled?: boolean; // Add disabled prop
 }
 
-const Button: React.FC<ButtonProps> = ({ onClick, children, className = '', type = 'button', htmlFor }) => {
+const Button: React.FC<ButtonProps> = ({ onClick, children, className = '', type = 'button', htmlFor, disabled = false }) => { // Add disabled to props and default to false
     const baseClasses = "font-bold py-3 px-6 rounded-2xl flex items-center justify-center space-x-2";
-    const combinedClasses = `${baseClasses} ${className}`;
+    const combinedClasses = `${baseClasses} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`; // Style when disabled
 
     if (htmlFor) {
         return (
-            <label htmlFor={htmlFor} className={`cursor-pointer ${combinedClasses}`}>
+            <label htmlFor={htmlFor} className={`cursor-pointer ${combinedClasses} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 {children}
             </label>
         )
@@ -45,6 +47,7 @@ const Button: React.FC<ButtonProps> = ({ onClick, children, className = '', type
             type={type}
             onClick={onClick}
             className={combinedClasses}
+            disabled={disabled} // Apply disabled prop to button
         >
             {children}
         </button>
@@ -197,9 +200,13 @@ export default function ChatInterface() {
     }, []);
 
     const handleSave = async () => {
+        if (!chatState.historyName.trim()) { // Check if historyName is filled
+            alert("Пожалуйста, введите название истории для сохранения.");
+            return; // Prevent saving if name is empty
+        }
         try {
             await addNewHistory(chatState);
-            alert("История успешно сохранена!");
+            redirect('/main/configure/chats')
         } catch (error) {
             console.error("Ошибка при сохранении истории:", error);
             alert("Произошла ошибка при сохранении истории.");
@@ -236,7 +243,11 @@ export default function ChatInterface() {
                     />
                 </div>
                 <div className="flex space-x-2">
-                    <Button onClick={handleSave} className="bg-[#7242f5] hover:bg-blue-700 text-white rounded-md">
+                    <Button
+                        onClick={handleSave}
+                        className={`bg-[#7242f5] text-white rounded-md`}
+                        disabled={!chatState.historyName.trim()}
+                    >
                         <span>Сохранить</span>
                         <IoMdSave size={20} />
                     </Button>

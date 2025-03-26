@@ -1,11 +1,12 @@
 'use client'
 import HistoryConfigure from "@/components/history-configure"
+import PromptConfig from "@/components/promptConfig"
 import { useState } from "react"
 
 function CustomVariant({ name, description, selected, select }:
     { name: string, description: string, selected: boolean, select: () => void }) {
     return (
-        <div onClick={()=>select()} className={`hover:cursor-pointer focus:border-black flex flex-col gap-2 rounded-2xl p-4 ${selected?'text-white bg-[#7242f5]':'text-black bg-white'} shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}>
+        <div onClick={() => select()} className={`hover:cursor-pointer focus:border-black flex flex-col gap-2 rounded-2xl p-4 ${selected ? 'text-white bg-[#7242f5]' : 'text-black bg-white'} shadow-[0_3px_10px_rgb(0,0,0,0.2)]`}>
             <div className="flex flex-row gap-1 font-bold text-xl">
                 {name}
             </div>
@@ -27,14 +28,22 @@ export default function () {
                     Доступные варианты кастомизации
                 </div>
                 <div className="flex flex-col rounded-xl w-[100%] h-[90%] p-2 gap-2">
-                    <CustomVariant select={() => setSelectedOption(0)} selected={selectedOption == 0} name="Системный промпт" description="системный промпт - это промпт, от системы"  />
-                    <CustomVariant select={() => setSelectedOption(1)} selected={selectedOption == 1} name="История чата" description="вы можете подставить свою историю чата, чтобы предоставить модели пример как нужно отвечать"/>
-                    <CustomVariant select={() => setSelectedOption(2)} selected={selectedOption == 2} name="Промпт" description="ваш запрос модели"  />
+                    <CustomVariant
+                        select={() => setSelectedOption(0)}
+                        selected={selectedOption == 0}
+                        name="Промпт"
+                        description="Краткие инструкции для ИИ, чтобы задать стиль и тон ответа." />
+                    <CustomVariant
+                     select={() => setSelectedOption(1)}
+                     selected={selectedOption == 1} 
+                     name="История чата"
+                      description="Примеры диалога для обучения ИИ желаемому стилю общения и контексту." />
                 </div>
             </div>
             <div className="w-[70%]">
-                {selectedOption == 1 && <HistoryConfigure /> }
-                
+                {selectedOption == 1 && <HistoryConfigure />}
+                {selectedOption == 0 && <PromptConfig />}
+
             </div>
         </div>
     )
