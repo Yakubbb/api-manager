@@ -159,6 +159,42 @@ export async function addNewPrompt(prompt: PromptState) {
     }
 }
 
+export async function deletePrompt(promptId: string) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("prompts");
+    await collection.deleteOne({ _id: new ObjectId(promptId) })
+}
+
+export async function deleteHistory(historyId: string) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("histories");
+    await collection.deleteOne({ _id: new ObjectId(historyId) })
+}
+
+export async function changeHistoryPrivacy(historyId: string, status: boolean) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("histories");
+    await collection.updateOne({ _id: new ObjectId(historyId) }, {
+        $set: {
+            isPrivate: status,
+        },
+    })
+}
+
+export async function changePromptPrivacy(promptId: string, status: boolean) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("prompts");
+    await collection.updateOne({ _id: new ObjectId(promptId) }, {
+        $set: {
+            isPrivate: status,
+        },
+    })
+}
+
 
 export async function getPrompts(onlyYours: boolean) {
     client.connect()
@@ -166,7 +202,9 @@ export async function getPrompts(onlyYours: boolean) {
     const collection = database.collection("prompts");
 
     let histories: any = undefined
-    const userId = await getUserIdFromSession()
+    const sessionUser = await getUserFromSession()
+    const userId = sessionUser?._id.toString()
+
     if (onlyYours) {
 
         histories = await collection.find({ 'author': new ObjectId(userId) })
@@ -177,6 +215,7 @@ export async function getPrompts(onlyYours: boolean) {
 
     const foundedHistories = await histories.map(
         (h: {
+            _id: any;
             promptName: any;
             promptDescription: any;
             promptText: any;
@@ -186,6 +225,7 @@ export async function getPrompts(onlyYours: boolean) {
         }) => {
             return (
                 {
+                    id: h._id.toString(),
                     promptName: h.promptName,
                     promptDescription: h.promptDescription,
                     promptText: h.promptText,
@@ -200,6 +240,7 @@ export async function getPrompts(onlyYours: boolean) {
 
 
     aboba = await Promise.all(foundedHistories.map(async (h: { author: string; }) => {
+        
         return {
             ...h,
             authorName: await getUserNameById(h.author),
@@ -228,9 +269,12 @@ export async function getHistories(onlyYours: boolean) {
     }
 
     const foundedHistories = await histories.map(
-        (h: { historyName: any; historyDescription: any; messages: any; isPrivate: any; author: { toString: () => any; }; }) => {
+        (h: {
+            _id: any; historyName: any; historyDescription: any; messages: any; isPrivate: any; author: { toString: () => any; };
+        }) => {
             return (
                 {
+                    id: h._id.toString(),
                     historyName: h.historyName,
                     historyDescription: h.historyDescription,
                     messages: h.messages,

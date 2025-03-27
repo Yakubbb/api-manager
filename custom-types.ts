@@ -16,11 +16,32 @@ export interface IMessage {
     model?: string
     person?: string
     time?: string
-    temp?:string
+    temp?: string
 }
 
 export interface IUserContext {
     chats: IChat[]
+}
+
+export interface BaseElementProps {
+    id: string;
+    name: string;
+    description?: string;
+    authorName: string;
+    isPrivate: boolean;
+    isEditable: boolean;
+    onDelete: (id: string) => void;
+    onToggleStar: (id: string) => void;
+    onTogglePrivacy: (id: string, currentStatus: boolean) => void;
+}
+
+
+export interface ChatZoneProps {
+    items?: any[];
+    type: 'history' | 'prompt';
+    onDelete: (id: string) => void;
+    onToggleStar: (id: string) => void;
+    onTogglePrivacy: (id: string, currentStatus: boolean) => void;
 }
 
 
