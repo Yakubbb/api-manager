@@ -146,3 +146,30 @@ export interface DataType {
 }
 
 
+export interface ICustomItem {
+    _id: ObjectId
+    photo?: string,
+    type: 'prompt' | 'systemPrompt' | 'history'
+    name: string,
+    description: string,
+    comments?: any[]
+    likes: ObjectId[]
+    isPrivate: boolean
+    authorId: ObjectId
+    contents: any
+}
+export interface ICustomItemForFront {
+    _id: string
+    photo?: string,
+    type: 'prompt' | 'systemPrompt' | 'history'
+    name: string,
+    description: string,
+    comments?: any[]
+    likes: string[]
+    isPrivate: boolean
+    authorId: string
+    contents: any
+
+}
+
+

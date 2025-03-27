@@ -78,7 +78,8 @@ export function SideBar({
         <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] p-4 bg-[#f3f3f6] ">
             <nav className="flex flex-col gap-1">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
-                <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={AiOutlineTool} href="/main/configure" children={[
+                <SideBarComponent name="Кастомизация" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/customs" />
+                <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/customs" children={[
                     {
                         name: 'Библиотека',
                         href: '/main/configure/browse',
