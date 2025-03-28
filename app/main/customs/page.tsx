@@ -1,5 +1,4 @@
-'use client'
-
+"use client"
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { deleteCustomItem, getAllCustomIems, ICustomItemForUser, likeCustomItem, togglePrivateCustomItem } from "@/server-side/custom-items-database-handler";
@@ -93,34 +92,34 @@ const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle,
     const detailUrl = `/main/customs/${getTypePath(item.type)}/${item._id}`;
 
     return (
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg transition hover:shadow-xl">
-             <Link href={detailUrl} className="flex flex-grow flex-col">
+        <div className="flex w-full flex-col overflow-hidden rounded-2xl border-2 border-gray-200 bg-white transition hover:shadow-xl sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)]">
+            <Link href={detailUrl} className="flex flex-grow flex-col">
                 {item.photo && (
                     <div className="relative h-48 w-full">
-                         <img
+                        <img
                             src={item.photo}
                             alt={item.name}
                             className="absolute inset-0 h-full w-full object-cover"
                             onError={(e) => (e.currentTarget.style.display = 'none')}
-                         />
+                        />
                     </div>
                 )}
                 <div className="flex flex-grow flex-col p-5 pb-0">
                     <div className="mb-2 flex items-start justify-between gap-3">
-                        <h3 className="text-xl font-semibold text-gray-900">{item.name}</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{item.name}</h3>
                     </div>
                     <p className="mb-2 text-sm text-gray-500">
                         Тип: <span className={getTypeBadgeClasses(item.type)}>{item.type}</span>
                     </p>
                     <p className="mb-4 text-sm text-gray-500">Автор: {authorName}</p>
-                    <p className="mb-5 flex-grow text-base text-gray-700 line-clamp-3">
+                    <p className="mb-5 flex-grow text-base text-gray-700 line-clamp-3 font-main2">
                         {item.description}
                     </p>
                 </div>
             </Link>
 
-             <div className="mt-auto flex items-center justify-between border-t border-gray-100 p-5 pt-4">
-                 <div className='flex items-center gap-2'>
+            <div className="mt-auto flex items-center justify-between border-t border-gray-100 p-5 pt-4">
+                <div className='flex items-center gap-2'>
                     <button
                         onClick={() => onLikeToggle(item._id, item.type)}
                         title={isLiked ? "Убрать лайк" : "Поставить лайк"}
@@ -129,7 +128,7 @@ const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle,
                         {isLiked ? <AiFillHeart className="h-5 w-5" /> : <AiOutlineHeart className="h-5 w-5" />}
                         <span>{item.likes.length}</span>
                     </button>
-                     {isEditable && (
+                    {isEditable && (
                         <button
                             onClick={() => onPrivacyToggle(item._id, item.type)}
                             title={item.isPrivate ? "Сделать публичным" : "Сделать приватным"}
@@ -143,9 +142,9 @@ const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle,
                     {!isEditable && item.isPrivate && (
                         <FaLock className="ml-2 h-4 w-4 flex-shrink-0 text-gray-400" title="Приватный элемент" />
                     )}
-                 </div>
+                </div>
 
-                 {isEditable && (
+                {isEditable && (
                     <button
                         onClick={() => onDelete(item._id, item.type)}
                         title="Удалить"
@@ -227,9 +226,6 @@ export default function CustomItemsPage() {
         }
     }, [items]);
 
-    const handleCreateNew = () => {
-        console.log("Backend: Инициировано создание нового пресета");
-    };
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -289,57 +285,61 @@ export default function CustomItemsPage() {
                 if (valA > valB) return order === 'asc' ? 1 : -1;
 
                 if (key !== 'name') {
-                  const nameA = a.item.name.toLowerCase();
-                  const nameB = b.item.name.toLowerCase();
-                  if (nameA < nameB) return -1;
-                  if (nameA > nameB) return 1;
+                    const nameA = a.item.name.toLowerCase();
+                    const nameB = b.item.name.toLowerCase();
+                    if (nameA < nameB) return -1;
+                    if (nameA > nameB) return 1;
                 }
                 return 0;
             });
     }, [items, searchTerm, sortConfig]);
 
     return (
-        <div className="container mx-auto p-4 md:px-6 md:py-8">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col mx-auto h-screen p-4 md:px-6 md:py-8 overflow-hidden bg-gray-50">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
                 <h1 className="text-3xl font-bold text-gray-800">Пользовательские пресеты</h1>
-                <button
-                    onClick={handleCreateNew}
+                <Link
+                    href={'/main/customs/histories'}
                     className="inline-flex items-center gap-2 rounded-full bg-[#7242f5] px-6 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-[#6135d4] focus:outline-none focus:ring-2 focus:ring-[#7242f5] focus:ring-offset-2"
                 >
                     <AiOutlinePlus className="h-5 w-5" />
                     Создать новый
-                </button>
+                </Link>
             </div>
 
-            <SearchSortControls
-                searchTerm={searchTerm}
-                onSearchChange={handleSearchChange}
-                sortConfig={sortConfig}
-                onSort={handleSort}
-            />
+            <div className="flex-shrink-0">
+                 <SearchSortControls
+                    searchTerm={searchTerm}
+                    onSearchChange={handleSearchChange}
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                 />
+            </div>
 
-            {isLoading && <p className="py-10 text-center text-lg text-gray-600">Загрузка пресетов...</p>}
-            {error && <p className="py-10 text-center text-lg text-red-600">{error}</p>}
+            <div className="flex-grow overflow-y-auto pt-4">
+                {isLoading && <p className="py-10 text-center text-lg text-gray-600">Загрузка пресетов...</p>}
+                {error && <p className="py-10 text-center text-lg text-red-600">{error}</p>}
 
-            {!isLoading && !error && (
-                displayedItems.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {displayedItems.map((userItem) => (
-                            <CustomItemCard
-                                key={userItem.item._id}
-                                userItem={userItem}
-                                onLikeToggle={handleLikeToggle}
-                                onDelete={handleDelete}
-                                onPrivacyToggle={handlePrivacyToggle}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <p className="mt-12 text-center text-lg text-gray-500">
-                        {searchTerm ? 'Не найдено элементов, соответствующих вашему поиску.' : 'Пока нет пользовательских пресетов. Создайте первый!'}
-                    </p>
-                )
-            )}
+                {!isLoading && !error && (
+                    displayedItems.length > 0 ? (
+                        <div className="flex flex-wrap gap-6 w-full pb-4">
+                            {displayedItems.map((userItem) => (
+                                <CustomItemCard
+                                    key={userItem.item._id}
+                                    userItem={userItem}
+                                    onLikeToggle={handleLikeToggle}
+                                    onDelete={handleDelete}
+                                    onPrivacyToggle={handlePrivacyToggle}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="mt-12 text-center text-lg text-gray-500">
+                            {searchTerm ? 'Не найдено элементов, соответствующих вашему поиску.' : 'Пока нет пользовательских пресетов. Создайте первый!'}
+                        </p>
+                    )
+                )}
+            </div>
         </div>
     );
 }

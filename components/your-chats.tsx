@@ -53,7 +53,7 @@ export default function () {
                             <Markdown>{chat.desription}</Markdown>
                         </div>
                         <div className="flex flex-row gap-1 text-xs text-center items-center text-[#5b5966]">
-                            <div>{`<${chat.model}>`}</div>
+                            <div>{`[${chat.messages.length}]`}</div>
                         </div>
                     </div>
                 )

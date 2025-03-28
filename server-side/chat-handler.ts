@@ -121,7 +121,8 @@ export async function changeChatName(chatId: string, newName: string) {
     const chats = await getAllUsersChats()
     const user = await getUserFromSession()
     console.log(user)
-    chats.updateOne({ _id: user?._id }, { $push: { "chats.$[chat].name": newName } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
+    chats.updateOne({ _id: user?._id }, { $set: { "chats.$[chat].name": newName } }, { arrayFilters: [{ "chat._id": new ObjectId(chatId) }] })
+    redirect(`/main/gemini/chat?id=${chatId}&cnanged=true`)
 }
 
 

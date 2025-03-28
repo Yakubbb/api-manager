@@ -2,6 +2,7 @@
 import { ICustomItem, ICustomItemForFront } from "@/custom-types";
 import { MongoClient, ObjectId } from "mongodb";
 import { getUserFromSession } from "./database-handler";
+import { redirect } from "next/navigation";
 
 const uri = process.env.MONGODB_URI as string
 
@@ -57,11 +58,24 @@ export async function likeCustomItem(itemId: string, itemType: 'prompt' | 'syste
 }
 
 
-export async function createCustomItem(collectionName: 'prompts' | 'histories', item: ICustomItem) {
-
+export async function createCustomItem(itemType: 'prompt' | 'systemPrompt' | 'history', item: ICustomItem) {
+    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
     const collection = database.collection(collectionName)
-    await collection.insertOne(item)
+    const user = await getUserFromSession()
+    item.authorId = user?._id!
+    const result = await collection.insertOne(item)
+    console.log(result)
+    redirect(`/main/customs/${collectionName}/${result.insertedId.toString()}`)
 
+}
+
+export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'history', item: any, itemId: string) {
+    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
+    const user = await getUserFromSession()
+    const collection = database.collection<ICustomItem>(collectionName)
+    delete item._id
+    item.authorId = user?._id!
+    await collection.replaceOne({ _id: new ObjectId(itemId) }, item)
 }
 
 export async function getAllCustomIems(byUser: boolean): Promise<ICustomItemForUser[]> {
@@ -124,7 +138,7 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
     const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
     const authorName = author ? author.name : 'аккаунт удалён'
-    const isLikedByUser = item.likes.find(l => l == userId) ? true : false
+    const isLikedByUser = item.likes.find(l => l.toString() == userId.toString()) ? true : false
     const isEditable = item?.authorId.toString() == userId.toString()
 
     return (
@@ -158,7 +172,7 @@ export async function getCustomItem(collectionName: 'prompts' | 'histories', id:
         const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
         const authorName = author ? author.name : 'аккаунт удалён'
-        const isLikedByUser = item.likes.find(l => l == user?._id) ? true : false
+        const isLikedByUser = item.likes.find(l => l.toString() == user?._id.toString()) ? true : false
         const isEditable = item?.authorId.toString() == user?._id.toString()
 
         return (

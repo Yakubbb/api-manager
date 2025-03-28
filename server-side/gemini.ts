@@ -53,7 +53,14 @@ export async function generate2(
             const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
             const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemPrompt });
 
+            console.log(person.concat(history).map((element) => {
+                return {
+                    role: element.role,
+                    parts: element.parts
+                }
+            }),)
 
+            
             const result = await model.generateContentStream({
                 contents: person.concat(history).map((element) => {
                     return {

@@ -1,53 +1,89 @@
 "use client"
 import { createUser } from "@/server-side/database-handler";
 import { useActionState } from "react";
-import { MdError } from "react-icons/md";
+import { MdError, MdCheckCircle } from "react-icons/md";
+import Link from 'next/link';
 
-
-export default function Loading() {
+export default function RegistrationPage() {
 
   const [state, action, pending] = useActionState(createUser, undefined)
 
   return (
-    <div className="flex flex-row justify-center self-center w-[50%] h-[90%] shadow-2xl shadow-[0_3px_10px_rgb(0,0,0,0.2)] shadow-indigo-600/40 rounded-3xl p-2 gap-1 mt-12">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
 
-      <div className="flex flex-col  w-[60%] overflow-auto gap-5 overflow-hidden ">
+        <div className="flex flex-col gap-6">
 
-        <div className="flex flex-row self-center p-5 pt-10 text-5xl font-semi-bold gap-3">
-          Регистрация нового пользователя
+          <div className="text-center text-3xl font-semibold text-gray-800">
+            Регистрация
+          </div>
+
+          {state?.type === 'error' && (
+            <div className="flex flex-row items-center gap-2 rounded-md bg-red-100 p-3 text-sm text-red-600">
+              <MdError />
+              {state.msg}
+            </div>
+          )}
+
+          {state?.type === 'ok' && (
+            <div className="flex flex-col items-center gap-3 rounded-md bg-green-100 p-3 text-sm text-green-700">
+              <div className="flex items-center gap-2">
+                <MdCheckCircle />
+                {state.msg}
+              </div>
+              <Link href="/" className="mt-2 inline-block rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">
+                Войти в аккаунт
+              </Link>
+            </div>
+          )}
+
+          {state?.type !== 'ok' && (
+            <form className="flex flex-col gap-4" action={action}>
+              <div>
+                <label htmlFor="login" className="block text-sm font-medium text-gray-700">Логин</label>
+                <input
+                  id="login"
+                  name="login"
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Придумайте логин"
+                  type="text"
+                  disabled={pending}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Пароль</label>
+                <input
+                  id="password"
+                  name="password"
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Придумайте пароль"
+                  type="password"
+                  disabled={pending}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={pending}
+                className={`mt-2 w-full flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${pending ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {pending ? 'Регистрация...' : 'Зарегистрироваться'}
+              </button>
+            </form>
+          )}
+
+          {state?.type !== 'ok' && (
+            <div className="mt-6 text-center text-sm text-gray-500">
+              Уже есть аккаунт?
+              <Link href="/" className="ml-1 font-medium text-indigo-600 hover:text-indigo-500">
+                Войти
+              </Link>
+            </div>
+          )}
+
         </div>
-
-        {state?.type == 'error' && <p className=" flex flex-row gap-2 items-center text-center self-center w-10% text-md p-2 rounded-2xl border-2 border-red bg-[#ff8080]">
-          <MdError />
-          {state.msg}
-        </p>}
-
-        {state?.type == 'ok' && <p className=" flex flex-row gap-2 items-center text-center self-center w-10% text-md p-2 rounded-2xl border-2 border-red text-white bg-[#85e085]">
-          <MdError />
-          {state.msg}
-          <a href="/" className="border-2 p-1 rounded-3xl">Войти</a>
-        </p>}
-
-        <form className="flex flex-col p-4 justify-center gap-2" action={action} >
-          <p className="text-xl">Ваш логин</p>
-          <input required name="login" className=" border-2 border-black dark:border-white rounded-3xl  text-md focus:outline-none select-none flex bg-transparent w-11/12 items-center  p-1 pl-4" placeholder="Login" type="text" />
-          <p className="text-xl">Ваш пароль</p>
-          <input required name="password" className=" border-2 border-black dark:border-white rounded-3xl  text-md focus:outline-none select-none flex bg-transparent w-11/12 items-center p-1 pl-4" placeholder="Password" type="text" />
-
-          <input className=" p-2 mt-5 self-center rounded-3xl border-2 border-black dark:border-white w-[30%]" type="submit" value={'Регистрация'} />
-          <a href="/" className="self-center text-xs">уже есть аккаунт? - нажмите сюда</a>
-        </form>
       </div>
     </div>
   );
 }
-
-/*
-      <div className="flex w-[30%] h-[30%] justify-center items-center hover:bg-sky-700 hover:rounded-xl hover:cursor-pointer">
-        Войти
-      </div>
-      <div className="flex w-[30%] h-[30%] justify-center items-center hover:bg-sky-700 hover:rounded-xl hover:cursor-pointer">
-        Регистрация
-      </div>
-
-      */

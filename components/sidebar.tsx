@@ -27,6 +27,16 @@ import { AiOutlineTool } from "react-icons/ai";
 import { FaSearch } from "react-icons/fa";
 
 
+/*
+              <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/customs" children={[
+                    {
+                        name: 'Библиотека',
+                        href: '/main/configure/browse',
+                        Icon: FaSearch
+                    }
+                ]} />
+                 */
+
 
 
 const options = [
@@ -79,13 +89,6 @@ export function SideBar({
             <nav className="flex flex-col gap-1">
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
                 <SideBarComponent name="Кастомизация" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/customs" />
-                <SideBarComponent name="Тюнинг" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/customs" children={[
-                    {
-                        name: 'Библиотека',
-                        href: '/main/configure/browse',
-                        Icon: FaSearch
-                    }
-                ]} />
                 <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
                     {
                         name: 'добавить',
