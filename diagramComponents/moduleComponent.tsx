@@ -25,7 +25,7 @@ export function CustomInputHandle({ onChange, inp }:
     const Icon = typesStyles[inp.type].Icon
 
     return (
-        <div className={`flex justify-between gap-5 rounded-md p-1`}>
+        <div className={`flex justify-between gap-5 rounded-md p-1 hover:bg-gray-100 transition-colors duration-200`}>
             <div className='flex justify-start'>
                 <Handle
                     type="target"
@@ -34,8 +34,8 @@ export function CustomInputHandle({ onChange, inp }:
                     style={
                         {
                             backgroundColor: `${typesStyles[inp.type].style}`,
-                            width: '20px',
-                            height: '20px',
+                            width: '15px',
+                            height: '15px',
                             borderRadius: '15px',
                             display: 'flex',
                             position: 'relative'
@@ -68,7 +68,7 @@ export function CustomOutputHandle({ out }:
     const Icon = typesStyles[out.type].Icon
 
     return (
-        <div className={`flex justify-between gap-5 bg-[#E0E0E0] rounded-md p-2`}>
+        <div className={`flex justify-between gap-5 p-2`}>
             <div style={
                 {
                     color: '#666666'
@@ -90,8 +90,8 @@ export function CustomOutputHandle({ out }:
                     style={
                         {
                             backgroundColor: `${typesStyles[out.type].style}`,
-                            width: '20px',
-                            height: '20px',
+                            width: '15px',
+                            height: '15px',
                             borderRadius: '15px',
                 
                             display: 'flex',
@@ -107,14 +107,14 @@ export function CustomOutputHandle({ out }:
 
 export const CustomNode = ({ data }: { data: IDiagramModule }) => {
     return (
-        <div className="w-xl h-xl rounded-xl bg-white border-2" style={
+        <div className="w-xl h-xl rounded-lg bg-white border-2 hover:shadow-md transition-shadow duration-200" style={
             {
-                paddingBottom: '10px'
+                paddingBottom: '20px'
             }
         }>
 
             <div className="flex flex-col gap-2">
-                <div className="flex  text-lg font-semibold items-center text-center">
+                <div className="flex  text-lg font-semibold items-center text-center font-main2">
                     <DiCode size={30} />
                     {data.name}
                 </div>
@@ -128,7 +128,7 @@ export const CustomNode = ({ data }: { data: IDiagramModule }) => {
                             )
                         })}
                     </div>
-                    <div className='flex flex-col gap-1 '>
+                    <div className='flex flex-col gap-1 bg-[#E0E0E0] rounded-md hover:bg-gray-300 transition-colors duration-200 '>
                         {data.outputs.map((out, index) => {
                             return (
                                 <CustomOutputHandle out={out} key={index} />

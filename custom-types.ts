@@ -126,7 +126,7 @@ export interface IPerson {
 
 
 export interface IDiagramModule {
-    name: 'aboba',
+    name: string,
     inputs: {
         name: string,
         type: string

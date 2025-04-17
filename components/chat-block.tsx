@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { FaCheck, FaTimes, FaPencilAlt } from "react-icons/fa";
 import { addMessageToChat, changeChatName, updateChatHistory } from "@/server-side/chat-handler";
-import { generate2 } from "@/server-side/gemini";
+import { generateStream } from "@/server-side/gemini";
 import { readStreamableValue } from "ai/rsc";
 import { IModelOptions, ModelOptionsBar } from "./model-options-bar";
 
@@ -51,7 +51,7 @@ export function ChatBlock({
             .concat([lastQuestion])
             .filter(msg => msg.error == undefined && msg.parts[0].text != '');
         console.log("Using chat history context:", modelOptions.chatHistory?.item.contents)
-        const { output } = await generate2(
+        const { output } = await generateStream(
             history,
             modelOptions.selectedModel?.modelName || 'gemini-2.0-flash',
             modelOptions.temperature,

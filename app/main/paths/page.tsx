@@ -31,40 +31,30 @@ const edgeTypes = {
 };
 
 const m: IDiagramModule = {
-  name: 'aboba',
+  name: 'AI agent',
   inputs: [
-    {
-      name: 'key',
-      type: 'key',
-      value: 'aboba'
-    },
     {
       name: 'prompt',
       type: 'text',
-      value: 'aboba'
     },
     {
-      name: 'sys',
-      type: 'fbx',
-      value: 'aboba'
-    }
+      name: 'prompt2',
+      type: 'text',
+    },
+    {
+      name: 'model',
+      type: 'model',
+    },
+    {
+      name: 'history',
+      type: 'history',
+    },
   ],
   outputs: [
     {
-      name: 'id',
-      type: 'photo',
-      value: 'aboba'
-    },
-    {
-      name: 'text1',
+      name: 'answer',
       type: 'text',
-      value: 'aboba'
     },
-    {
-      name: 'fbx1',
-      type: 'fbx',
-      value: 'aboba'
-    }
   ]
 }
 
@@ -73,27 +63,37 @@ const initNodes = [
     id: '1',
     type: 'custom',
     data: m,
-    position: { x: 0, y: 50 },
+    position: { x: -400, y: 0 },
   },
   {
     id: '2',
     type: 'custom',
     data: m,
 
-    position: { x: -200, y: 200 },
+    position: { x: 0, y: 0 },
   },
   {
     id: '3',
     type: 'singleConst',
-    data: { name: 'aboba', type: 'text', value: 'hoba' },
-    position: { x: 200, y: 200 },
-  },
-  {
-    id: '4',
-    type: 'const',
-    position: { x: 300, y: 200 },
+    data: m,
+    position: { x: -600, y: -50 },
   },
 ];
+
+const initEdges = [
+  {
+    id: 'aboba',
+    source: '1',
+    target: '2',
+    sourceHandle: 'answer',
+    targetHandle: 'prompt',
+    type: 'custom',
+    data: {
+      type: 'text',
+      constValue: undefined
+    }
+  },
+]
 
 
 export default function () {
@@ -116,10 +116,7 @@ export default function () {
 
     if (sourceNode) {
       switch (sourceNode.type) {
-        case 'singleConst':
-          sourceType = sourceNode.data.type
-          break;
-        case 'custom':
+        default:
           const outputs = sourceNode.data.outputs as { name: string, type: any }[]
           sourceType = outputs.find(o => o.name == params.sourceHandle!)?.type
           break;
@@ -128,10 +125,7 @@ export default function () {
 
     if (targetNode) {
       switch (targetNode.type) {
-        case 'singleConst':
-          targetType = targetNode.data.type
-          break;
-        case 'custom':
+        default:
           const inputs = targetNode.data.inputs as { name: string, type: any }[]
           targetType = inputs.find(o => o.name == params.targetHandle!)?.type
           break;
@@ -144,22 +138,31 @@ export default function () {
   const onConnect = useCallback(
     (params: any) => {
 
+      console.log('boba')
+
       if (params.source == params.target) {
+        console.log('hoba')
         return
       }
       const types = getTypeByParams(params)
 
       if (types.sourceType != types.targetType) {
+
+        console.log(types.sourceType)
+        console.log(types.targetType)
         return
       }
-      setEdges((eds) => addEdge({ ...params, style: { stroke: typesStyles[types.sourceType].style, strokeWidth: 5 } }, eds))
+
+
+      setEdges((eds) => addEdge({ type: 'custom', ...params, data: { type: types.sourceType } }, eds))
     },
     [],
   );
 
   const onConnectStart = useCallback(
     (params: any) => {
-      setEdges((eds) => addEdge({ ...params, style: { stroke: params.originalTarget.style["background-color"], strokeWidth: 5 } }, eds))
+      console.log('aboba')
+      //    setEdges((eds) => addEdge({ ...params, style: { stroke: params.originalTarget.style["background-color"], strokeWidth: 5 } }, eds))
     },
     [],
   );

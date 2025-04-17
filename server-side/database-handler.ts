@@ -322,7 +322,7 @@ export async function validateUserCreds(state: any, formData: FormData) {
     const userId = await getUserIdByCredentials(login, password)
     if (userId) {
         await createSession(userId)
-        redirect('/main/')
+        redirect('/main/gemini')
     }
     return { type: 'error', msg: 'Пользователя с такими данными нет' }
 }

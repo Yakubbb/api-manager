@@ -1,5 +1,6 @@
 import React from 'react';
-import { BaseEdge, EdgeProps, getSmoothStepPath } from '@xyflow/react';
+import { BaseEdge, EdgeProps, getBezierPath, getSmoothStepPath } from '@xyflow/react';
+import { typesStyles } from '@/custom-constants';
 
 export default function CustomEdge({
     id,
@@ -11,8 +12,9 @@ export default function CustomEdge({
     targetPosition,
     style = {},
     markerEnd,
-}: EdgeProps) {
-    const [edgePath, labelX, labelY] = getSmoothStepPath({
+    data
+}: any) {
+    const [edgePath, labelX, labelY] = getBezierPath({
         sourceX,
         sourceY,
         sourcePosition,
@@ -21,5 +23,8 @@ export default function CustomEdge({
         targetPosition,
     });
 
-    return <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+    console.log('aaaaa')
+    console.log(data)
+    console.log('aaaaa')
+    return <BaseEdge path={edgePath} markerEnd={markerEnd} style={{ stroke: typesStyles[data.type].style, strokeWidth: 5 }} />
 }

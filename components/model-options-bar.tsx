@@ -128,15 +128,6 @@ export function ModelOptionsBar({
                         className="w-full h-2 bg-indigo-400 rounded-xl appearance-none cursor-pointer"
                         onChange={handleTempertureChange} />
                 } />
-                <OptionRow name="API ключ" Icon={BsKey} children={
-                    <input
-                        type="text"
-                        placeholder="Введите API ключ"
-                        className="w-full p-2 rounded-md border border-gray-300 focus:border-indigo-400 focus:ring-indigo-400"
-                        value={modelOptions.apiKey}
-                        onChange={(e) => handleOptionChange('apiKey', e.target.value)}
-                    />
-                } />
             </OptionsGroup>
 
             <OptionsGroup name="Дополнительно">

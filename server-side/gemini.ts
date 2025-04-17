@@ -4,6 +4,7 @@ import { createStreamableValue } from 'ai/rsc';
 import { IMessage } from '@/custom-types';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
+
 const safetySettings = [
     {
         category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -32,7 +33,7 @@ function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function generate2(
+export async function generateStream(
     history: IMessage[],
     modelName: string,
     temp: number,
@@ -60,7 +61,7 @@ export async function generate2(
                 }
             }),)
 
-            
+
             const result = await model.generateContentStream({
                 contents: person.concat(history).map((element) => {
                     return {
