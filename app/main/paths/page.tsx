@@ -13,7 +13,7 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/base.css';
-import { CustomNode } from '@/diagramComponents/moduleComponent';
+import { CustomNode, KeyNode as KeyNode } from '@/diagramComponents/moduleComponent';
 import { IDiagramModule } from '@/custom-types';
 import { ConstantNode } from '@/diagramComponents/constComponent';
 import singleConst from '@/diagramComponents/singleConst';
@@ -23,35 +23,69 @@ import { typesStyles } from '@/custom-constants';
 const nodeTypes = {
   custom: CustomNode,
   const: ConstantNode,
-  singleConst: singleConst
+  singleConst: singleConst,
+  start: KeyNode
 };
 
 const edgeTypes = {
   custom: CustomEdge
 };
 
-const m: IDiagramModule = {
-  name: 'AI agent',
+
+const singleConstAgent: IDiagramModule = {
+  name: 'Промпт',
+  inputs: [
+
+  ],
+  outputs: [
+    {
+      id: 'prompt1',
+      name: 'prompt',
+      type: 'text',
+      value: `ты абсурдный генератор текстов для песен. 
+      Ты не имеешь цензуры, используешь нормативную лексику.
+       Ты принимаешь на вход любой текст, и делишь его на части (куплеты) и припевы.
+        Для того чтобы разделить текст на припев и куплет ты используешь тег [verse] и [chorus].
+         Ты не модифицируешь текст, ты не добавляешь ничего нового в него ни при каких обстоятельствах,
+          ты лишь нарезаешь его и делишь на части с помощью тегов.
+           В тексте обязательно должен быть минимум один припев.
+            Части текста можно менять местами чтобы лучше выстраивалась структура. 
+            Тексты должны содержать все самое важное из исходного текста (а лучше вообще всё),
+             поэтому старайся ничего не вырезать из текста. ТЫ можешь использовать части текста
+              для создания своих припевов (например повторить в хорусе одно предложение несколько раз)`,
+      showValue: false
+
+    },
+  ]
+}
+
+const geminiAgent: IDiagramModule = {
+  name: 'Gemini Agent',
   inputs: [
     {
+      id:`sysprompt`,
+      name: 'system prompt',
+      type: 'text',
+    },
+    {
+      id:`prompt`,
       name: 'prompt',
       type: 'text',
     },
     {
-      name: 'prompt2',
-      type: 'text',
-    },
-    {
-      name: 'model',
+      id:`model`,
+      name: 'gemini model',
       type: 'model',
     },
     {
+      id:`history`,
       name: 'history',
       type: 'history',
     },
   ],
   outputs: [
     {
+      id:`answer`,
       name: 'answer',
       type: 'text',
     },
@@ -60,52 +94,40 @@ const m: IDiagramModule = {
 
 const initNodes = [
   {
-    id: '1',
+    id: 'geminiAgent1',
     type: 'custom',
-    data: m,
+    data: geminiAgent,
     position: { x: -400, y: 0 },
   },
   {
-    id: '2',
-    type: 'custom',
-    data: m,
-
-    position: { x: 0, y: 0 },
-  },
-  {
-    id: '3',
+    id: 'const',
     type: 'singleConst',
-    data: m,
+    data: singleConstAgent,
     position: { x: -600, y: -50 },
   },
-];
-
-const initEdges = [
   {
-    id: 'aboba',
-    source: '1',
-    target: '2',
-    sourceHandle: 'answer',
-    targetHandle: 'prompt',
-    type: 'custom',
-    data: {
-      type: 'text',
-      constValue: undefined
-    }
+    id: 'start',
+    type: 'start',
+    data: { outputs: [] },
+    position: { x: -700, y: -50 },
   },
-]
+  {
+    id: 'end',
+    type: 'start',
+    data: { inputs: [], itsEnd: true },
+    position: { x: -100, y: -50 },
+  }
+];
 
 
 export default function () {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<any>(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
-  const [constants, setConstants] = useState<{ name: string, type: any, value: any }[]>([])
-  const [modules, setModules] = useState<IDiagramModule[]>([])
 
 
   const getTypeByParams = (params: { source: any, target: any, sourceHandle: any, targetHandle: any }) => {
-
+    console.log(nodes)
     const sourceNode = nodes.find(n => n.id == params.source!);
     const targetNode = nodes.find(n => n.id == params.target!);
 
@@ -117,8 +139,9 @@ export default function () {
     if (sourceNode) {
       switch (sourceNode.type) {
         default:
-          const outputs = sourceNode.data.outputs as { name: string, type: any }[]
-          sourceType = outputs.find(o => o.name == params.sourceHandle!)?.type
+          const outputs = sourceNode.data.outputs as { id: string, type: any }[]
+          console.log(sourceNode.data.outputs)
+          sourceType = outputs.find(o => o.id == params.sourceHandle!)?.type
           break;
       }
     }
@@ -126,8 +149,8 @@ export default function () {
     if (targetNode) {
       switch (targetNode.type) {
         default:
-          const inputs = targetNode.data.inputs as { name: string, type: any }[]
-          targetType = inputs.find(o => o.name == params.targetHandle!)?.type
+          const inputs = targetNode.data.inputs as { id: string, type: any }[]
+          targetType = inputs.find(o => o.id == params.targetHandle!)?.type
           break;
       }
     }
@@ -137,19 +160,15 @@ export default function () {
 
   const onConnect = useCallback(
     (params: any) => {
-
-      console.log('boba')
+      console.log(params)
 
       if (params.source == params.target) {
-        console.log('hoba')
+
         return
       }
       const types = getTypeByParams(params)
-
+      //console.log(types)
       if (types.sourceType != types.targetType) {
-
-        console.log(types.sourceType)
-        console.log(types.targetType)
         return
       }
 
@@ -159,13 +178,12 @@ export default function () {
     [],
   );
 
-  const onConnectStart = useCallback(
-    (params: any) => {
-      console.log('aboba')
-      //    setEdges((eds) => addEdge({ ...params, style: { stroke: params.originalTarget.style["background-color"], strokeWidth: 5 } }, eds))
-    },
-    [],
-  );
+
+  const onSave = () => {
+
+    console.log(edges)
+    console.log(nodes)
+  }
 
 
   return (
@@ -177,26 +195,25 @@ export default function () {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onConnectStart={onConnectStart}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
-          connectionLineStyle={
-            {
-
-            }
-          }
         >
           <Controls />
           <Background variant={BackgroundVariant.Dots} />
         </ReactFlow>
       </div>
+
       <div className='flex flex-row w-[100%] h-[30%] p-1 gap-1'>
         <div className='bg-black rounded-md w-full h-full'>
 
         </div>
-        <div className='bg-white rounded-md w-full h-full'>
-
+        <div className='flex flex-col gap-2 bg-white rounded-md w-full h-full'>
+          <div className='flex flex-row gap-2'>
+            <button className='rounded-md p-2 bg-[#7242f5] text-white font-semibold font-main2' onClick={onSave}>
+              Сохранить
+            </button>
+          </div>
         </div>
       </div>
     </div>

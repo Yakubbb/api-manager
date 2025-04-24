@@ -2,6 +2,7 @@
 
 import { ObjectId } from "mongodb"
 import { IconType } from "react-icons"
+import { IHandleData } from "./diagramComponents/moduleComponent"
 
 
 export interface IMessage {
@@ -127,17 +128,9 @@ export interface IPerson {
 
 export interface IDiagramModule {
     name: string,
-    inputs: {
-        name: string,
-        type: string
-        value?: any
-    }[],
-    outputs:
-    {
-        name: string,
-        type: string
-        value?: any
-    }[],
+    itsEnd?: boolean,
+    inputs:IHandleData[],
+    outputs:IHandleData[],
 }
 
 export interface DataType {

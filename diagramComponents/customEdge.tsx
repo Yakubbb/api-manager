@@ -1,5 +1,6 @@
+'use client'
 import React from 'react';
-import { BaseEdge, EdgeProps, getBezierPath, getSmoothStepPath } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, getSmoothStepPath, useReactFlow } from '@xyflow/react';
 import { typesStyles } from '@/custom-constants';
 
 export default function CustomEdge({
@@ -23,8 +24,22 @@ export default function CustomEdge({
         targetPosition,
     });
 
-    console.log('aaaaa')
+    const { setEdges } = useReactFlow();
+
+    const onEdgeClick = (event: React.MouseEvent<SVGPathElement, MouseEvent>) => {
+        setEdges((edges) => edges.filter((edge) => edge.id !== id));
+    };
+
     console.log(data)
-    console.log('aaaaa')
-    return <BaseEdge path={edgePath} markerEnd={markerEnd} style={{ stroke: typesStyles[data.type].style, strokeWidth: 5 }} />
+
+    return <>
+        <path
+            id={id}
+            className="react-flow__edge-path"
+            d={edgePath}
+            markerEnd={markerEnd}
+            style={{ stroke: typesStyles[data.type].style, strokeWidth: 5, cursor: 'pointer' }}
+            onClick={onEdgeClick}
+        />
+    </>
 }

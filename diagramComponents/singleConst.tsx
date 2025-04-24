@@ -1,11 +1,19 @@
 'use client'
 
 import { BsFileEarmarkLock } from "react-icons/bs"
-import { CustomOutputHandle } from "./moduleComponent"
 import { IDiagramModule } from "@/custom-types"
 import { DiCode } from "react-icons/di"
+import { CustomHandle } from "./moduleComponent"
+import { useEffect, useState } from "react"
 
 export default function ({ data }: { data: IDiagramModule }) {
+
+
+    const [startOutputs, setStartOutputs] = useState<{ name: string, type: string, value?: any }[]>(data.outputs)
+
+    useEffect(() => {
+        data.outputs = startOutputs
+    }, [startOutputs])
 
     return (
         <div className="flex flex-col gap-2 rounded-xl bg-white border-2" style={
@@ -19,9 +27,21 @@ export default function ({ data }: { data: IDiagramModule }) {
                 </div>
             </div>
             <div className='flex flex-col gap-1 bg-[#E0E0E0] rounded-md hover:bg-gray-300 transition-colors duration-200 '>
-                {data.outputs.map((out, index) => {
+                {startOutputs.map((out, index) => {
                     return (
-                        <CustomOutputHandle out={out} key={index} />
+                        <CustomHandle data={out} key={index} isTarget={false} isEditable={true} onChange={(node) => {
+                            setStartOutputs(
+                                startOutputs.map(output => {
+                                    if (output == out) {
+                                        return node
+                                    }
+                                    else {
+                                        output
+                                    }
+                                })
+                            )
+                        }
+                        } />
                     )
                 })}
             </div>
