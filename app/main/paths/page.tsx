@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
   useNodesState,
@@ -72,8 +72,6 @@ const singleConstAgent2: IDiagramModule = {
 const geminiAgent: IDiagramModule = {
   name: 'Gemini Agent',
   getResponse: async (arg) => {
-    console.log(arg)
-
     const model = arg.find(a => a.id == 'model')
     const prompt = arg.find(a => a.id == 'prompt')
     const sysprompt = arg.find(a => a.id == 'sysprompt')
@@ -150,23 +148,31 @@ const initNodes = [
     type: 'start',
     data: { outputs: [{ id: 'userPrompt', name: 'prompt', type: 'text', value: 'aboba' }] },
     position: { x: 0, y: 200 },
+    deletable: false
   },
   {
     id: 'end',
     type: 'start',
     data: { inputs: [], itsEnd: true },
     position: { x: 700, y: 0 },
+    deletable: false
   }
 ];
+
+const AVALIBLE_NODE_TYPES: { type: 'singleConst' | 'custom', data: IDiagramModule }[] = [
+  
+]
 
 
 export default function () {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<any>(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
+  const [statusMessages, setStatusMessages] = useState<{ type: 'error' | 'ok' | 'mid', msg: string }[]>()
+  const [returnedData, setReturnedData] = useState<{ id: string, value?: any }[]>([])
 
 
-  const getTypeByParams = (params: { source: any, target: any, sourceHandle: any, targetHandle: any }) => {
+  const getTypeByParams = useCallback((params: { source: any, target: any, sourceHandle: any, targetHandle: any }) => {
     const sourceNode = nodes.find(n => n.id == params.source!);
     const targetNode = nodes.find(n => n.id == params.target!);
 
@@ -194,7 +200,7 @@ export default function () {
     }
 
     return { sourceType: sourceType, targetType: targetType }
-  }
+  }, [nodes]);
 
   const onConnect = useCallback(
     (params: any) => {
@@ -202,7 +208,6 @@ export default function () {
         return
       }
       const types = getTypeByParams(params)
-      //console.log(types)
       if (types.sourceType != types.targetType) {
         return
       }
@@ -213,13 +218,12 @@ export default function () {
 
       setEdges((eds) => addEdge({ type: 'custom', ...params, data: { type: types.sourceType, hasValue: hasValue } }, eds))
     },
-    [],
+    [nodes, getTypeByParams],
   );
 
   const onSave = () => {
-    console.log("Saving...");
-
     const saveAsync = async () => {
+      setStatusMessages([{ type: 'mid', msg: 'процесс запущен...' }])
 
       // 1. Find the starting node(s).  Assume we have one for now.  Adjust logic if you need to support multiple starts
       const startNode = nodes.find(node => node.type === 'start' && !node.data.itsEnd);  // added !node.data.itsEnd check
@@ -232,7 +236,10 @@ export default function () {
       let currentNodes: any[] = [startNode]; // Start with the start node
       const visitedNodes = new Set<string>(); // Keep track of visited nodes to prevent loops
       const dependencies: { [nodeId: string]: { [inputId: string]: any } } = {};
+      const deps: { nodeId: string, inputId: string, value?: any }[] = []
 
+      // Create a copy of the nodes array to modify
+      const newNodes = nodes.map(node => ({ ...node, data: { ...node.data } }));
 
       // 3. Breadth-first traversal
       while (currentNodes.length > 0) {
@@ -251,10 +258,11 @@ export default function () {
             for (const input of currentNode.data.inputs) {
               const edge = edges.find(e => e.target === currentNode.id && e.targetHandle === input.id);
               if (edge) {
-                const sourceNode = nodes.find(n => n.id === edge.source);
+                const sourceNode = newNodes.find(n => n.id === edge.source); // Use newNodes
                 if (sourceNode) {
                   let inputValue: any;
                   inputValue = (sourceNode.data.outputs as IHandleData[]).find(output => output.id === edge.sourceHandle)?.value;
+                  deps.push({ nodeId: currentNode.id, inputId: input.id, value: inputValue })
                   dependencies[currentNode.id][input.id] = inputValue;
                   paramsForValue.push({ id: input.id, value: inputValue })
                 }
@@ -263,35 +271,39 @@ export default function () {
           }
 
           if (currentNode.type == 'custom') {
-
-            const newValue = await (currentNode.data as IDiagramModule).getResponse(paramsForValue)
-            newValue.forEach(v => {
-              (currentNode.data as IDiagramModule).outputs = (currentNode.data as IDiagramModule).outputs.map(o => {
-                if (o.id == v.id) {
-                  console.log(v)
+            const nodeIndex = newNodes.findIndex(n => n.id === currentNode.id); // Find the index in newNodes
+            if (nodeIndex !== -1) {
+              const newValue = await (currentNode.data as IDiagramModule).getResponse(paramsForValue)
+              const updatedOutputs = (currentNode.data as IDiagramModule).outputs.map(o => {
+                const newValueItem = newValue.find(v => v.id === o.id);
+                if (newValueItem) {
                   return {
                     name: o.name,
                     type: o.type,
                     id: o.id,
                     showValue: o.showValue,
-                    value: v.value
-                  } as IHandleData
+                    value: newValueItem.value
+                  };
+                } else {
+                  return o;
                 }
-                else {
-                  return o
+              });
+
+              // Update the outputs in the copied nodes array
+              newNodes[nodeIndex] = {
+                ...newNodes[nodeIndex],
+                data: {
+                  ...newNodes[nodeIndex].data,
+                  outputs: updatedOutputs
                 }
-              })
-            })
+              };
+            }
           }
 
-
-
-          // Find outgoing edges from current node
           const outgoingEdges = edges.filter(edge => edge.source === currentNode.id);
-          console.log(currentNode)
 
           for (const edge of outgoingEdges) {
-            const targetNode = nodes.find(node => node.id === edge.target);
+            const targetNode = newNodes.find(node => node.id === edge.target); // Use newNodes
             if (targetNode) {
               nextNodes.push(targetNode);
             }
@@ -301,20 +313,28 @@ export default function () {
         currentNodes = nextNodes;
       }
 
-
-      //Check if end node in visited nodes
-      const endNode = nodes.find(node => node.type === 'start' && node.data.itsEnd);
+      const endNode = newNodes.find(node => node.type === 'start' && node.data.itsEnd); // Use newNodes
 
       if (!visitedNodes.has(endNode.id)) {
-        console.warn("End node is not connected")
+        setStatusMessages([{ type: 'error', msg: 'не подключена точка выхода' }])
       }
       else {
+        setStatusMessages([{ type: 'ok', msg: 'маршрут пройден' }])
         console.log("Traversed graph:", { dependencies, visitedNodes });
       }
-    }
+      setReturnedData(deps.filter(d => d.nodeId == 'end').map(d => ({ id: d.inputId, value: d.value })))
 
+
+      //setNodes(newNodes);
+    }
     saveAsync()
   };
+
+  useEffect(() => {
+    console.log(returnedData)
+  }, [returnedData])
+
+
 
 
   return (
@@ -339,29 +359,62 @@ export default function () {
           <div className='flex flex-col gap-2 bg-white rounded-md w-full h-full border-2 border-gray-300 p-2'>
             <div className='flex flex-row justify-between w-full'>
               <div className='font-semibold text-xl'>Тестирование запроса</div>
+
               <button className='flex flex-row p-1 gap-2 items-center text-center rounded-md bg-[#f7e7d9] text-[#f16e00] border-[#f16e00] font-semibold font-main2' onClick={() => onSave()}>
                 начать
                 <FaPlay size={15} />
               </button>
             </div>
-            <div className='flex flex-col gap-1 rounded-md bg-[#f3f3f6] p-2 w-full h-[50%] overflow-auto  p-2 '>
+            <div className='p-1'>
+              {statusMessages?.map((m, i) => {
+                switch (m.type) {
+                  case 'error':
+                    return (
+                      <div key={i} className='rounded-md p-1 border-[#c71436] bg-[#fbd9df] text-[#c71436]'>
+                        {m.msg}
+                      </div>
+                    )
+                  case 'mid':
+                    return (
+                      <div key={i} className='rounded-md p-1 border-[#c71436] bg-[#f7e7d9] text-[#f16e00]'>
+                        {m.msg}
+                      </div>
+                    )
+                  case 'ok':
+                    return (
+                      <div key={i} className='rounded-md p-1 border-[#009900] bg-[#e6ffe6] text-[#009900]'>
+                        {m.msg}
+                      </div>
+                    )
+                }
+              })}
+            </div>
+            <div className='flex flex-col gap-1 rounded-md p-2 w-full h-[50%] overflow-auto bg-[#f3f3f6]  '>
               Входные данные
               {(nodes.find(node => node.type === 'start' && !node.data.itsEnd).data.outputs as IHandleData[]).map((d, index) => {
                 return (
-                  <div key={index} className='flex flex-row gap-2'>
-                    <div className='font-bold text-[#7242f5] font-main2'>{d.id} :</div>
-                    <div>{d.value}</div>
+                  <div key={index} className='flex flex-col gap-2 rounded-lg'>
+                    <div>
+                      <div className='font-bold text-[#7242f5] font-main2'>{d.name} :</div>
+                      <div className='text-xs'>[{d.id}]</div>
+                    </div>
+                    {d.value && <div className='bg-white border-2 p-1 rounded-lg'>{d.value}</div>}
                   </div>
                 )
               })}
             </div>
-            <div className='flex flex-col gap-1 rounded-md bg-[#f3f3f6] p-2 w-full h-[50%] overflow-auto  p-2 '>
+            <div className='flex flex-col gap-1 rounded-md p-2 w-full h-[50%] overflow-auto bg-[#f3f3f6]'>
               Выходные данные
               {(nodes.find(node => node.type === 'start' && node.data.itsEnd).data.inputs as IHandleData[]).map((d, index) => {
                 return (
-                  <div key={index} className='flex flex-row gap-2'>
-                    <div className='font-bold text-[#7242f5] font-main2'>{d.id} :</div>
-                    <div>{d.value}</div>
+                  <div key={index} className='flex flex-col gap-2 rounded-lg'>
+                    <div>
+                      <div className='font-bold text-[#7242f5] font-main2'>{d.name} :</div>
+                      <div className='text-xs'>[{d.id}]</div>
+                    </div>
+                    {returnedData.find(r => r.id == d.id)?.value &&
+                      <div className='bg-white border-2 p-1 rounded-lg'>{returnedData.find(r => r.id == d.id)?.value}</div>}
+
                   </div>
                 )
               })}
@@ -372,25 +425,17 @@ export default function () {
 
       <div className='flex flex-row w-[100%] h-[30%] p-1 gap-1'>
         <div className='flex flex-col bg-white rounded-md w-full h-full border-2 border-[#7242f5] p-2'>
-          <div className='flex flex-row justify-between w-full'>
-            <div>Отладка</div>
-            <button className='flex flex-row p-1 gap-2 items-center text-center rounded-md bg-[#f7e7d9] text-[#f16e00] border-[#f16e00] border-2 font-semibold font-main2' onClick={() => onSave()}>
-              начать
-              <FaPlay size={15} />
-            </button>
-          </div>
-          {(nodes.find(node => node.type === 'start' && !node.data.itsEnd).data.outputs as IHandleData[]).map((d, index) => {
-            return (
-              <div key={index} className='flex flex-row gap-2'>
-                <div className='font-bold text-[#7242f5] font-main2'>{d.id} :</div>
-                <div>{d.value}</div>
-              </div>
-            )
-          })}
+
         </div>
         <div className='flex flex-col gap-2 bg-white rounded-md w-full h-full p-2'>
           <div className='flex flex-row gap-2'>
-            <button className='rounded-md p-2 bg-[#7242f5] text-white font-semibold font-main2' onClick={() => { }}>
+            <button className='rounded-md p-2 bg-[#7242f5] text-white font-semibold font-main2' onClick={() => {
+              const path = {
+                nodes: nodes,
+                edges: edges
+              }
+              console.log(path)
+            }}>
               Сохранить
             </button>
           </div>

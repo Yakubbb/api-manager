@@ -187,7 +187,6 @@ export const KeyNode = ({ data }: { data: IDiagramModule }) => {
             data.outputs = connectors
         }
 
-        console.log(connectors)
     }, [connectors])
 
 

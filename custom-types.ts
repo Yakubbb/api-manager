@@ -103,6 +103,17 @@ export interface IApi {
 }
 
 
+export interface IDiagramModule {
+    name: string,
+    itsEnd?: boolean,
+    itsIntegrated?: boolean,
+    endpoint?: string,
+    getResponse: (args: { id: string, value?: any }[]) => Promise<{ id: string, value?: any }[]>
+    inputs: IHandleData[],
+    outputs: IHandleData[],
+}
+
+
 export interface ITag {
     _id: string
     name: string,
@@ -126,14 +137,6 @@ export interface IPerson {
 }
 
 
-export interface IDiagramModule {
-    name: string,
-    itsEnd?: boolean,
-    getResponse: (args: { id: string, value?: any }[]) => Promise<{ id: string, value?: any }[]>
-    inputs: IHandleData[],
-    outputs: IHandleData[],
-}
-
 export interface DataType {
     style: string,
     Icon: IconType
@@ -143,7 +146,7 @@ export interface DataType {
 export interface ICustomItem {
     _id: ObjectId
     photo?: string,
-    type: 'prompt' | 'systemPrompt' | 'history'
+    type: 'prompt' | 'systemPrompt' | 'history' | 'module'
     name: string,
     description: string,
     comments?: any[]
@@ -155,7 +158,7 @@ export interface ICustomItem {
 export interface ICustomItemForFront {
     _id: string
     photo?: string,
-    type: 'prompt' | 'systemPrompt' | 'history'
+    type: 'prompt' | 'systemPrompt' | 'history' | 'module'
     name: string,
     description: string,
     comments?: any[]
