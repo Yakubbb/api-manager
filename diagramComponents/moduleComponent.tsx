@@ -15,7 +15,7 @@ export interface IHandleData {
     id: string
     name: string
     type: string
-    value?: any
+    value: any | undefined
     showValue?: boolean
 }
 
@@ -54,9 +54,9 @@ export function CustomHandle(
 
 
     return (
-        <div className='' style={{ maxWidth: '300px' }}>
+        <div className='w-full' style={{ maxWidth: '300px' }}>
             <div className='flex flex-col gap-2 w-full mt-1 p-3 '>
-                <div className={`flex ${isTarget ? 'flex-row-reverse' : 'flex-row'} justify-between gap-5`}>
+                <div className={`flex ${isTarget ? 'flex-row-reverse' : 'flex-row'} justify-between `}>
                     <div className='flex flex-row gap-2 text-center font-semibold'>
                         {isRenamable &&
                             <div>
@@ -78,10 +78,9 @@ export function CustomHandle(
 
                             ||
 
-                            data.name
-                        }
-                        <div className='self-center cursor-pointer' onClick={() => setShowState(!showState)}>
-                            {data.value && (showState ? <FaArrowUp size={15} /> : <FaArrowDown size={15} />)}
+                            data.name}
+                        <div className='mr-2 ml-2 self-center cursor-pointer' onClick={() => setShowState(!showState)}>
+                            {isEditable && (showState ? <FaArrowUp size={15} /> : <FaArrowDown size={15} />)}
                         </div>
                     </div>
                     <div className={`flex ${isTarget ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -106,7 +105,7 @@ export function CustomHandle(
                         />
                     </div>
                 </div>
-                {data.value &&
+                {isEditable &&
                     <div className='flex flex-col gap-3'>
                         {showState &&
                             (
@@ -209,14 +208,14 @@ export const KeyNode = ({ data }: { data: IDiagramModule }) => {
                         {connectors.map((out, index) => {
                             return (
                                 <div className={
-                                    `relative flex flex-row justify-between items-center
-                                     text-center ${data.itsEnd ? 'flex-row-reverse' : 'flex-row'}`
+                                    `relative flex flex-row 
+                                     text-center ${data.itsEnd ? 'flex-row-reverse' : 'flex-row'} w-full justify-between`
                                 } key={index}>
                                     <button className='p-2' onClick={
                                         () => {
-                                             setConnectors(connectors.filter(o => o != out)) 
-                                             setEdges(edges.filter(e=>e.sourceHandle != out.id && e.targetHandle != out.id ))
-                                            }
+                                            setConnectors(connectors.filter(o => o != out))
+                                            setEdges(edges.filter(e => e.sourceHandle != out.id && e.targetHandle != out.id))
+                                        }
                                     } >
                                         <IoIosRemoveCircleOutline />
                                     </button>
@@ -240,7 +239,7 @@ export const KeyNode = ({ data }: { data: IDiagramModule }) => {
                     </div>
                 </div>
                 <button className='self-center items-center' onClick={
-                    () => { setConnectors([...connectors, { name: `${generate()} ${connectors.length}`, type: 'text', id: `${generate()}-${Date.now()}` }]) }
+                    () => { setConnectors([...connectors, { name: `${generate()} ${connectors.length}`, type: 'text', id: `${generate()}-${Date.now()}`, value: undefined }]) }
                 } >
                     <IoIosAddCircleOutline />
                 </button>

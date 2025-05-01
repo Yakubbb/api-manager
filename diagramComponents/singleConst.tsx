@@ -3,13 +3,13 @@
 import { BsFileEarmarkLock } from "react-icons/bs"
 import { IDiagramModule } from "@/custom-types"
 import { DiCode } from "react-icons/di"
-import { CustomHandle } from "./moduleComponent"
+import { CustomHandle, IHandleData } from "./moduleComponent"
 import { useEffect, useState } from "react"
 
 export default function ({ data }: { data: IDiagramModule }) {
 
 
-    const [startOutputs, setStartOutputs] = useState<{ name: string, type: string, value?: any }[]>(data.outputs)
+    const [startOutputs, setStartOutputs] = useState<IHandleData[]>(data.outputs)
 
     useEffect(() => {
         data.outputs = startOutputs

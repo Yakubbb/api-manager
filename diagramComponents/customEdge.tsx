@@ -30,8 +30,6 @@ export default function CustomEdge({
         setEdges((edges) => edges.filter((edge) => edge.id !== id));
     };
 
-    console.log(data)
-
     return <>
         <path
             id={id}

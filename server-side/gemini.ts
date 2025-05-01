@@ -2,7 +2,7 @@
 
 import { createStreamableValue } from 'ai/rsc';
 import { IMessage } from '@/custom-types';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ChatSession, GoogleGenerativeAI } from '@google/generative-ai';
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 
 const safetySettings = [
@@ -31,6 +31,17 @@ const safetySettings = [
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function getAnswer(modelName: string, prompt: string, history?: IMessage[], systemPrompt?: string) {
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+    const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemPrompt });
+
+    const chatOptions = history ? { history: history } : undefined;
+    const chat: ChatSession = model.startChat(chatOptions);
+    const result = await chat.sendMessage(prompt);
+    const response = result.response.text();
+    return response
 }
 
 export async function generateStream(

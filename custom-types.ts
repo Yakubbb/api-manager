@@ -129,8 +129,9 @@ export interface IPerson {
 export interface IDiagramModule {
     name: string,
     itsEnd?: boolean,
-    inputs:IHandleData[],
-    outputs:IHandleData[],
+    getResponse: (args: { id: string, value?: any }[]) => Promise<{ id: string, value?: any }[]>
+    inputs: IHandleData[],
+    outputs: IHandleData[],
 }
 
 export interface DataType {
