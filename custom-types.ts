@@ -107,8 +107,7 @@ export interface IDiagramModule {
     name: string,
     itsEnd?: boolean,
     itsIntegrated?: boolean,
-    endpoint?: string,
-    getResponse: (args: { id: string, value?: any }[]) => Promise<{ id: string, value?: any }[]>
+    getResponse: { functionId?: string, endpoint?: string }
     inputs: IHandleData[],
     outputs: IHandleData[],
 }

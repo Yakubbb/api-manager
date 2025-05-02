@@ -1,5 +1,5 @@
 'use server'
-import { ICustomItem, ICustomItemForFront } from "@/custom-types";
+import { ICustomItem, ICustomItemForFront, IDiagramModule } from "@/custom-types";
 import { MongoClient, ObjectId } from "mongodb";
 import { getUserFromSession } from "./database-handler";
 import { redirect } from "next/navigation";
@@ -78,6 +78,22 @@ export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'hi
     await collection.replaceOne({ _id: new ObjectId(itemId) }, item)
 }
 
+
+export async function getAllModules(): Promise<{ id: string, data: IDiagramModule }[]> {
+
+    const user = await getUserFromSession()
+    const modules = await database.collection<ICustomItem>('modules').find().toArray()
+
+    const modulesPromises = modules.map(p => {
+        return convertCustomItem(p, user?._id!);
+    });
+
+    const resolvedModules = await Promise.all(modulesPromises);
+
+    return resolvedModules.map(m => ({ id: m.item._id, data: m.item.contents }))
+
+}
+
 export async function getAllCustomIems(byUser: boolean): Promise<ICustomItemForUser[]> {
 
     const user = await getUserFromSession()
@@ -152,7 +168,7 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
 }
 
 
-export async function getCustomItem(collectionName: 'prompts' | 'histories', id: string): Promise<ICustomItemForUser | undefined> {
+export async function getCustomItem(collectionName: 'prompts' | 'histories' | 'modules', id: string): Promise<ICustomItemForUser | undefined> {
     const collection = database.collection<ICustomItem>(collectionName)
     const user = await getUserFromSession()
 

@@ -23,6 +23,11 @@ import { getAnswer } from '@/server-side/gemini';
 import { RiTestTubeLine } from "react-icons/ri";
 import { FaCheck } from 'react-icons/fa';
 import { FaPlay } from "react-icons/fa";
+import { getAllModules } from '@/server-side/custom-items-database-handler';
+import { generate } from 'random-words';
+import { MODULES_FUNCTIONS } from '@/integratedModules/integrated-modules-functions';
+import { processPath } from '@/integratedModules/process';
+import { addNewPathToCollection } from '@/server-side/database-getter';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -37,7 +42,7 @@ const edgeTypes = {
 
 const singleConstAgent: IDiagramModule = {
   name: 'Промпт',
-  getResponse: async (arg0: {}) => [],
+  getResponse: {},
   inputs: [
 
   ],
@@ -54,7 +59,7 @@ const singleConstAgent: IDiagramModule = {
 
 const singleConstAgent2: IDiagramModule = {
   name: 'Модель',
-  getResponse: async () => [],
+  getResponse: {},
   inputs: [
 
   ],
@@ -69,68 +74,8 @@ const singleConstAgent2: IDiagramModule = {
   ]
 }
 
-const geminiAgent: IDiagramModule = {
-  name: 'Gemini Agent',
-  getResponse: async (arg) => {
-    const model = arg.find(a => a.id == 'model')
-    const prompt = arg.find(a => a.id == 'prompt')
-    const sysprompt = arg.find(a => a.id == 'sysprompt')
-    const history = arg.find(a => a.id == 'history')
-
-    if (model && prompt) {
-      return [{ id: 'answer', value: await getAnswer(model.value, prompt.value, history?.value, sysprompt?.value) }]
-    }
-    return []
-  },
-  inputs: [
-    {
-      id: `sysprompt`,
-      name: 'system prompt',
-      type: 'text',
-      value: undefined
-    },
-    {
-      id: `prompt`,
-      name: 'prompt',
-      type: 'text',
-      value: undefined
-    },
-    {
-      id: `model`,
-      name: 'gemini model',
-      type: 'text',
-      value: undefined
-    },
-    {
-      id: `history`,
-      name: 'history',
-      type: 'history',
-      value: undefined
-    },
-  ],
-  outputs: [
-    {
-      id: `answer`,
-      name: 'answer',
-      type: 'text',
-      value: undefined
-    },
-  ]
-}
 
 const initNodes = [
-  {
-    id: 'geminiAgent2',
-    type: 'custom',
-    data: geminiAgent,
-    position: { x: 400, y: 400 },
-  },
-  {
-    id: 'geminiAgent1',
-    type: 'custom',
-    data: geminiAgent,
-    position: { x: 400, y: 0 },
-  },
   {
     id: 'const',
     type: 'singleConst',
@@ -159,17 +104,21 @@ const initNodes = [
   }
 ];
 
-const AVALIBLE_NODE_TYPES: { type: 'singleConst' | 'custom', data: IDiagramModule }[] = [
-  
-]
-
-
 export default function () {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<any>(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
   const [statusMessages, setStatusMessages] = useState<{ type: 'error' | 'ok' | 'mid', msg: string }[]>()
   const [returnedData, setReturnedData] = useState<{ id: string, value?: any }[]>([])
+  const [avalibleModules, setAvalibleModules] = useState<{ id: string, data: IDiagramModule }[]>()
+
+  useEffect(() => {
+    const getModules = async () => {
+      const items = await getAllModules()
+      setAvalibleModules(items)
+    }
+    getModules()
+  }, [])
 
 
   const getTypeByParams = useCallback((params: { source: any, target: any, sourceHandle: any, targetHandle: any }) => {
@@ -222,112 +171,18 @@ export default function () {
   );
 
   const onSave = () => {
-    const saveAsync = async () => {
-      setStatusMessages([{ type: 'mid', msg: 'процесс запущен...' }])
-
-      // 1. Find the starting node(s).  Assume we have one for now.  Adjust logic if you need to support multiple starts
-      const startNode = nodes.find(node => node.type === 'start' && !node.data.itsEnd);  // added !node.data.itsEnd check
-      if (!startNode) {
-        console.warn("No start node found.");
-        return;
-      }
-
-      // 2. Initialize the traversal
-      let currentNodes: any[] = [startNode]; // Start with the start node
-      const visitedNodes = new Set<string>(); // Keep track of visited nodes to prevent loops
-      const dependencies: { [nodeId: string]: { [inputId: string]: any } } = {};
-      const deps: { nodeId: string, inputId: string, value?: any }[] = []
-
-      // Create a copy of the nodes array to modify
-      const newNodes = nodes.map(node => ({ ...node, data: { ...node.data } }));
-
-      // 3. Breadth-first traversal
-      while (currentNodes.length > 0) {
-        const nextNodes: any[] = [];
-
-        for (const currentNode of currentNodes) {
-          const paramsForValue: { id: string, value?: any }[] = []
-          if (visitedNodes.has(currentNode.id)) {
-            continue;
-          }
-
-          visitedNodes.add(currentNode.id);
-          dependencies[currentNode.id] = {};
-
-          if (currentNode.data.inputs) {
-            for (const input of currentNode.data.inputs) {
-              const edge = edges.find(e => e.target === currentNode.id && e.targetHandle === input.id);
-              if (edge) {
-                const sourceNode = newNodes.find(n => n.id === edge.source); // Use newNodes
-                if (sourceNode) {
-                  let inputValue: any;
-                  inputValue = (sourceNode.data.outputs as IHandleData[]).find(output => output.id === edge.sourceHandle)?.value;
-                  deps.push({ nodeId: currentNode.id, inputId: input.id, value: inputValue })
-                  dependencies[currentNode.id][input.id] = inputValue;
-                  paramsForValue.push({ id: input.id, value: inputValue })
-                }
-              }
-            }
-          }
-
-          if (currentNode.type == 'custom') {
-            const nodeIndex = newNodes.findIndex(n => n.id === currentNode.id); // Find the index in newNodes
-            if (nodeIndex !== -1) {
-              const newValue = await (currentNode.data as IDiagramModule).getResponse(paramsForValue)
-              const updatedOutputs = (currentNode.data as IDiagramModule).outputs.map(o => {
-                const newValueItem = newValue.find(v => v.id === o.id);
-                if (newValueItem) {
-                  return {
-                    name: o.name,
-                    type: o.type,
-                    id: o.id,
-                    showValue: o.showValue,
-                    value: newValueItem.value
-                  };
-                } else {
-                  return o;
-                }
-              });
-
-              // Update the outputs in the copied nodes array
-              newNodes[nodeIndex] = {
-                ...newNodes[nodeIndex],
-                data: {
-                  ...newNodes[nodeIndex].data,
-                  outputs: updatedOutputs
-                }
-              };
-            }
-          }
-
-          const outgoingEdges = edges.filter(edge => edge.source === currentNode.id);
-
-          for (const edge of outgoingEdges) {
-            const targetNode = newNodes.find(node => node.id === edge.target); // Use newNodes
-            if (targetNode) {
-              nextNodes.push(targetNode);
-            }
-          }
-        }
-
-        currentNodes = nextNodes;
-      }
-
-      const endNode = newNodes.find(node => node.type === 'start' && node.data.itsEnd); // Use newNodes
-
-      if (!visitedNodes.has(endNode.id)) {
-        setStatusMessages([{ type: 'error', msg: 'не подключена точка выхода' }])
+    const asyncOnSave = async () => {
+      setStatusMessages([{ type: 'mid', msg: 'в процессе...' }])
+      const data = await processPath(nodes, edges)
+      if (data) {
+        setReturnedData(data)
+        setStatusMessages([{ type: 'ok', msg: 'маршрут пройден' }])
       }
       else {
-        setStatusMessages([{ type: 'ok', msg: 'маршрут пройден' }])
-        console.log("Traversed graph:", { dependencies, visitedNodes });
+        setStatusMessages([{ type: 'error', msg: 'произошла ошибка' }])
       }
-      setReturnedData(deps.filter(d => d.nodeId == 'end').map(d => ({ id: d.inputId, value: d.value })))
-
-
-      //setNodes(newNodes);
     }
-    saveAsync()
+    asyncOnSave()
   };
 
   useEffect(() => {
@@ -425,7 +280,30 @@ export default function () {
 
       <div className='flex flex-row w-[100%] h-[30%] p-1 gap-1'>
         <div className='flex flex-col bg-white rounded-md w-full h-full border-2 border-[#7242f5] p-2'>
-
+          <div className='flex flex-wrap gap-2'>
+            {avalibleModules?.map((m, i) => {
+              return (
+                <button key={i} className='flex flex-row rounded-lg bg-[#dbeafe] text-[#1e40af] p-2 font-main2' onClick={
+                  () => setNodes([...nodes,
+                  {
+                    id: `${m.data.name}-${generate()}-${Date.now()}`,
+                    type: 'custom',
+                    data: {
+                      name: m.data.name,
+                      getResponse: { functionId: m.id },
+                      inputs: m.data.inputs,
+                      outputs: m.data.outputs
+                    } as IDiagramModule,
+                    position: { x: 0, y: 0 },
+                    deletable: false
+                  }
+                  ])
+                }>
+                  {m.data.name}
+                </button>
+              )
+            })}
+          </div>
         </div>
         <div className='flex flex-col gap-2 bg-white rounded-md w-full h-full p-2'>
           <div className='flex flex-row gap-2'>
@@ -434,7 +312,7 @@ export default function () {
                 nodes: nodes,
                 edges: edges
               }
-              console.log(path)
+              addNewPathToCollection(nodes, edges)
             }}>
               Сохранить
             </button>
