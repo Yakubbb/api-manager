@@ -28,6 +28,16 @@ export async function addNewPathToCollection(nodes: any, edges: any) {
     client.connect()
     const database = client.db("api-manager");
     const collection = database.collection("paths");
-    collection.insertOne({ author: new ObjectId(user), nodes: nodes, edges: edges })
+    const doc = await collection.insertOne({ author: new ObjectId(user), nodes: nodes, edges: edges })
+    return doc.insertedId.toString()
+}
 
+export async function getPathFromCollection(id: string) {
+    const user = await getUserIdFromSession()
+
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("paths");
+    const doc: any = await collection.findOne({ _id: new ObjectId(id) }) as any
+    return { edges: doc.edges, nodes: doc.nodes }
 }

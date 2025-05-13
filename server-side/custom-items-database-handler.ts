@@ -10,6 +10,22 @@ const client = new MongoClient(uri)
 const database = client.db('api-manager')
 
 
+function getCustomCollectionByType(type: string) {
+    switch (type) {
+        case 'history':
+            return 'histories'
+        case 'prompt':
+            return 'prompts'
+        case 'module':
+            return 'modules'
+        case 'systemPrompt':
+            return 'prompts'
+        default:
+            return ''
+    }
+}
+
+
 export interface ICustomItemForUser {
     item: ICustomItemForFront
     isEditable: boolean,
@@ -18,8 +34,10 @@ export interface ICustomItemForUser {
 
 }
 
-export async function togglePrivateCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history') {
-    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
+export async function togglePrivateCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history' | 'module') {
+    
+    const collectionName = getCustomCollectionByType(itemType)
+
     const collection = database.collection<ICustomItem>(collectionName)
     const state = await collection.findOne({ _id: new ObjectId(itemId) })
 
@@ -34,17 +52,19 @@ export async function togglePrivateCustomItem(itemId: string, itemType: 'prompt'
 }
 
 
-export async function deleteCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history') {
-    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
+export async function deleteCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history' | 'module') {
+    const collectionName = getCustomCollectionByType(itemType)
     const collection = database.collection(collectionName)
     await collection.deleteOne({ _id: new ObjectId(itemId) })
 }
 
-export async function likeCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history') {
+export async function likeCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history' | 'module') {
 
     const user = await getUserFromSession()
 
-    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
+    const collectionName = getCustomCollectionByType(itemType)
+
+
     const collection = database.collection<ICustomItem>(collectionName)
 
     const state = await collection.findOne({ _id: new ObjectId(itemId) })
@@ -59,7 +79,7 @@ export async function likeCustomItem(itemId: string, itemType: 'prompt' | 'syste
 
 
 export async function createCustomItem(itemType: 'prompt' | 'systemPrompt' | 'history', item: ICustomItem) {
-    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
+    const collectionName = getCustomCollectionByType(itemType)
     const collection = database.collection(collectionName)
     const user = await getUserFromSession()
     item.authorId = user?._id!
@@ -70,7 +90,7 @@ export async function createCustomItem(itemType: 'prompt' | 'systemPrompt' | 'hi
 }
 
 export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'history', item: any, itemId: string) {
-    const collectionName = itemType == 'history' ? 'histories' : 'prompts'
+    const collectionName = getCustomCollectionByType(itemType)
     const user = await getUserFromSession()
     const collection = database.collection<ICustomItem>(collectionName)
     delete item._id
@@ -102,10 +122,15 @@ export async function getAllCustomIems(byUser: boolean): Promise<ICustomItemForU
 
     const prompts = await database.collection<ICustomItem>('prompts').find(filter).toArray()
     const histories = await database.collection<ICustomItem>('histories').find(filter).toArray()
+    const modules = await database.collection<ICustomItem>('modules').find(filter).toArray()
 
 
 
     const promptPromises = prompts.map(p => {
+        return convertCustomItem(p, user?._id!);
+    });
+
+    const modulesPromises = modules.map(p => {
         return convertCustomItem(p, user?._id!);
     });
 
@@ -117,8 +142,9 @@ export async function getAllCustomIems(byUser: boolean): Promise<ICustomItemForU
 
     const resolvedPrompts = await Promise.all(promptPromises);
     const resolvedHistories = await Promise.all(historiesPromises);
+    const resolvedModules = await Promise.all(modulesPromises);
 
-    const answer = resolvedHistories.concat(resolvedPrompts).filter(
+    const answer = resolvedHistories.concat(resolvedPrompts).concat(resolvedModules).filter(
         i => {
             if (i.item.authorId == user?._id.toString()) {
                 console.log('a')

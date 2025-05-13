@@ -75,6 +75,7 @@ const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle,
             case 'prompt': classes += 'bg-blue-100 text-blue-800'; break;
             case 'systemPrompt': classes += 'bg-green-100 text-green-800'; break;
             case 'history': classes += 'bg-orange-100 text-orange-800'; break;
+            case 'module': classes += 'bg-[#7242f5] text-white'; break;
             default: classes += 'bg-gray-100 text-gray-800'; break;
         }
         return classes;
@@ -85,6 +86,7 @@ const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle,
             case 'history': return 'histories';
             case 'prompt':
             case 'systemPrompt': return 'prompts';
+            case 'module': return 'modules'
             default: return 'unknown';
         }
     };
@@ -108,9 +110,10 @@ const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle,
                     <div className="mb-2 flex items-start justify-between gap-3">
                         <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{item.name}</h3>
                     </div>
-                    <p className="mb-2 text-sm text-gray-500">
-                        Тип: <span className={getTypeBadgeClasses(item.type)}>{item.type}</span>
-                    </p>
+                    <div className="flex flex-row gap-2 mb-2 text-sm text-gray-500 items-center text-center">
+                        <div>Тип:</div>
+                        <span className={getTypeBadgeClasses(item.type)}>{item.type}</span>
+                    </div>
                     <p className="mb-4 text-sm text-gray-500">Автор: {authorName}</p>
                     <p className="mb-5 flex-grow text-base text-gray-700 line-clamp-3 font-main2">
                         {item.description}
@@ -308,12 +311,12 @@ export default function CustomItemsPage() {
             </div>
 
             <div className="flex-shrink-0">
-                 <SearchSortControls
+                <SearchSortControls
                     searchTerm={searchTerm}
                     onSearchChange={handleSearchChange}
                     sortConfig={sortConfig}
                     onSort={handleSort}
-                 />
+                />
             </div>
 
             <div className="flex-grow overflow-y-auto pt-4">
