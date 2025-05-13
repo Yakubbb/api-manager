@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { deleteCustomItem, getAllCustomIems, ICustomItemForUser, likeCustomItem, togglePrivateCustomItem } from "@/server-side/custom-items-database-handler";
-import { AiOutlineHeart, AiFillHeart, AiOutlinePlus } from 'react-icons/ai';
-import { MdDelete } from 'react-icons/md';
-import { FaSort, FaSortUp, FaSortDown, FaLock, FaLockOpen } from 'react-icons/fa';
+import { AiOutlinePlus } from 'react-icons/ai';
+import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { ICustomItemForFront } from '@/custom-types';
+import { CustomItemCard, CustomItemCardProps } from '@/customComponentsViews/custom-card';
 
 type SortableKeys = 'name' | 'authorName' | 'type' | 'likesCount';
 interface SortConfig {
@@ -32,7 +32,7 @@ const SearchSortControls: React.FC<SearchSortControlsProps> = ({
     };
 
     return (
-        <div className="mb-8 flex flex-wrap items-center gap-4 md:gap-6">
+        <div className="mb-4 flex flex-wrap items-center gap-4 md:gap-6">
             <input
                 type="text"
                 placeholder="Искать элементы..."
@@ -59,114 +59,13 @@ const SearchSortControls: React.FC<SearchSortControlsProps> = ({
     );
 };
 
-interface CustomItemCardProps {
-    userItem: ICustomItemForUser;
-    onLikeToggle: (itemId: string, itemType: ICustomItemForFront['type']) => void;
-    onDelete: (itemId: string, itemType: ICustomItemForFront['type']) => void;
-    onPrivacyToggle: (itemId: string, itemType: ICustomItemForFront['type']) => void;
-}
-
-const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle, onDelete, onPrivacyToggle }) => {
-    const { item, isEditable, isLiked, authorName } = userItem;
-
-    const getTypeBadgeClasses = (type: ICustomItemForFront['type']): string => {
-        let classes = 'inline-block rounded-full px-2.5 py-1 text-xs font-semibold ';
-        switch (type) {
-            case 'prompt': classes += 'bg-blue-100 text-blue-800'; break;
-            case 'systemPrompt': classes += 'bg-green-100 text-green-800'; break;
-            case 'history': classes += 'bg-orange-100 text-orange-800'; break;
-            case 'module': classes += 'bg-[#7242f5] text-white'; break;
-            default: classes += 'bg-gray-100 text-gray-800'; break;
-        }
-        return classes;
-    };
-
-    const getTypePath = (type: ICustomItemForFront['type']): string => {
-        switch (type) {
-            case 'history': return 'histories';
-            case 'prompt':
-            case 'systemPrompt': return 'prompts';
-            case 'module': return 'modules'
-            default: return 'unknown';
-        }
-    };
-
-    const detailUrl = `/main/customs/${getTypePath(item.type)}/${item._id}`;
-
-    return (
-        <div className="flex w-full flex-col overflow-hidden rounded-2xl border-2 border-gray-200 bg-white transition hover:shadow-xl sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)]">
-            <Link href={detailUrl} className="flex flex-grow flex-col">
-                {item.photo && (
-                    <div className="relative h-48 w-full">
-                        <img
-                            src={item.photo}
-                            alt={item.name}
-                            className="absolute inset-0 h-full w-full object-cover"
-                            onError={(e) => (e.currentTarget.style.display = 'none')}
-                        />
-                    </div>
-                )}
-                <div className="flex flex-grow flex-col p-5 pb-0">
-                    <div className="mb-2 flex items-start justify-between gap-3">
-                        <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">{item.name}</h3>
-                    </div>
-                    <div className="flex flex-row gap-2 mb-2 text-sm text-gray-500 items-center text-center">
-                        <div>Тип:</div>
-                        <span className={getTypeBadgeClasses(item.type)}>{item.type}</span>
-                    </div>
-                    <p className="mb-4 text-sm text-gray-500">Автор: {authorName}</p>
-                    <p className="mb-5 flex-grow text-base text-gray-700 line-clamp-3 font-main2">
-                        {item.description}
-                    </p>
-                </div>
-            </Link>
-
-            <div className="mt-auto flex items-center justify-between border-t border-gray-100 p-5 pt-4">
-                <div className='flex items-center gap-2'>
-                    <button
-                        onClick={() => onLikeToggle(item._id, item.type)}
-                        title={isLiked ? "Убрать лайк" : "Поставить лайк"}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7242f5]/50 ${isLiked ? 'text-pink-600' : 'text-gray-500 hover:text-pink-500'}`}
-                    >
-                        {isLiked ? <AiFillHeart className="h-5 w-5" /> : <AiOutlineHeart className="h-5 w-5" />}
-                        <span>{item.likes.length}</span>
-                    </button>
-                    {isEditable && (
-                        <button
-                            onClick={() => onPrivacyToggle(item._id, item.type)}
-                            title={item.isPrivate ? "Сделать публичным" : "Сделать приватным"}
-                            className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#7242f5]/50"
-                        >
-                            {item.isPrivate
-                                ? <FaLock className="h-4 w-4" />
-                                : <FaLockOpen className="h-4 w-4" />}
-                        </button>
-                    )}
-                    {!isEditable && item.isPrivate && (
-                        <FaLock className="ml-2 h-4 w-4 flex-shrink-0 text-gray-400" title="Приватный элемент" />
-                    )}
-                </div>
-
-                {isEditable && (
-                    <button
-                        onClick={() => onDelete(item._id, item.type)}
-                        title="Удалить"
-                        className="rounded-full p-2 text-gray-500 transition hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                    >
-                        <MdDelete className="h-5 w-5" />
-                    </button>
-                )}
-            </div>
-        </div>
-    );
-};
-
 export default function CustomItemsPage() {
     const [items, setItems] = useState<ICustomItemForUser[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'name', order: 'asc' });
+    const [selectedTypes, setSelectedTypes] = useState<ICustomItemForFront['type'][]>([]);
 
     const handleLikeToggle = useCallback(async (itemId: string, itemType: ICustomItemForFront['type']) => {
         const originalItems = items;
@@ -229,6 +128,15 @@ export default function CustomItemsPage() {
         }
     }, [items]);
 
+    const handleTypeFilterChange = useCallback((type: ICustomItemForFront['type'], isChecked: boolean) => {
+        setSelectedTypes(prev => {
+            if (isChecked) {
+                return prev.includes(type) ? prev : [...prev, type];
+            } else {
+                return prev.filter(t => t !== type);
+            }
+        });
+    }, []);
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -260,13 +168,19 @@ export default function CustomItemsPage() {
 
     const displayedItems = useMemo(() => {
         const lowerSearch = searchTerm.toLowerCase();
-        return [...items]
-            .filter(userItem => !searchTerm ||
+        const filtered = items.filter(userItem => {
+            const matchesSearch = !searchTerm ||
                 userItem.item.name.toLowerCase().includes(lowerSearch) ||
                 (userItem.item.description && userItem.item.description.toLowerCase().includes(lowerSearch)) ||
                 userItem.authorName.toLowerCase().includes(lowerSearch) ||
-                userItem.item.type.toLowerCase().includes(lowerSearch)
-            )
+                userItem.item.type.toLowerCase().includes(lowerSearch);
+
+            const matchesType = selectedTypes.length === 0 || selectedTypes.includes(userItem.item.type);
+
+            return matchesSearch && matchesType;
+        });
+
+        return [...filtered]
             .sort((a, b) => {
                 const { key, order } = sortConfig;
                 let valA: string | number;
@@ -295,7 +209,7 @@ export default function CustomItemsPage() {
                 }
                 return 0;
             });
-    }, [items, searchTerm, sortConfig]);
+    }, [items, searchTerm, sortConfig, selectedTypes]);
 
     return (
         <div className="flex flex-col mx-auto h-screen p-4 md:px-6 md:py-8 overflow-hidden bg-gray-50">
@@ -317,6 +231,21 @@ export default function CustomItemsPage() {
                     sortConfig={sortConfig}
                     onSort={handleSort}
                 />
+                 <div className="mb-8 flex flex-wrap items-center gap-4 md:gap-6">
+                    <span className="text-sm font-medium text-gray-600">Фильтр по типу:</span>
+                    {(['prompt', 'systemPrompt', 'history', 'module'] as ICustomItemForFront['type'][]).map(type => (
+                        <label key={type} className="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                value={type}
+                                checked={selectedTypes.includes(type)}
+                                onChange={(e) => handleTypeFilterChange(type, e.target.checked)}
+                                className="form-checkbox h-4 w-4 text-[#7242f5] rounded focus:ring-[#7242f5] mr-1"
+                            />
+                            <span className="text-sm text-gray-700 capitalize">{type}</span>
+                        </label>
+                    ))}
+                 </div>
             </div>
 
             <div className="flex-grow overflow-y-auto pt-4">
@@ -338,7 +267,7 @@ export default function CustomItemsPage() {
                         </div>
                     ) : (
                         <p className="mt-12 text-center text-lg text-gray-500">
-                            {searchTerm ? 'Не найдено элементов, соответствующих вашему поиску.' : 'Пока нет пользовательских пресетов. Создайте первый!'}
+                            {searchTerm || selectedTypes.length > 0 ? 'Не найдено элементов, соответствующих вашему поиску/фильтру.' : 'Пока нет пользовательских пресетов. Создайте первый!'}
                         </p>
                     )
                 )}

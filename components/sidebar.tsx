@@ -84,18 +84,20 @@ export function SideBar({
         updateChats()
     }, [searchParams]);
 
-    return (
-        <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] p-4 bg-[#f3f3f6] ">
-            <nav className="flex flex-col gap-1">
-                <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
-                <SideBarComponent name="Кастомизация" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/customs" />
-                <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
+    /*
+    <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
                     {
                         name: 'добавить',
                         href: '/main/modules/create',
                         Icon: IoIosAddCircleOutline
                     }
-                ]} />
+                ]} /> */
+
+    return (
+        <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] p-4 bg-[#f3f3f6] ">
+            <nav className="flex flex-col gap-1">
+                <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
+                <SideBarComponent name="Библиотека" description="место, где можно протестировать различные модели" Icon={VscLibrary} href="/main/customs" />
                 <SideBarComponent name="Мониторинг" description="посмотрите на работу ваших сервисов" Icon={IoIosStats} href="/main/monitor" />
                 <SideBarComponent name="Ключи" description="ключи доступа к вашим api" Icon={CgKey} href="/main/keys" />
                 <SideBarComponent name="Маршруты" description="ваши api маршруты" Icon={FaProjectDiagram} href="/main/paths" />

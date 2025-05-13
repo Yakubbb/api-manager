@@ -24,6 +24,15 @@ export async function getUserFromSession() {
     return user
 }
 
+export async function getUserDataForFront() {
+    const user = await getUserFromSession() as any
+
+    const role = user.role as string
+    const name = user.name as string
+
+    return { role: role, name: name, id: user?._id.toString() }
+}
+
 export async function addNewModule(module: IApi) {
     const database = client.db('api-manager')
     const collection: Collection<IApi> = database.collection('modules')
@@ -240,7 +249,7 @@ export async function getPrompts(onlyYours: boolean) {
 
 
     aboba = await Promise.all(foundedHistories.map(async (h: { author: string; }) => {
-        
+
         return {
             ...h,
             authorName: await getUserNameById(h.author),

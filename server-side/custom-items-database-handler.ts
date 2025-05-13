@@ -1,7 +1,7 @@
 'use server'
 import { ICustomItem, ICustomItemForFront, IDiagramModule } from "@/custom-types";
 import { MongoClient, ObjectId } from "mongodb";
-import { getUserFromSession } from "./database-handler";
+import { getUserDataForFront, getUserFromSession } from "./database-handler";
 import { redirect } from "next/navigation";
 
 const uri = process.env.MONGODB_URI as string
@@ -29,13 +29,14 @@ function getCustomCollectionByType(type: string) {
 export interface ICustomItemForUser {
     item: ICustomItemForFront
     isEditable: boolean,
+    isUserAdmin: boolean,
     isLiked: boolean,
     authorName: string
 
 }
 
 export async function togglePrivateCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history' | 'module') {
-    
+
     const collectionName = getCustomCollectionByType(itemType)
 
     const collection = database.collection<ICustomItem>(collectionName)
@@ -91,10 +92,8 @@ export async function createCustomItem(itemType: 'prompt' | 'systemPrompt' | 'hi
 
 export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'history', item: any, itemId: string) {
     const collectionName = getCustomCollectionByType(itemType)
-    const user = await getUserFromSession()
     const collection = database.collection<ICustomItem>(collectionName)
     delete item._id
-    item.authorId = user?._id!
     await collection.replaceOne({ _id: new ObjectId(itemId) }, item)
 }
 
@@ -175,13 +174,16 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
         description: item.description,
         likes: item.likes.map(l => l.toString()),
         isPrivate: item.isPrivate,
-        contents: item.contents
+        contents: item.contents,
+        comments: item.comments,
+        tags: item.tags
     }
     const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
     const authorName = author ? author.name : 'аккаунт удалён'
     const isLikedByUser = item.likes.find(l => l.toString() == userId.toString()) ? true : false
-    const isEditable = item?.authorId.toString() == userId.toString()
+    const role = (await getUserDataForFront()).role
+    const isEditable = item?.authorId.toString() == userId.toString() || (role == 'admin' || role == 'system')
 
     return (
         {
@@ -191,6 +193,10 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
             isLiked: isLikedByUser
         }
     )
+}
+
+export async function getUserNameById(id: string) {
+    return (await database.collection<{ name: string }>('users').findOne({ _id: new ObjectId(id) }))?.name || 'аккаунт удалён'
 }
 
 
@@ -208,19 +214,23 @@ export async function getCustomItem(collectionName: 'prompts' | 'histories' | 'm
             description: item.description,
             likes: item.likes.map(l => l.toString()),
             isPrivate: item.isPrivate,
-            contents: item.contents
+            contents: item.contents,
+            comments: item.comments,
+            tags: item.tags
+
         }
 
-        const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
-        const authorName = author ? author.name : 'аккаунт удалён'
+        const authorName = await getUserNameById(item.authorId.toString())
         const isLikedByUser = item.likes.find(l => l.toString() == user?._id.toString()) ? true : false
         const isEditable = item?.authorId.toString() == user?._id.toString()
+        const role = (await getUserDataForFront()).role
 
         return (
             {
                 item: itemForFront,
                 isEditable: isEditable,
+                isUserAdmin: role == 'admin' || role == 'system',
                 authorName: authorName,
                 isLiked: isLikedByUser
             }

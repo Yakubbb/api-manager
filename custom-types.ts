@@ -149,6 +149,7 @@ export interface ICustomItem {
     name: string,
     description: string,
     comments?: any[]
+    tags?: any[]
     likes: ObjectId[]
     isPrivate: boolean
     authorId: ObjectId
@@ -162,6 +163,7 @@ export interface ICustomItemForFront {
     description: string,
     comments?: any[]
     likes: string[]
+    tags?: any[]
     isPrivate: boolean
     authorId: string
     contents: any
