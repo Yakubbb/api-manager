@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { deleteCustomItem, getAllCustomIems, ICustomItemForUser, likeCustomItem, togglePrivateCustomItem } from "@/server-side/custom-items-database-handler";
 import { AiOutlinePlus } from 'react-icons/ai';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
-import { ICustomItemForFront } from '@/custom-types';
-import { CustomItemCard, CustomItemCardProps } from '@/customComponentsViews/custom-card';
+import { ICustomItemForFront, ITag } from '@/custom-types';
+import { CustomItemCard } from '@/customComponentsViews/custom-card';
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
 type SortableKeys = 'name' | 'authorName' | 'type' | 'likesCount';
 interface SortConfig {
@@ -66,6 +67,10 @@ export default function CustomItemsPage() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'name', order: 'asc' });
     const [selectedTypes, setSelectedTypes] = useState<ICustomItemForFront['type'][]>([]);
+    const [availableTags, setAvailableTags] = useState<ITag[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [isTypeFilterOpen, setIsTypeFilterOpen] = useState(true);
+    const [isTagFilterOpen, setIsTagFilterOpen] = useState(true);
 
     const handleLikeToggle = useCallback(async (itemId: string, itemType: ICustomItemForFront['type']) => {
         const originalItems = items;
@@ -138,6 +143,24 @@ export default function CustomItemsPage() {
         });
     }, []);
 
+    const handleTagFilterChange = useCallback((tagName: string, isChecked: boolean) => {
+        setSelectedTags(prev => {
+            if (isChecked) {
+                return prev.includes(tagName) ? prev : [...prev, tagName];
+            } else {
+                return prev.filter(tag => tag !== tagName);
+            }
+        });
+    }, []);
+
+    const toggleTypeFilter = useCallback(() => {
+        setIsTypeFilterOpen(prev => !prev);
+    }, []);
+
+    const toggleTagFilter = useCallback(() => {
+        setIsTagFilterOpen(prev => !prev);
+    }, []);
+
     useEffect(() => {
         const fetchItems = async () => {
             setIsLoading(true);
@@ -145,6 +168,16 @@ export default function CustomItemsPage() {
             try {
                 const fetchedItems = await getAllCustomIems(false);
                 setItems(fetchedItems);
+
+                const allTags: ITag[] = fetchedItems.reduce((acc: ITag[], userItem) => {
+                    if (userItem.item.tags && Array.isArray(userItem.item.tags)) {
+                        acc.push(...userItem.item.tags);
+                    }
+                    return acc;
+                }, []);
+                const uniqueTags = Array.from(new Map(allTags.map(tag => [tag.name, tag])).values());
+                setAvailableTags(uniqueTags);
+
             } catch (err) {
                 console.error("Не удалось получить пользовательские пресеты:", err);
                 setError("Не удалось загрузить пресеты. Пожалуйста, попробуйте позже.");
@@ -173,11 +206,17 @@ export default function CustomItemsPage() {
                 userItem.item.name.toLowerCase().includes(lowerSearch) ||
                 (userItem.item.description && userItem.item.description.toLowerCase().includes(lowerSearch)) ||
                 userItem.authorName.toLowerCase().includes(lowerSearch) ||
-                userItem.item.type.toLowerCase().includes(lowerSearch);
+                userItem.item.type.toLowerCase().includes(lowerSearch) ||
+                (userItem.item.tags && Array.isArray(userItem.item.tags) &&
+                    userItem.item.tags.some(tag => tag.name.toLowerCase().includes(lowerSearch)));
 
             const matchesType = selectedTypes.length === 0 || selectedTypes.includes(userItem.item.type);
 
-            return matchesSearch && matchesType;
+            const matchesTags = selectedTags.length === 0 ||
+                (userItem.item.tags && Array.isArray(userItem.item.tags) &&
+                    userItem.item.tags.some(tag => selectedTags.includes(tag.name)));
+
+            return matchesSearch && matchesType && matchesTags;
         });
 
         return [...filtered]
@@ -209,68 +248,110 @@ export default function CustomItemsPage() {
                 }
                 return 0;
             });
-    }, [items, searchTerm, sortConfig, selectedTypes]);
+    }, [items, searchTerm, sortConfig, selectedTypes, selectedTags]);
 
     return (
         <div className="flex flex-col mx-auto h-screen p-4 md:px-6 md:py-8 overflow-hidden bg-gray-50">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
-                <h1 className="text-3xl font-bold text-gray-800">Пользовательские пресеты</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Библиотека сообщества</h1>
                 <Link
                     href={'/main/customs/histories'}
                     className="inline-flex items-center gap-2 rounded-full bg-[#7242f5] px-6 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-[#6135d4] focus:outline-none focus:ring-2 focus:ring-[#7242f5] focus:ring-offset-2"
                 >
                     <AiOutlinePlus className="h-5 w-5" />
-                    Создать новый
+                    Добавить
                 </Link>
             </div>
 
-            <div className="flex-shrink-0">
-                <SearchSortControls
-                    searchTerm={searchTerm}
-                    onSearchChange={handleSearchChange}
-                    sortConfig={sortConfig}
-                    onSort={handleSort}
-                />
-                 <div className="mb-8 flex flex-wrap items-center gap-4 md:gap-6">
-                    <span className="text-sm font-medium text-gray-600">Фильтр по типу:</span>
-                    {(['prompt', 'systemPrompt', 'history', 'module'] as ICustomItemForFront['type'][]).map(type => (
-                        <label key={type} className="inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                value={type}
-                                checked={selectedTypes.includes(type)}
-                                onChange={(e) => handleTypeFilterChange(type, e.target.checked)}
-                                className="form-checkbox h-4 w-4 text-[#7242f5] rounded focus:ring-[#7242f5] mr-1"
-                            />
-                            <span className="text-sm text-gray-700 capitalize">{type}</span>
-                        </label>
-                    ))}
-                 </div>
-            </div>
+            <SearchSortControls
+                searchTerm={searchTerm}
+                onSearchChange={handleSearchChange}
+                sortConfig={sortConfig}
+                onSort={handleSort}
+            />
 
-            <div className="flex-grow overflow-y-auto pt-4">
-                {isLoading && <p className="py-10 text-center text-lg text-gray-600">Загрузка пресетов...</p>}
-                {error && <p className="py-10 text-center text-lg text-red-600">{error}</p>}
+            <div className="flex flex-grow overflow-hidden gap-6"> {/* Container for filters and items */}
+                <div className="flex-grow overflow-y-auto pt-0"> {/* Removed pt-4 as padding is on parent flex */}
+                    {isLoading && <p className="py-10 text-center text-lg text-gray-600">Загрузка пресетов...</p>}
+                    {error && <p className="py-10 text-center text-lg text-red-600">{error}</p>}
 
-                {!isLoading && !error && (
-                    displayedItems.length > 0 ? (
-                        <div className="flex flex-wrap gap-6 w-full pb-4">
-                            {displayedItems.map((userItem) => (
-                                <CustomItemCard
-                                    key={userItem.item._id}
-                                    userItem={userItem}
-                                    onLikeToggle={handleLikeToggle}
-                                    onDelete={handleDelete}
-                                    onPrivacyToggle={handlePrivacyToggle}
-                                />
-                            ))}
+                    {!isLoading && !error && (
+                        displayedItems.length > 0 ? (
+                            <div className="flex flex-wrap gap-6 w-full pb-4 justify-center"> {/* Added justify-center for better layout */}
+                                {displayedItems.map((userItem) => (
+                                    <CustomItemCard
+                                        key={userItem.item._id}
+                                        userItem={userItem}
+                                        onLikeToggle={handleLikeToggle}
+                                        onDelete={handleDelete}
+                                        onPrivacyToggle={handlePrivacyToggle}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="mt-12 text-center text-lg text-gray-500">
+                                {searchTerm || selectedTypes.length > 0 || selectedTags.length > 0 ? 'Не найдено элементов, соответствующих вашему поиску/фильтру.' : 'Пока нет пользовательских пресетов. Создайте первый!'}
+                            </p>
+                        )
+                    )}
+                </div>
+                <div className="w-48 flex-shrink-0 overflow-y-auto pr-4"> {/* Added pr-4 for spacing */}
+                    {/* Type Filter Section with Collapse */}
+                    <div className="mb-4 border-b border-gray-200 pb-4">
+                        <button
+                            className="flex w-full items-center justify-between text-sm font-medium text-gray-600 py-2 focus:outline-none"
+                            onClick={toggleTypeFilter}
+                        >
+                            <span>Фильтр по типу:</span>
+                            {isTypeFilterOpen ? <IoIosArrowUp className="h-4 w-4 transition-transform duration-200" /> : <IoIosArrowDown className="h-4 w-4 transition-transform duration-200" />}
+                        </button>
+                        {isTypeFilterOpen && (
+                            <div className="mt-2 flex flex-col gap-2"> {/* Changed to flex-col for vertical stacking */}
+                                {(['prompt', 'systemPrompt', 'history', 'module'] as ICustomItemForFront['type'][]).map(type => (
+                                    <label key={type} className="inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            value={type}
+                                            checked={selectedTypes.includes(type)}
+                                            onChange={(e) => handleTypeFilterChange(type, e.target.checked)}
+                                            className="form-checkbox h-4 w-4 text-[#7242f5] rounded focus:ring-[#7242f5] mr-1"
+                                        />
+                                        <span className="text-sm text-gray-700 capitalize">{type}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Tag Filter Section with Collapse */}
+                    {availableTags.length > 0 && (
+                        <div className="mb-8 border-b border-gray-200 pb-4">
+                            <button
+                                className="flex w-full items-center justify-between text-sm font-medium text-gray-600 py-2 focus:outline-none"
+                                onClick={toggleTagFilter}
+                            >
+                                <span>Фильтр по тегам:</span>
+                                {isTagFilterOpen ? <IoIosArrowUp className="h-4 w-4 transition-transform duration-200" /> : <IoIosArrowDown className="h-4 w-4 transition-transform duration-200" />}
+                            </button>
+                            {isTagFilterOpen && (
+                                <div className="mt-2 flex flex-col gap-2"> {/* Changed to flex-col for vertical stacking */}
+                                    {availableTags.map(tag => (
+                                        <label key={tag.name} className="inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                value={tag.name}
+                                                checked={selectedTags.includes(tag.name)}
+                                                onChange={(e) => handleTagFilterChange(tag.name, e.target.checked)}
+                                                className="form-checkbox h-4 w-4 text-[#7242f5] rounded focus:ring-[#7242f5] mr-1"
+                                            />
+                                            <span className="text-sm text-gray-700">{tag.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <p className="mt-12 text-center text-lg text-gray-500">
-                            {searchTerm || selectedTypes.length > 0 ? 'Не найдено элементов, соответствующих вашему поиску/фильтру.' : 'Пока нет пользовательских пресетов. Создайте первый!'}
-                        </p>
-                    )
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -94,6 +94,7 @@ export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'hi
     const collectionName = getCustomCollectionByType(itemType)
     const collection = database.collection<ICustomItem>(collectionName)
     delete item._id
+    item.authorId =  new ObjectId(item.authorId)
     await collection.replaceOne({ _id: new ObjectId(itemId) }, item)
 }
 
@@ -113,7 +114,7 @@ export async function getAllModules(): Promise<{ id: string, data: IDiagramModul
 
 }
 
-export async function getAllCustomIems(byUser: boolean): Promise<ICustomItemForUser[]> {
+export async function getAllCustomIems(byUser: boolean): Promise<any[]> {
 
     const user = await getUserFromSession()
 

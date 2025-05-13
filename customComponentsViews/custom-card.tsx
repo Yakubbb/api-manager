@@ -4,7 +4,8 @@ import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
 import { FaLock, FaLockOpen } from 'react-icons/fa';
 import { ICustomItemForUser } from "@/server-side/custom-items-database-handler";
-import { ICustomItemForFront } from '@/custom-types';
+import { ICustomItemForFront, ITag } from '@/custom-types';
+import Tag from '@/components/tag';
 
 export interface CustomItemCardProps {
     userItem: ICustomItemForUser;
@@ -18,7 +19,7 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
     const { item, isEditable, isLiked, authorName } = userItem;
 
     const getTypeBadgeClasses = (type: ICustomItemForFront['type']): string => {
-        let classes = 'inline-block rounded-full px-2.5 py-1 text-xs font-semibold capitalize ';
+        let classes = 'inline-block rounded-full px-2.5 py-1 text-xs font-semibold p-2 ';
         switch (type) {
             case 'prompt': classes += 'bg-blue-100 text-blue-800'; break;
             case 'systemPrompt': classes += 'bg-green-100 text-green-800'; break;
@@ -42,7 +43,7 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
     const detailUrl = `/main/customs/${getTypePath(item.type)}/${item._id}`;
 
     return (
-        <div className="flex w-full flex-col overflow-hidden rounded-2xl border-2 border-gray-200 bg-white transition hover:shadow-xl sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)]">
+        <div className="flex flex-grow w-64 flex-col overflow-hidden rounded-2xl border-2 border-gray-200 bg-white transition hover:shadow-xl">
             <Link href={detailUrl} className="flex flex-grow flex-col">
                 {item.photo && (
                     <div className="relative h-48 w-full">
@@ -63,9 +64,20 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
                             <span className={getTypeBadgeClasses(item.type)}>{item.type}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                             <span>Автор:</span>
-                             <span className="text-gray-700 font-medium">{authorName}</span>
+                            <span>Автор:</span>
+                            <span className="text-gray-700 font-medium">{authorName}</span>
                         </div>
+                    </div>
+                    <div className='flex flex-wrap gap-2 mb-2 mt-2 w-full'>
+                        {
+                            (userItem.item.tags! as ITag[]).map((t, index) => {
+                                return (
+                                    <div key={index} className='w-min text-xs '>
+                                        <Tag value={t} onClick={() => { }} />
+                                    </div>
+                                )
+                            })
+                        }
                     </div>
 
                     <p className="flex-grow text-base text-gray-700 line-clamp-3 font-main2">
@@ -79,7 +91,7 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
                     <button
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onLikeToggle(item._id, item.type); }}
                         title={isLiked ? "Убрать лайк" : "Поставить лайк"}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7242f5]/50 ${isLiked ? 'text-pink-600' : 'text-gray-500 hover:text-pink-500'}`}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7242f5] ${isLiked ? 'text-red-600' : 'text-gray-500 hover:text-red-500'}`}
                     >
                         {isLiked ? <AiFillHeart className="h-5 w-5" /> : <AiOutlineHeart className="h-5 w-5" />}
                         <span>{item.likes.length}</span>
@@ -88,7 +100,7 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
                         <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPrivacyToggle(item._id, item.type); }}
                             title={item.isPrivate ? "Сделать публичным" : "Сделать приватным"}
-                            className="rounded-full p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#7242f5]/50"
+                            className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#7242f5]/50"
                         >
                             {item.isPrivate
                                 ? <FaLock className="h-4 w-4" />
