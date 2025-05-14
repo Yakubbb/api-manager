@@ -53,7 +53,7 @@ const HistoryContent: React.FC<HistoryContentProps> = ({
                 )}
             </div>
             {isEditable && (
-                <div className="mt-auto flex items-center gap-3">
+                <div className=" flex items-center gap-3">
                     <select
                         value={newMessageRole}
                         onChange={(e) => setNewMessageRole(e.target.value as 'user' | 'model')}

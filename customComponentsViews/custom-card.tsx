@@ -35,7 +35,8 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
             case 'history': return 'histories';
             case 'prompt':
             case 'systemPrompt': return 'prompts';
-            case 'module': return 'modules'
+            case 'module': return 'modules';
+            case 'path': return 'paths';
             default: return 'unknown';
         }
     };

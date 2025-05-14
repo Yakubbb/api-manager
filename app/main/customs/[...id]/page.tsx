@@ -13,6 +13,8 @@ import { getAllTags, getUserDataForFront } from "@/server-side/database-handler"
 import TagSelector from "@/components/tag-selector";
 import { ITag } from "@/custom-types";
 import Tag from "@/components/tag";
+import PathContent from "@/customComponentsViews/path-content";
+import PathContent2 from "@/customComponentsViews/path-content-2";
 
 const initialFormData = {
     _id: null,
@@ -40,12 +42,16 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
     const [newMessage, setNewMessage] = useState<string>('')
     const [newMessageRole, setNewMessageRole] = useState<'user' | 'model'>('user')
     const [updateStatus, setUpdateStatus] = useState<'idle' | 'updating' | 'success' | 'error'>('idle');
-    const [isCommentsVisible, setIsCommentsVisible] = useState(true);
+    const [isCommentsVisible, setIsCommentsVisible] = useState(false);
     const [newCommentText, setNewCommentText] = useState('');
     const [commentPostStatus, setCommentPostStatus] = useState<'idle' | 'posting' | 'posted' | 'error'>('idle');
     const [comments, setComments] = useState<any[]>([])
     const [tags, setTags] = useState<any[]>([])
     const [avalibleTags, setAvalibleTags] = useState<any[]>([])
+
+    useEffect(() => {
+        console.log('dasdsadsad', formData)
+    }, [formData])
 
     const handlers = {
         handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -66,6 +72,27 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                         break;
                     case 'module':
                         initialContents = { name: '', itsIntegrated: false, inputs: [], outputs: [] };
+                        break;
+                    case 'path':
+                        initialContents = {
+                            nodes: [
+                                {
+                                    id: 'start',
+                                    type: 'start',
+                                    data: { outputs: [{ id: 'userPrompt', name: 'prompt', type: 'text', value: 'aboba' }] },
+                                    position: { x: 0, y: 200 },
+                                    deletable: false
+                                },
+                                {
+                                    id: 'end',
+                                    type: 'start',
+                                    data: { inputs: [], itsEnd: true },
+                                    position: { x: 700, y: 0 },
+                                    deletable: false
+                                }
+                            ],
+                            edges: []
+                        };
                         break;
                     default:
                         initialContents = '';
@@ -121,6 +148,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
         handleSave: async () => {
             let contentsToSave = formData.contents;
+            console.log(contentsToSave, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
             if (formData.type === 'history') {
                 if (!Array.isArray(contentsToSave)) {
                     setError("Ошибка: Содержимое истории не является массивом.");
@@ -132,6 +160,10 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                     return;
                 }
             }
+            else if (formData.type === 'path') {
+                contentsToSave = contentsToSave
+            }
+
             else {
                 if (typeof contentsToSave !== 'string') {
                     contentsToSave = String(contentsToSave ?? '');
@@ -156,6 +188,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
         },
 
         handleUpdate: async () => {
+            console.log('bbbbbbbb', formData)
             if (!formData._id) {
                 setError("Невозможно обновить: отсутствует ID элемента.");
                 return;
@@ -173,16 +206,21 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                     return;
                 }
             }
+            else if (formData.type === 'path') {
+                contentsToUpdate = formData.contents
+            }
             else {
                 if (typeof contentsToUpdate !== 'string') {
                     contentsToUpdate = String(contentsToUpdate ?? '');
                 }
             }
+            console.log('ABOBAOBA', contentsToUpdate)
 
             setUpdateStatus('updating');
             setError(null);
 
             try {
+
                 await updateCustomItem(formData.type, { ...formData, contents: contentsToUpdate }, formData._id);
                 setUpdateStatus('success');
 
@@ -238,7 +276,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
             setNewMessage('')
             setNewMessageRole('user')
             setUpdateStatus('idle');
-            setCommentPostStatus('idle'); // Сбрасываем статус комментария при загрузке нового элемента
+            setCommentPostStatus('idle');
 
             try {
 
@@ -253,6 +291,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
                     if (itemData && itemData.item) {
                         let formattedContents = itemData.item.contents;
+
 
                         if (itemData.item.type === 'history') {
                             if (typeof formattedContents === 'string') {
@@ -282,16 +321,20 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                                 formattedContents.outputs = Array.isArray(formattedContents.outputs) ? formattedContents.outputs : [];
                             }
                         }
+                        else if (itemData.item.type === 'path') {
+
+                            formattedContents = itemData.item.contents
+                        }
                         else {
                             if (typeof formattedContents !== 'string') {
                                 formattedContents = String(formattedContents ?? '');
                             }
                         }
-                        console.log(itemData)
+
                         setFormData({ ...itemData.item, contents: formattedContents })
                         setComments(itemData.item.comments || [])
                         setTags(itemData.item.tags || [])
-                        setAvalibleTags((await getAllTags()).filter(t=>!itemData.item.tags?.find(tt=>t._id == tt._id)))
+                        setAvalibleTags((await getAllTags()).filter(t => !itemData.item.tags?.find(tt => t._id == tt._id)))
                         setAuthorName(itemData.authorName)
                         setIsLiked(itemData.isLiked)
                         setViewMode(itemData.isEditable ? 'edit' : 'view')
@@ -303,6 +346,26 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                         switch (initialType) {
                             case 'history': initialContents = []; break;
                             case 'module': initialContents = { name: '', itsIntegrated: false, inputs: [], outputs: [] }; break;
+                            case 'path':
+                                initialContents = {
+                                    nodes: [
+                                        {
+                                            id: 'start',
+                                            type: 'start',
+                                            data: { outputs: [{ id: 'userPrompt', name: 'prompt', type: 'text', value: 'aboba' }] },
+                                            position: { x: 0, y: 200 },
+                                            deletable: false
+                                        },
+                                        {
+                                            id: 'end',
+                                            type: 'start',
+                                            data: { inputs: [], itsEnd: true },
+                                            position: { x: 700, y: 0 },
+                                            deletable: false
+                                        }
+                                    ],
+                                    edges: []
+                                }; break;
                             default: initialContents = ''; break;
                         }
                         setFormData({
@@ -350,7 +413,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
     return (
         <div className="h-screen flex font-sans antialiased">
             {/* Левая панель (метаданные) */}
-            <div className="w-1/3 max-w-md flex-shrink-0 h-full p-6 border-r border-gray-200 overflow-y-auto bg-white shadow-lg flex flex-col gap-5">
+            <div className="w-1/5 max-w-md flex-shrink-0 h-full p-6 border-r border-gray-200 overflow-y-auto bg-white shadow-lg flex flex-col gap-5">
                 <h1 className="text-2xl font-bold mb-1 text-gray-800">
                     {viewMode === 'create' ? 'Создать новый пресет' : 'Детали пресета'}
                 </h1>
@@ -420,7 +483,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             {tags.map(t => {
                                 return (
                                     <div>
-                                        <Tag value={t} onClick={() => { }}/>
+                                        <Tag value={t} onClick={() => { }} />
                                     </div>
                                 )
                             })}
@@ -442,6 +505,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             <option value="systemPrompt">Системный запрос</option>
                             <option value="history">История</option>
                             <option value="module">Модуль</option>
+                            <option value="path">Маршрут</option>
                         </select>
                     ) : (
                         <p className="text-gray-700 capitalize p-2 bg-gray-50 rounded-lg">
@@ -536,7 +600,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                 </div>
             </div>
 
-            <div className={`flex-grow h-full p-6 bg-gray-50 flex flex-col overflow-y-auto transition-all duration-300 ease-in-out ${isCommentsVisible ? 'w-1/2' : 'w-2/3'}`}>
+            <div className={`flex-grow h-full p-3 bg-gray-50 flex flex-col overflow-y-auto transition-all duration-300 ease-in-out`}>
                 {formData.type === 'prompt' && (
                     <PromptContent
                         contents={formData.contents}
@@ -573,14 +637,17 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                         updateStatus={updateStatus}
                     />
                 )}
-                {!['prompt', 'systemPrompt', 'history', 'module'].includes(formData.type) && (
+                {formData.type === 'path' && (
+                    <PathContent2 contents={formData.contents} formData={(a) => setFormData({ ...formData, contents: a })} />
+                )}
+                {!['prompt', 'systemPrompt', 'history', 'module', 'path'].includes(formData.type) && (
                     <div className="flex flex-col h-full items-center justify-center text-gray-500">
                         <p>Неизвестный тип содержимого: {formData.type}</p>
                     </div>
                 )}
             </div>
 
-            <div className={`flex-shrink-0 transition-all duration-300 ease-in-out ${isCommentsVisible ? 'w-1/4 max-w-sm p-6 border-l border-gray-200' : 'w-0 p-0 overflow-hidden'} h-full bg-gray-100 flex flex-col`}>
+            <div className={`right-0 ease-in-out ${isCommentsVisible ? 'w-1/4 max-w-sm p-6 border-l border-gray-200' : 'w-0 p-0 overflow-hidden'} h-full bg-gray-100 flex flex-col absolute`}>
                 {isCommentsVisible && (
                     <div className="flex flex-col gap-4 h-full">
                         <div className="flex items-center justify-between pb-2 border-b border-gray-300">

@@ -39,5 +39,5 @@ export async function getPathFromCollection(id: string) {
     const database = client.db("api-manager");
     const collection = database.collection("paths");
     const doc: any = await collection.findOne({ _id: new ObjectId(id) }) as any
-    return { edges: doc.edges, nodes: doc.nodes }
+    return { edges: doc.contents.edges, nodes: doc.contents.nodes }
 }

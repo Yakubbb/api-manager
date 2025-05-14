@@ -158,7 +158,7 @@ export interface ICustomItem {
 export interface ICustomItemForFront {
     _id: string
     photo?: string,
-    type: 'prompt' | 'systemPrompt' | 'history' | 'module'
+    type: 'prompt' | 'systemPrompt' | 'history' | 'module' | 'path' 
     name: string,
     description: string,
     comments?: any[]

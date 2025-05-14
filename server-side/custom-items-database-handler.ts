@@ -3,6 +3,7 @@ import { ICustomItem, ICustomItemForFront, IDiagramModule } from "@/custom-types
 import { MongoClient, ObjectId } from "mongodb";
 import { getUserDataForFront, getUserFromSession } from "./database-handler";
 import { redirect } from "next/navigation";
+import { generate } from "random-words";
 
 const uri = process.env.MONGODB_URI as string
 
@@ -20,6 +21,8 @@ function getCustomCollectionByType(type: string) {
             return 'modules'
         case 'systemPrompt':
             return 'prompts'
+        case 'path':
+            return 'paths'
         default:
             return ''
     }
@@ -94,7 +97,7 @@ export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'hi
     const collectionName = getCustomCollectionByType(itemType)
     const collection = database.collection<ICustomItem>(collectionName)
     delete item._id
-    item.authorId =  new ObjectId(item.authorId)
+    item.authorId = new ObjectId(item.authorId)
     await collection.replaceOne({ _id: new ObjectId(itemId) }, item)
 }
 
@@ -114,6 +117,70 @@ export async function getAllModules(): Promise<{ id: string, data: IDiagramModul
 
 }
 
+export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule }[]> {
+
+    const user = await getUserFromSession()
+
+    const histories = await database.collection<ICustomItem>('histories').find().toArray()
+    const prompts = await database.collection<ICustomItem>('prompts').find().toArray()
+
+    const historiesPromises = histories.map(p => {
+        return convertCustomItem(p, user?._id!);
+    });
+
+    const promptsPromises = prompts.map(p => {
+        return convertCustomItem(p, user?._id!);
+    });
+
+    const resolvedHistories = await Promise.all(historiesPromises);
+    const resolvedPrompts = await Promise.all(promptsPromises);
+
+    const historiesModules: { id: string, data: IDiagramModule }[] = resolvedHistories.map(h => {
+        return ({
+            id: h.item._id,
+            data: {
+                name: h.item.name,
+                getResponse: {},
+                inputs: [],
+                outputs: [
+                    {
+                        id: `${generate()}-${Date.now()}`,
+                        name: 'value',
+                        type: 'history',
+                        value: h.item.contents,
+                        showValue: false
+                    },
+                ]
+            }
+        })
+
+    }) as { id: string, data: IDiagramModule }[]
+
+    const promptsModules: { id: string, data: IDiagramModule }[] = resolvedPrompts.map(h => {
+        return ({
+            id: h.item._id,
+            data: {
+                name: h.item.name,
+                getResponse: {},
+                inputs: [],
+                outputs: [
+                    {
+                        id: `${generate()}-${Date.now()}`,
+                        name: 'value',
+                        type: 'text',
+                        value: h.item.contents,
+                        showValue: false
+                    },
+                ]
+            }
+        })
+
+    }) as { id: string, data: IDiagramModule }[]
+
+    return promptsModules.concat(historiesModules)
+
+}
+
 export async function getAllCustomIems(byUser: boolean): Promise<any[]> {
 
     const user = await getUserFromSession()
@@ -123,6 +190,7 @@ export async function getAllCustomIems(byUser: boolean): Promise<any[]> {
     const prompts = await database.collection<ICustomItem>('prompts').find(filter).toArray()
     const histories = await database.collection<ICustomItem>('histories').find(filter).toArray()
     const modules = await database.collection<ICustomItem>('modules').find(filter).toArray()
+    const paths = await database.collection<ICustomItem>('paths').find(filter).toArray()
 
 
 
@@ -134,17 +202,20 @@ export async function getAllCustomIems(byUser: boolean): Promise<any[]> {
         return convertCustomItem(p, user?._id!);
     });
 
-
-
     const historiesPromises = histories.map(p => {
+        return convertCustomItem(p, user?._id!);
+    });
+
+    const pathsPromises = paths.map(p => {
         return convertCustomItem(p, user?._id!);
     });
 
     const resolvedPrompts = await Promise.all(promptPromises);
     const resolvedHistories = await Promise.all(historiesPromises);
     const resolvedModules = await Promise.all(modulesPromises);
+    const resolvedPaths = await Promise.all(pathsPromises);
 
-    const answer = resolvedHistories.concat(resolvedPrompts).concat(resolvedModules).filter(
+    const answer = resolvedHistories.concat(resolvedPrompts).concat(resolvedModules).concat(resolvedPaths).filter(
         i => {
             if (i.item.authorId == user?._id.toString()) {
                 console.log('a')

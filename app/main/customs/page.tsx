@@ -307,7 +307,7 @@ export default function CustomItemsPage() {
                         </button>
                         {isTypeFilterOpen && (
                             <div className="mt-2 flex flex-col gap-2"> {/* Changed to flex-col for vertical stacking */}
-                                {(['prompt', 'systemPrompt', 'history', 'module'] as ICustomItemForFront['type'][]).map(type => (
+                                {(['prompt', 'systemPrompt', 'history', 'module', 'path'] as ICustomItemForFront['type'][]).map(type => (
                                     <label key={type} className="inline-flex items-center cursor-pointer">
                                         <input
                                             type="checkbox"
