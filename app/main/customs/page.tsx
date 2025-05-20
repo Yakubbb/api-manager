@@ -89,7 +89,7 @@ export default function CustomItemsPage() {
             )
         );
         try {
-            await likeCustomItem(itemId, itemType);
+            await likeCustomItem(itemId, itemType as any);
         } catch (err) {
             console.error("Failed to toggle like:", err);
             setError("Не удалось обновить лайк. Попробуйте еще раз.");
@@ -102,7 +102,7 @@ export default function CustomItemsPage() {
         if (window.confirm(`Вы уверены, что хотите удалить этот ${itemType}?`)) {
             setItems(currentItems => currentItems.filter(userItem => userItem.item._id !== itemId));
             try {
-                await deleteCustomItem(itemId, itemType);
+                await deleteCustomItem(itemId, itemType as any);
             } catch (err) {
                 console.error("Failed to delete item:", err);
                 setError("Не удалось удалить элемент. Попробуйте еще раз.");
@@ -125,7 +125,7 @@ export default function CustomItemsPage() {
             )
         );
         try {
-            await togglePrivateCustomItem(itemId, itemType);
+            await togglePrivateCustomItem(itemId, itemType as any);
         } catch (err) {
             console.error("Failed to toggle privacy:", err);
             setError("Не удалось изменить приватность. Попробуйте еще раз.");
@@ -167,8 +167,7 @@ export default function CustomItemsPage() {
             setError(null);
             try {
                 const fetchedItems = await getAllCustomIems(false);
-                setItems(fetchedItems);
-
+                console.log(fetchedItems)
                 const allTags: ITag[] = fetchedItems.reduce((acc: ITag[], userItem) => {
                     if (userItem.item.tags && Array.isArray(userItem.item.tags)) {
                         acc.push(...userItem.item.tags);
@@ -270,14 +269,14 @@ export default function CustomItemsPage() {
                 onSort={handleSort}
             />
 
-            <div className="flex flex-grow overflow-hidden gap-6"> {/* Container for filters and items */}
-                <div className="flex-grow overflow-y-auto pt-0"> {/* Removed pt-4 as padding is on parent flex */}
+            <div className="flex flex-grow overflow-hidden gap-6">
+                <div className="flex-grow overflow-y-auto pt-0">
                     {isLoading && <p className="py-10 text-center text-lg text-gray-600">Загрузка пресетов...</p>}
                     {error && <p className="py-10 text-center text-lg text-red-600">{error}</p>}
 
                     {!isLoading && !error && (
                         displayedItems.length > 0 ? (
-                            <div className="flex flex-wrap gap-6 w-full pb-4 justify-center"> {/* Added justify-center for better layout */}
+                            <div className="flex flex-wrap gap-6 w-full pb-4 justify-center">
                                 {displayedItems.map((userItem) => (
                                     <CustomItemCard
                                         key={userItem.item._id}
@@ -295,8 +294,7 @@ export default function CustomItemsPage() {
                         )
                     )}
                 </div>
-                <div className="w-48 flex-shrink-0 overflow-y-auto pr-4"> {/* Added pr-4 for spacing */}
-                    {/* Type Filter Section with Collapse */}
+                <div className="w-48 flex-shrink-0 overflow-y-auto pr-4">
                     <div className="mb-4 border-b border-gray-200 pb-4">
                         <button
                             className="flex w-full items-center justify-between text-sm font-medium text-gray-600 py-2 focus:outline-none"
@@ -306,7 +304,7 @@ export default function CustomItemsPage() {
                             {isTypeFilterOpen ? <IoIosArrowUp className="h-4 w-4 transition-transform duration-200" /> : <IoIosArrowDown className="h-4 w-4 transition-transform duration-200" />}
                         </button>
                         {isTypeFilterOpen && (
-                            <div className="mt-2 flex flex-col gap-2"> {/* Changed to flex-col for vertical stacking */}
+                            <div className="mt-2 flex flex-col gap-2">
                                 {(['prompt', 'systemPrompt', 'history', 'module', 'path'] as ICustomItemForFront['type'][]).map(type => (
                                     <label key={type} className="inline-flex items-center cursor-pointer">
                                         <input
@@ -323,7 +321,6 @@ export default function CustomItemsPage() {
                         )}
                     </div>
 
-                    {/* Tag Filter Section with Collapse */}
                     {availableTags.length > 0 && (
                         <div className="mb-8 border-b border-gray-200 pb-4">
                             <button
@@ -334,7 +331,7 @@ export default function CustomItemsPage() {
                                 {isTagFilterOpen ? <IoIosArrowUp className="h-4 w-4 transition-transform duration-200" /> : <IoIosArrowDown className="h-4 w-4 transition-transform duration-200" />}
                             </button>
                             {isTagFilterOpen && (
-                                <div className="mt-2 flex flex-col gap-2"> {/* Changed to flex-col for vertical stacking */}
+                                <div className="mt-2 flex flex-col gap-2">
                                     {availableTags.map(tag => (
                                         <label key={tag.name} className="inline-flex items-center cursor-pointer">
                                             <input

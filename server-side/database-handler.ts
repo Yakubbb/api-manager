@@ -8,6 +8,8 @@ import { IApi, IChat, ITag, IUser } from "@/custom-types";
 import { convertIChatforFront } from "./chat-handler";
 import { ChatState } from "@/components/history-configure";
 import { PromptState } from "@/components/promptConfig";
+import { writeFile, access } from "fs/promises";
+import path from "path";
 
 
 
@@ -24,13 +26,45 @@ export async function getUserFromSession() {
     return user
 }
 
+export async function getUserPhotoById(id: string) {
+    const avatarPath = path.join(process.cwd(), 'public', 'avatars', `${id}.png`);
+    let image: string;
+    try {
+        await access(avatarPath)
+        image = `/avatars/${id}.png`;
+    } catch (error) {
+        image = '/avatars/placeholder.png';
+    }
+    return image
+}
+
 export async function getUserDataForFront() {
-    const user = await getUserFromSession() as any
+    const user = await getUserFromSession() as any;
 
-    const role = user.role as string
-    const name = user.name as string
+    const role = user.role as string;
+    const name = user.name as string;
+    const email = user.email as string;
+    let image = await getUserPhotoById(user?._id.toString())
 
-    return { role: role, name: name, id: user?._id.toString() }
+    return { role: role, name: name, email: email, image: image, id: user?._id.toString() };
+}
+
+export async function updateUserData(name: string, email: string, image?: File) {
+    const database = client.db('api-manager')
+    const user = await getUserFromSession()
+
+    if (image) {
+        const buffer = Buffer.from(await image.arrayBuffer());
+        const filename = `${user?._id.toString()}.png`;
+        await writeFile(
+            path.join(process.cwd(), "public/avatars/" + filename),
+            buffer
+        );
+    }
+
+
+    database.collection('users').updateOne({ _id: user?._id }, { $set: { name: name, email: email } })
+
 }
 
 export async function addNewModule(module: IApi) {
@@ -374,6 +408,8 @@ export async function createUser(state: any, formData: FormData) {
     const data = await collection.insertOne({
         "name": login,
         "password": hashedPassword,
+        "image": '',
+        'email': '',
         "chats": []
     })
 

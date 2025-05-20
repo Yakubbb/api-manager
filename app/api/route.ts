@@ -6,7 +6,7 @@ import { start } from "repl"
 
 export async function POST(request: Request) {
     const res = await request.json()
-    console.log(res)
+    console.log()
     const path = await getPathFromCollection(res.path)
     const data = await processPath(path.nodes, path.edges, res.values)
     console.log(data)

@@ -10,9 +10,10 @@ export const MODULES_FUNCTIONS: { id: string, function: (args: { id: string, val
             const prompt = arg.find(a => a.id == 'prompt')
             const sysprompt = arg.find(a => a.id == 'systemPrompt')
             const history = arg.find(a => a.id == 'history')
+            const config = arg.find(a => a.id == 'mimeType')
 
             if (model && prompt) {
-                return [{ id: 'answer', value: await getAnswer(model.value, prompt.value, history?.value, sysprompt?.value) }]
+                return [{ id: 'answer', value: await getAnswer(model.value, prompt.value, history?.value, sysprompt?.value, config?.value) }]
             }
             return [
                 { id: 'answer', value: 'укажите модель и промпт' }
@@ -29,10 +30,10 @@ export const MODULES_FUNCTIONS: { id: string, function: (args: { id: string, val
             }
             try {
                 const response = await getFetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(searchTerm)}&iax=images&ia=images&format=json`);
-                console.log('тоже оно',response)
+                console.log('тоже оно', response)
                 const data = await response;
                 if (data.Results && data.Results.length > 0) {
-                    console.log('это оно',data.Results)
+                    console.log('это оно', data.Results)
                     return [{ id: 'imageUrl', value: `https://duckduckgo.com${data.Image}` }];
                 } else {
                     return [{ id: 'imageUrl', value: 'Изображение не найдено' }];

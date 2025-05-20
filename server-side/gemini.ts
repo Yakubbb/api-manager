@@ -33,15 +33,26 @@ function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function getAnswer(modelName: string, prompt: string, history?: IMessage[], systemPrompt?: string) {
+export async function getAnswer(modelName: string, prompt: string, history?: IMessage[], systemPrompt?: string, generationConfig?: string) {
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
     const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemPrompt });
 
-    const chatOptions = history ? { history: history } : undefined;
+    let chatOptions = {}
+
+    if (history) {
+        chatOptions = { ...chatOptions, history: history }
+    }
+    if (generationConfig) {
+        chatOptions = { ...chatOptions, generationConfig: {responseMimeType:generationConfig} }
+    }
+    
+
     const chat: ChatSession = model.startChat(chatOptions);
     const result = await chat.sendMessage(prompt);
     const response = result.response.text();
     return response
+
+    //{generationConfig:{responseMimeType:'application/json'}}
 }
 
 export async function generateStream(

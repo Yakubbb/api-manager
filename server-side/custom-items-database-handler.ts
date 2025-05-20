@@ -1,7 +1,7 @@
 'use server'
 import { ICustomItem, ICustomItemForFront, IDiagramModule } from "@/custom-types";
 import { MongoClient, ObjectId } from "mongodb";
-import { getUserDataForFront, getUserFromSession } from "./database-handler";
+import { getUserDataForFront, getUserFromSession, getUserPhotoById } from "./database-handler";
 import { redirect } from "next/navigation";
 import { generate } from "random-words";
 
@@ -34,8 +34,8 @@ export interface ICustomItemForUser {
     isEditable: boolean,
     isUserAdmin: boolean,
     isLiked: boolean,
-    authorName: string
-
+    authorName: string,
+    authorPhoto: string
 }
 
 export async function togglePrivateCustomItem(itemId: string, itemType: 'prompt' | 'systemPrompt' | 'history' | 'module') {
@@ -253,6 +253,8 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
     const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
     const authorName = author ? author.name : 'аккаунт удалён'
+    const authorPhoto = await getUserPhotoById(item.authorId.toString())
+
     const isLikedByUser = item.likes.find(l => l.toString() == userId.toString()) ? true : false
     const role = (await getUserDataForFront()).role
     const isEditable = item?.authorId.toString() == userId.toString() || (role == 'admin' || role == 'system')
@@ -262,6 +264,7 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
             item: itemForFront,
             isEditable: isEditable,
             authorName: authorName,
+            authorPhoto: authorPhoto,
             isLiked: isLikedByUser
         }
     )
@@ -294,6 +297,7 @@ export async function getCustomItem(collectionName: 'prompts' | 'histories' | 'm
 
 
         const authorName = await getUserNameById(item.authorId.toString())
+        const authorPhoto = await getUserPhotoById(item.authorId.toString())
         const isLikedByUser = item.likes.find(l => l.toString() == user?._id.toString()) ? true : false
         const isEditable = item?.authorId.toString() == user?._id.toString()
         const role = (await getUserDataForFront()).role
@@ -304,6 +308,7 @@ export async function getCustomItem(collectionName: 'prompts' | 'histories' | 'm
                 isEditable: isEditable,
                 isUserAdmin: role == 'admin' || role == 'system',
                 authorName: authorName,
+                authorPhoto: authorPhoto,
                 isLiked: isLikedByUser
             }
         )

@@ -16,7 +16,7 @@ export interface CustomItemCardProps {
 
 export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLikeToggle, onDelete, onPrivacyToggle }) => {
     console.log(userItem)
-    const { item, isEditable, isLiked, authorName } = userItem;
+    const { item, isEditable, isLiked, authorName, authorPhoto } = userItem;
 
     const getTypeBadgeClasses = (type: ICustomItemForFront['type']): string => {
         let classes = 'inline-block rounded-full px-2.5 py-1 text-xs font-semibold p-2 ';
@@ -64,8 +64,15 @@ export const CustomItemCard: React.FC<CustomItemCardProps> = ({ userItem, onLike
                             <span>Тип:</span>
                             <span className={getTypeBadgeClasses(item.type)}>{item.type}</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-row text-center items-center gap-2">
                             <span>Автор:</span>
+                            <div className="w-6 h-6 rounded-full overflow-hidden">
+                                <img
+                                    src={authorPhoto}
+                                    alt="Preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
                             <span className="text-gray-700 font-medium">{authorName}</span>
                         </div>
                     </div>

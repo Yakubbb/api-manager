@@ -11,13 +11,14 @@ import { FaHome } from "react-icons/fa";
 import { FaProjectDiagram } from "react-icons/fa";
 import { VscLibrary } from "react-icons/vsc";
 import { IoIosAddCircleOutline } from "react-icons/io";
-
+import { FaCode } from "react-icons/fa";
 import { deleteCookie } from "@/server-side/work-with-cookie";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getChatLinks } from "@/server-side/chat-handler";
 import { useSearchParams } from "next/navigation";
 import { RiMessage3Line } from "react-icons/ri";
+import { CgRowFirst } from "react-icons/cg";
 import { AiFillExperiment } from "react-icons/ai";
 import { FaBuffer } from "react-icons/fa6";
 
@@ -64,6 +65,14 @@ export function SideBar({
     const [sidebarChats, setSidebarChats] = useState<ISidebarChildren[]>([])
     const searchParams = useSearchParams()
 
+    const mainChildren = [
+        {
+            name: 'примеры',
+            href: `/main/preview`,
+            Icon: FaCode
+        },
+    ] as ISidebarChildren[]
+
     const updateChats = async () => {
         const chats = await getChatLinks()
         const newSideBarChats = [] as ISidebarChildren[]
@@ -96,6 +105,7 @@ export function SideBar({
     return (
         <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] p-4 bg-[#f3f3f6] ">
             <nav className="flex flex-col gap-1">
+                <SideBarComponent name="Главная" description="место, где можно протестировать различные модели" Icon={CgRowFirst} href="/main" children={mainChildren} />
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
                 <SideBarComponent name="Библиотека" description="место, где можно протестировать различные модели" Icon={VscLibrary} href="/main/customs" />
                 <SideBarComponent name="Мониторинг" description="посмотрите на работу ваших сервисов" Icon={IoIosStats} href="/main/monitor" />
