@@ -167,7 +167,8 @@ export default function CustomItemsPage() {
             setError(null);
             try {
                 const fetchedItems = await getAllCustomIems(false);
-                console.log(fetchedItems)
+                setItems(fetchedItems);
+
                 const allTags: ITag[] = fetchedItems.reduce((acc: ITag[], userItem) => {
                     if (userItem.item.tags && Array.isArray(userItem.item.tags)) {
                         acc.push(...userItem.item.tags);

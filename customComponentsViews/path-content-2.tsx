@@ -18,16 +18,10 @@ import { IDiagramModule, IMessage } from '@/custom-types';
 import { ConstantNode } from '@/diagramComponents/constComponent';
 import singleConst from '@/diagramComponents/singleConst';
 import CustomEdge from '@/diagramComponents/customEdge';
-import { typesStyles } from '@/custom-constants';
-import { getAnswer } from '@/server-side/gemini';
-import { RiTestTubeLine } from "react-icons/ri";
-import { FaCheck } from 'react-icons/fa';
 import { FaPlay } from "react-icons/fa";
 import { getAllConsts, getAllModules } from '@/server-side/custom-items-database-handler';
 import { generate } from 'random-words';
-import { MODULES_FUNCTIONS } from '@/integratedModules/integrated-modules-functions';
 import { processPath } from '@/integratedModules/process';
-import { addNewPathToCollection } from '@/server-side/database-getter';
 
 const nodeTypes = {
     custom: CustomNode,
@@ -48,7 +42,7 @@ export default function ({ contents, formData }: { contents: any, formData: (a: 
     const [edges, setEdges, onEdgesChange] = useEdgesState<any>(contents.edges);
     const [statusMessages, setStatusMessages] = useState<{ type: 'error' | 'ok' | 'mid', msg: string }[]>()
     const [returnedData, setReturnedData] = useState<{ id: string, value?: any }[]>([])
-    const [avalibleModules, setAvalibleModules] = useState<{ id: string, data: IDiagramModule }[]>()
+    const [avalibleModules, setAvalibleModules] = useState<{ id: string, data: IDiagramModule, type: string }[]>()
 
 
     useEffect(() => {
@@ -148,6 +142,7 @@ export default function ({ contents, formData }: { contents: any, formData: (a: 
                         onConnect={onConnect}
                         nodeTypes={nodeTypes}
                         edgeTypes={edgeTypes}
+                        proOptions={{ hideAttribution: true }}
                         fitView
                     >
                         <Controls />
@@ -223,15 +218,15 @@ export default function ({ contents, formData }: { contents: any, formData: (a: 
             </div>
 
             <div className='flex flex-row w-[100%] h-[30%] p-1 gap-1'>
-                <div className='flex flex-col bg-white rounded-md w-full h-full border-2 border-[#7242f5] p-2'>
-                    <div className='flex flex-wrap gap-2'>
+                <div className='flex flex-col bg-[#f3f3f6] rounded-md w-full h-full border-2  p-2'>
+                    <div className='flex flex-wrap gap-2 overflow-auto'>
                         <button className='flex flex-row rounded-lg bg-[#dbeafe] text-[#1e40af] p-2 font-main2' onClick={
                             () => setNodes([...nodes,
                             {
                                 id: `${generate()}-${Date.now()}`,
                                 type: 'singleConst',
                                 data: {
-                                    name: `${generate()}`,
+                                    name: `Переменная`,
                                     getResponse: {},
                                     inputs: [],
                                     outputs: [
@@ -248,26 +243,73 @@ export default function ({ contents, formData }: { contents: any, formData: (a: 
                             }
                             ])
                         }>
-                            константа
+                            Переменная
                         </button>
                         {avalibleModules?.map((m, i) => {
+                            let color =''
+                            let text = ''
+                            switch (m.type) {
+                                case 'module':
+                                    color = '[#7242f5]'
+                                    text = 'white'
+                                    break
+                                case 'history':
+                                    color = '[#ffedd5]'
+                                    text = '[#9a3412]'
+                                    break;
+                                case 'prompt':
+                                    color = '[#dbeafe]'
+                                    text = '[#1e40af]'
+                                    break;
+                                case 'systemPrompt':
+                                    color = '[#dcfce7]'
+                                    text = '[#166534]'
+                                    break;
+
+                            }
                             return (
-                                <button key={i} className='flex flex-row rounded-lg bg-[#dbeafe] text-[#1e40af] p-2 font-main2' onClick={
-                                    () => setNodes([...nodes,
-                                    {
-                                        id: `${m.data.name}-${generate()}-${Date.now()}`,
-                                        type: 'custom',
-                                        data: {
-                                            name: m.data.name,
-                                            getResponse: { functionId: m.id },
-                                            inputs: m.data.inputs,
-                                            outputs: m.data.outputs
-                                        } as IDiagramModule,
-                                        position: { x: 0, y: 0 },
+                                <button key={i} className={`flex flex-row gap-2 border-2 rounded-lg p-2`} onClick={
+                                    () => {
+                                        switch (m.type) {
+                                            case 'prompt':
+                                            case 'systemPrompt':
+                                                setNodes([...nodes,
+                                                {
+                                                    id: `${generate()}-${Date.now()}`,
+                                                    type: 'singleConst',
+                                                    data: {
+                                                        name: m.data.name,
+                                                        getResponse: {},
+                                                        inputs: [],
+                                                        outputs: m.data.outputs
+                                                    } as IDiagramModule,
+                                                    position: { x: 0, y: 0 },
+                                                }
+                                                ])
+                                                break;
+                                            default:
+                                                setNodes([...nodes,
+                                                {
+                                                    id: `${m.data.name}-${generate()}-${Date.now()}`,
+                                                    type: 'custom',
+                                                    data: {
+                                                        name: m.data.name,
+                                                        getResponse: { functionId: m.id },
+                                                        inputs: m.data.inputs,
+                                                        outputs: m.data.outputs
+                                                    } as IDiagramModule,
+                                                    position: { x: 0, y: 0 },
+                                                }
+                                                ])
+                                        }
                                     }
-                                    ])
                                 }>
-                                    {m.data.name}
+                                    <div className='flex flex-row font-semibold font-main2'>
+                                        {m.data.name}
+                                    </div>
+                                    <div className={`flex flex-row justify-center bg-${color} text-${text} text-center h-min w-min p-1 rounded-xl text-xs`}>
+                                        {m.type}
+                                    </div>
                                 </button>
                             )
                         })}

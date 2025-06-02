@@ -84,7 +84,10 @@ function LogsForm({ inputs, outputs }: { inputs: { name: string, value: any }[],
 }
 
 function LoginTestForm() {
-    const [inputs, setInputs] = useState<{ name: string, value: any }[]>([{ name: 'userPrompt', value: '' }]);
+    const [inputs, setInputs] = useState<{ name: string, value: any }[]>([{
+        name: 'path',
+        value: '682b44f4dd2d0616ab85eb76'
+    }, { name: 'userPrompt', value: '' }]);
     const [outputs, setOutputs] = useState<{ name: string, value: any }[]>([{ name: 'acceptable', value: '' }]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -165,7 +168,10 @@ function LoginTestForm() {
     };
 
     useEffect(() => {
-        setInputs([{ name: 'userPrompt', value: nickname }]);
+        setInputs([{
+            name: 'path',
+            value: '682b44f4dd2d0616ab85eb76'
+        }, { name: 'userPrompt', value: nickname }]);
     }, [nickname]);
 
     return (
@@ -224,7 +230,12 @@ function LoginTestForm() {
 
 function PhoneCharacteristicsForm() {
 
-    const [inputs, setInputs] = useState<{ name: string, value: any }[]>([{ name: 'userPrompt', value: '' }]);
+    const [inputs, setInputs] = useState<{ name: string, value: any }[]>([
+        {
+            name: 'path',
+            value: '682b87984a0062bee8bd622c'
+        },
+        { name: 'userPrompt', value: '' }]);
     const [outputs, setOutputs] = useState<{ name: string, value: any }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -256,13 +267,19 @@ function PhoneCharacteristicsForm() {
     };
 
     useEffect(() => {
-        setInputs([{
-            name: 'userPrompt',
-            value: `
+        setInputs([
+            {
+                name: 'path',
+                value: '682b87984a0062bee8bd622c'
+            },
+            {
+                name: 'userPrompt',
+                value: `
             модель: ${model} с ценой: ${price} в рублях, бренд называется ${brand}. Количество оперативной памяти: ${ram}gb
             и объемом памяти ${storage}gb
             `
-        }])
+            },
+        ])
 
     }, [brand, model, storage, price, ram])
 
@@ -435,7 +452,7 @@ export default function ExamplesPage() {
 
     useEffect(() => {
         const fetchDataAsync = async () => {
-            console.log(await getGooleVoice64('aboba','en'))
+            console.log(await getGooleVoice64('aboba', 'en'))
         }
         fetchDataAsync()
     }, [])

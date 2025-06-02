@@ -206,8 +206,6 @@ export default function MainPageDefault() {
 
       <div className="flex flex-col w-1/2 h-full rounded-2xl bg-[#f3f3f6] border p-5 space-y-4">
         <MainMenuElement name="Примеры" href="/main/preview/" description="Варианты использования и интеграций для ваших продуктов" />
-        <MainMenuElement name="Настройки" href="/main/settings/" description="Персонализируйте свой профиль и настройте уведомления" />
-        <MainMenuElement name="Поддержка" href="/main/support/" description="Получите помощь и ответы на свои вопросы" />
       </div>
 
     </section>

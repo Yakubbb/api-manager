@@ -1,16 +1,13 @@
 "use client"
-import { ISidebarChildren } from "@/custom-types";
+import { ISidebarChildren, IUserDisplayInfo } from "@/custom-types";
 import { SideBarComponent } from "./sidebar-component";
 
 import { IoIosStats } from "react-icons/io";
-import { CgKey } from "react-icons/cg";
 import { GiBugNet } from "react-icons/gi";
 import { RxExit } from "react-icons/rx";
 import { RiGeminiFill } from "react-icons/ri";
 import { FaHome } from "react-icons/fa";
-import { FaProjectDiagram } from "react-icons/fa";
 import { VscLibrary } from "react-icons/vsc";
-import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaCode } from "react-icons/fa";
 import { deleteCookie } from "@/server-side/work-with-cookie";
 import Link from "next/link";
@@ -19,13 +16,9 @@ import { getChatLinks } from "@/server-side/chat-handler";
 import { useSearchParams } from "next/navigation";
 import { RiMessage3Line } from "react-icons/ri";
 import { CgRowFirst } from "react-icons/cg";
-import { AiFillExperiment } from "react-icons/ai";
-import { FaBuffer } from "react-icons/fa6";
+import { getUserDataForFront, getUserPhotoById } from "@/server-side/database-handler";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
-import { FaToolbox } from "react-icons/fa";
-import { AiOutlineTool } from "react-icons/ai";
-
-import { FaSearch } from "react-icons/fa";
 
 
 /*
@@ -39,23 +32,6 @@ import { FaSearch } from "react-icons/fa";
                  */
 
 
-
-const options = [
-    {
-        name: 'Gemini',
-        href: '/main/playground?ai=Gemini'
-    },
-    {
-        name: 'ChatGpt',
-        href: '/main/playground?ai=ChatGpt'
-    },
-    {
-        name: 'Other',
-        href: '/main/playground?ai=Other'
-    },
-] as ISidebarChildren[]
-
-
 export function SideBar({
     userChats
 }: {
@@ -63,6 +39,7 @@ export function SideBar({
 }) {
 
     const [sidebarChats, setSidebarChats] = useState<ISidebarChildren[]>([])
+    const [userData, setUserData] = useState<{ name: string, avatar: string, role: string }>()
     const searchParams = useSearchParams()
 
     const mainChildren = [
@@ -93,24 +70,28 @@ export function SideBar({
         updateChats()
     }, [searchParams]);
 
-    /*
-    <SideBarComponent name="Модули" description="библиотека модулей" Icon={VscLibrary} href="/main/modules" children={[
-                    {
-                        name: 'добавить',
-                        href: '/main/modules/create',
-                        Icon: IoIosAddCircleOutline
-                    }
-                ]} /> */
+    useEffect(() => {
+        const fetchAsync = async () => {
+            const data = await getUserDataForFront()
+            const name = data.name
+            const role = data.role
+            const avatar = await getUserPhotoById(data.id)
+            setUserData({ name, avatar, role })
+        }
+        fetchAsync()
+    }, [])
+
 
     return (
         <div className="flex flex-col rounded-tr-2xl rounded-br-2xl  h-[100%] p-4 bg-[#f3f3f6] ">
             <nav className="flex flex-col gap-1">
+                {(userData?.role == 'admin' || userData?.role == 'system') &&
+                    <SideBarComponent name="Админ" description="место, где можно протестировать различные модели" Icon={MdOutlineAdminPanelSettings} href="/main/admin" />
+                }
                 <SideBarComponent name="Главная" description="место, где можно протестировать различные модели" Icon={CgRowFirst} href="/main" children={mainChildren} />
                 <SideBarComponent name="Gemini" description="место, где можно протестировать различные модели" Icon={RiGeminiFill} href="/main/gemini" children={sidebarChats} />
                 <SideBarComponent name="Библиотека" description="место, где можно протестировать различные модели" Icon={VscLibrary} href="/main/customs" />
                 <SideBarComponent name="Мониторинг" description="посмотрите на работу ваших сервисов" Icon={IoIosStats} href="/main/monitor" />
-                <SideBarComponent name="Ключи" description="ключи доступа к вашим api" Icon={CgKey} href="/main/keys" />
-                <SideBarComponent name="Маршруты" description="ваши api маршруты" Icon={FaProjectDiagram} href="/main/paths" />
                 <SideBarComponent name="Баги" description="возникла проблема? - сообщите" Icon={GiBugNet} href="/main/playground" />
             </nav>
             <nav className="absolute bottom-3 w-[100%]">

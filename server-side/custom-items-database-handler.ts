@@ -102,7 +102,7 @@ export async function updateCustomItem(itemType: 'prompt' | 'systemPrompt' | 'hi
 }
 
 
-export async function getAllModules(): Promise<{ id: string, data: IDiagramModule }[]> {
+export async function getAllModules(): Promise<{ id: string, data: IDiagramModule, type: string }[]> {
 
     const user = await getUserFromSession()
     const modules = await database.collection<ICustomItem>('modules').find().toArray()
@@ -113,11 +113,11 @@ export async function getAllModules(): Promise<{ id: string, data: IDiagramModul
 
     const resolvedModules = await Promise.all(modulesPromises);
 
-    return resolvedModules.map(m => ({ id: m.item._id, data: m.item.contents }))
+    return resolvedModules.map(m => ({ id: m.item._id, data: m.item.contents, type: 'module' }))
 
 }
 
-export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule }[]> {
+export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule, type: string }[]> {
 
     const user = await getUserFromSession()
 
@@ -135,7 +135,7 @@ export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule
     const resolvedHistories = await Promise.all(historiesPromises);
     const resolvedPrompts = await Promise.all(promptsPromises);
 
-    const historiesModules: { id: string, data: IDiagramModule }[] = resolvedHistories.map(h => {
+    const historiesModules: { id: string, data: IDiagramModule, type:string }[] = resolvedHistories.map(h => {
         return ({
             id: h.item._id,
             data: {
@@ -151,12 +151,13 @@ export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule
                         showValue: false
                     },
                 ]
-            }
+            },
+            type: h.item.type
         })
 
-    }) as { id: string, data: IDiagramModule }[]
+    }) as { id: string, data: IDiagramModule, type:string }[]
 
-    const promptsModules: { id: string, data: IDiagramModule }[] = resolvedPrompts.map(h => {
+    const promptsModules: { id: string, data: IDiagramModule, type:string }[] = resolvedPrompts.map(h => {
         return ({
             id: h.item._id,
             data: {
@@ -172,10 +173,11 @@ export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule
                         showValue: false
                     },
                 ]
-            }
+            },
+            type: h.item.type
         })
 
-    }) as { id: string, data: IDiagramModule }[]
+    }) as { id: string, data: IDiagramModule, type:string }[]
 
     return promptsModules.concat(historiesModules)
 

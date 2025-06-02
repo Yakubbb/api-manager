@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CustomOutputHandle } from "./moduleComponent";
+
 import { BsFileEarmarkLock } from "react-icons/bs";
 import { RiAddCircleLine } from "react-icons/ri";
 import { Handle, Position } from "@xyflow/react";

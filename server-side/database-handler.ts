@@ -38,6 +38,34 @@ export async function getUserPhotoById(id: string) {
     return image
 }
 
+
+export async function getAllUsersForFront() {
+    const database = client.db('api-manager');
+    const collection = database.collection('users');
+    const users = await collection.find().toArray();
+
+    let usersForFront = [];
+
+    for (const user of users) {
+
+        const role = user.role as string;
+        const name = user.name as string;
+        const email = user.email as string;
+        let image = await getUserPhotoById(user?._id.toString());
+
+        usersForFront.push({
+            role: role,
+            name: name,
+            email: email,
+            image: image,
+            id: user?._id.toString(),
+        });
+
+    }
+
+    return usersForFront;
+}
+
 export async function getUserDataForFront() {
     const user = await getUserFromSession() as any;
 
