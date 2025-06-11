@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { deleteCustomItem, getAllCustomIems, ICustomItemForUser, likeCustomItem, togglePrivateCustomItem } from "@/server-side/custom-items-database-handler";
@@ -7,6 +7,7 @@ import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { ICustomItemForFront, ITag } from '@/custom-types';
 import { CustomItemCard } from '@/customComponentsViews/custom-card';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { createPortal } from 'react-dom';
 
 type SortableKeys = 'name' | 'authorName' | 'type' | 'likesCount';
 interface SortConfig {
@@ -60,6 +61,46 @@ const SearchSortControls: React.FC<SearchSortControlsProps> = ({
     );
 };
 
+interface CustomConfirmDialogProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    title: string;
+    message: string;
+    confirmButtonText: string;
+    confirmButtonClass: string;
+}
+
+const CustomConfirmDialog: React.FC<CustomConfirmDialogProps> = ({
+    isOpen, onClose, onConfirm, title, message, confirmButtonText, confirmButtonClass
+}) => {
+    if (!isOpen) return null;
+
+    return createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-auto">
+                <h3 className="text-xl font-bold mb-4 text-gray-900">{title}</h3>
+                <p className="text-gray-700 mb-6">{message}</p>
+                <div className="flex justify-end gap-3">
+                    <button
+                        onClick={onClose}
+                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                        Отмена
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className={`px-4 py-2 rounded-md text-white transition-colors ${confirmButtonClass}`}
+                    >
+                        {confirmButtonText}
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
 export default function CustomItemsPage() {
     const [items, setItems] = useState<ICustomItemForUser[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -72,6 +113,22 @@ export default function CustomItemsPage() {
     const [isTypeFilterOpen, setIsTypeFilterOpen] = useState(true);
     const [isTagFilterOpen, setIsTagFilterOpen] = useState(true);
 
+    const [showConfirmDeleteDialog, setShowConfirmDeleteDialog] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<ICustomItemForUser | null>(null);
+
+    const [message, setMessage] = useState<string | null>(null);
+    const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
+
+    const showTemporaryMessage = useCallback((msg: string, type: 'success' | 'error') => {
+        setMessage(msg);
+        setMessageType(type);
+        const timer = setTimeout(() => {
+            setMessage(null);
+            setMessageType(null);
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, []);
+
     const handleLikeToggle = useCallback(async (itemId: string, itemType: ICustomItemForFront['type']) => {
         const originalItems = items;
         setItems(currentItems =>
@@ -82,34 +139,54 @@ export default function CustomItemsPage() {
                     item: {
                         ...userItem.item,
                         likes: userItem.isLiked
-                            ? userItem.item.likes.filter(id => id !== 'currentUser')
-                            : [...userItem.item.likes, 'currentUser']
+                            ? userItem.item.likes.filter(id => id !== 'currentUserStub')
+                            : [...userItem.item.likes, 'currentUserStub']
                     }
                 } : userItem
             )
         );
         try {
-            await likeCustomItem(itemId, itemType as any);
+            await likeCustomItem(itemId, itemType);
+            showTemporaryMessage(`Лайк успешно ${items.find(i => i.item._id === itemId)?.isLiked ? 'удален' : 'добавлен'}!`, 'success');
         } catch (err) {
             console.error("Failed to toggle like:", err);
-            setError("Не удалось обновить лайк. Попробуйте еще раз.");
+            showTemporaryMessage("Не удалось обновить лайк. Попробуйте еще раз.", 'error');
             setItems(originalItems);
         }
-    }, [items]);
+    }, [items, showTemporaryMessage]);
 
-    const handleDelete = useCallback(async (itemId: string, itemType: ICustomItemForFront['type']) => {
+    const openDeleteConfirmDialog = useCallback((item: ICustomItemForUser) => {
+        setItemToDelete(item);
+        setShowConfirmDeleteDialog(true);
+    }, []);
+
+    const closeDeleteConfirmDialog = useCallback(() => {
+        setShowConfirmDeleteDialog(false);
+        setItemToDelete(null);
+    }, []);
+
+    const confirmDelete = useCallback(async () => {
+        if (!itemToDelete) return;
+
         const originalItems = items;
-        if (window.confirm(`Вы уверены, что хотите удалить этот ${itemType}?`)) {
-            setItems(currentItems => currentItems.filter(userItem => userItem.item._id !== itemId));
-            try {
-                await deleteCustomItem(itemId, itemType as any);
-            } catch (err) {
-                console.error("Failed to delete item:", err);
-                setError("Не удалось удалить элемент. Попробуйте еще раз.");
-                setItems(originalItems);
-            }
+        closeDeleteConfirmDialog();
+
+        setIsLoading(true);
+
+        try {
+            await deleteCustomItem(itemToDelete.item._id, itemToDelete.item.type);
+            setItems(currentItems => currentItems.filter(userItem => userItem.item._id !== itemToDelete.item._id));
+            showTemporaryMessage(`Элемент "${itemToDelete.item.name}" (${itemToDelete.item.type}) успешно удален.`, 'success');
+        } catch (err) {
+            console.error("Failed to delete item:", err);
+            showTemporaryMessage(`Не удалось удалить элемент "${itemToDelete.item.name}". Попробуйте еще раз.`, 'error');
+            setItems(originalItems);
+        } finally {
+            setIsLoading(false);
+            setItemToDelete(null);
         }
-    }, [items]);
+    }, [itemToDelete, items, closeDeleteConfirmDialog, showTemporaryMessage]);
+
 
     const handlePrivacyToggle = useCallback(async (itemId: string, itemType: ICustomItemForFront['type']) => {
         const originalItems = items;
@@ -125,13 +202,14 @@ export default function CustomItemsPage() {
             )
         );
         try {
-            await togglePrivateCustomItem(itemId, itemType as any);
+            await togglePrivateCustomItem(itemId, itemType);
+            showTemporaryMessage(`Приватность элемента успешно ${!items.find(i => i.item._id === itemId)?.item.isPrivate ? 'установлена' : 'снята'}.`, 'success');
         } catch (err) {
             console.error("Failed to toggle privacy:", err);
-            setError("Не удалось изменить приватность. Попробуйте еще раз.");
+            showTemporaryMessage("Не удалось изменить приватность. Попробуйте еще раз.", 'error');
             setItems(originalItems);
         }
-    }, [items]);
+    }, [items, showTemporaryMessage]);
 
     const handleTypeFilterChange = useCallback((type: ICustomItemForFront['type'], isChecked: boolean) => {
         setSelectedTypes(prev => {
@@ -171,12 +249,15 @@ export default function CustomItemsPage() {
 
                 const allTags: ITag[] = fetchedItems.reduce((acc: ITag[], userItem) => {
                     if (userItem.item.tags && Array.isArray(userItem.item.tags)) {
-                        acc.push(...userItem.item.tags);
+                        userItem.item.tags.forEach(tag => {
+                            if (!acc.some(existingTag => existingTag.name === tag.name)) {
+                                acc.push(tag);
+                            }
+                        });
                     }
                     return acc;
                 }, []);
-                const uniqueTags = Array.from(new Map(allTags.map(tag => [tag.name, tag])).values());
-                setAvailableTags(uniqueTags);
+                setAvailableTags(allTags.sort((a, b) => a.name.localeCompare(b.name)));
 
             } catch (err) {
                 console.error("Не удалось получить пользовательские пресеты:", err);
@@ -250,6 +331,13 @@ export default function CustomItemsPage() {
             });
     }, [items, searchTerm, sortConfig, selectedTypes, selectedTags]);
 
+    const getMessageClasses = (type: 'success' | 'error' | null) => {
+        if (!type) return '';
+        return type === 'success'
+            ? 'bg-green-100 border border-green-400 text-green-700'
+            : 'bg-red-100 border border-red-400 text-red-700';
+    };
+
     return (
         <div className="flex flex-col mx-auto h-screen p-4 md:px-6 md:py-8 overflow-hidden bg-gray-50">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
@@ -270,6 +358,21 @@ export default function CustomItemsPage() {
                 onSort={handleSort}
             />
 
+            {message && (
+                <div
+                    className={`p-3 rounded-md flex items-center justify-between text-sm mb-4 ${getMessageClasses(messageType)}`}
+                    role="alert"
+                >
+                    <span>{message}</span>
+                    <button
+                        onClick={() => setMessage(null)}
+                        className="ml-4 text-current hover:opacity-75 focus:outline-none"
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
+
             <div className="flex flex-grow overflow-hidden gap-6">
                 <div className="flex-grow overflow-y-auto pt-0">
                     {isLoading && <p className="py-10 text-center text-lg text-gray-600">Загрузка пресетов...</p>}
@@ -283,7 +386,7 @@ export default function CustomItemsPage() {
                                         key={userItem.item._id}
                                         userItem={userItem}
                                         onLikeToggle={handleLikeToggle}
-                                        onDelete={handleDelete}
+                                        onDelete={() => openDeleteConfirmDialog(userItem)}
                                         onPrivacyToggle={handlePrivacyToggle}
                                     />
                                 ))}
@@ -351,6 +454,16 @@ export default function CustomItemsPage() {
                     )}
                 </div>
             </div>
+
+            <CustomConfirmDialog
+                isOpen={showConfirmDeleteDialog}
+                onClose={closeDeleteConfirmDialog}
+                onConfirm={confirmDelete}
+                title="Подтвердить удаление"
+                message={`Вы уверены, что хотите удалить элемент "${itemToDelete?.item.name}"? Это действие необратимо.`}
+                confirmButtonText="Удалить"
+                confirmButtonClass="bg-red-600 hover:bg-red-700"
+            />
         </div>
     );
 }

@@ -42,7 +42,7 @@ const ModuleContent: React.FC<ModuleContentProps> = ({
         }
         setFormData((prev: any) => {
             const updatedArray = [...(prev.contents[arrayName] || [])];
-            if (!updatedArray[index]) { // Fallback if item somehow missing
+            if (!updatedArray[index]) { 
                 updatedArray[index] = { id: '', name: '', type: '' };
             }
             updatedArray[index] = {

@@ -38,6 +38,33 @@ export async function getUserPhotoById(id: string) {
     return image
 }
 
+export async function deleteUser(id: string) {
+    const database = client.db('api-manager');
+    const collection = database.collection('users');
+    const admin = await getUserDataForFront()
+    const users = await getAllUsersForFront()
+    const userToDelete = users.find(u => u.id == id)
+
+    if (userToDelete?.role == 'admin') {
+        if (admin.role == 'system') {
+            await collection.deleteOne({ _id: new ObjectId(userToDelete.id) })
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    if (userToDelete?.role == 'user') {
+        if (admin.role == 'admin' || admin.role == 'system') {
+            await collection.deleteOne({ _id: new ObjectId(userToDelete.id) })
+            return true
+        }
+        else {
+            return false
+        }
+    }
+}
+
 
 export async function getAllUsersForFront() {
     const database = client.db('api-manager');
@@ -48,7 +75,7 @@ export async function getAllUsersForFront() {
 
     for (const user of users) {
 
-        const role = user.role as string;
+        const role = user.role || 'user';
         const name = user.name as string;
         const email = user.email as string;
         let image = await getUserPhotoById(user?._id.toString());

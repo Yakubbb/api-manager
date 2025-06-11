@@ -255,7 +255,7 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
     const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
     const authorName = author ? author.name : 'аккаунт удалён'
-    const authorPhoto = await getUserPhotoById(item.authorId.toString())
+    const authorPhoto = await getUserPhotoById(author?item.authorId.toString():'')
 
     const isLikedByUser = item.likes.find(l => l.toString() == userId.toString()) ? true : false
     const role = (await getUserDataForFront()).role

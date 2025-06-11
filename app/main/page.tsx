@@ -1,53 +1,57 @@
 'use client'
 import { useEffect, useState } from "react";
 import { getUserDataForFront, updateUserData } from "@/server-side/database-handler";
-import { FaTelegramPlane } from "react-icons/fa";
+import { FaTelegramPlane, FaArrowRight } from "react-icons/fa";
 import Link from "next/link";
+import { sendLetter } from "@/server-side/mail-server";
 
+// Улучшенный компонент навигационного элемента меню
 function MainMenuElement({ name, href, description }: { name: string, href: string, description: string }) {
   return (
-    <Link href={href} className="gap-2 bg-white flex flex-col border font-main2 w-full h-1/4 p-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 border-gray-200">
-      <div className="flex flex-row font-semibold text-xl items-center text-gray-800">
+    <Link href={href} className="group bg-white flex flex-col border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-5">
+      <div className="flex flex-row justify-between font-semibold text-xl items-center text-gray-800">
         {name}
+        <FaArrowRight className="transform transition-transform duration-300 group-hover:translate-x-1 text-gray-400 group-hover:text-indigo-500" />
       </div>
-      <div className="rounded-xl border border-gray-300 p-4 text-gray-700 text-sm bg-[#e6e0f7] font-semibold">
+      <div className="mt-3 rounded-lg border border-indigo-100 p-4 text-indigo-800 text-sm bg-indigo-50 font-medium">
         {description}
       </div>
     </Link>
   )
 }
 
-
 export default function MainPageDefault() {
-
-  const [userData, setUserData] = useState<{ role: string, name: string, id: any, email: string, image?: string }>({ role: '', name: '', id: null, email: '', image: '' });
+  const [userData, setUserData] = useState<{ role: string, name: string, id: any, email: string, image?: string, emailVerified?: boolean }>({ role: '', name: '', id: null, email: '', image: '', emailVerified: false });
   const [formData, setFormData] = useState({
     name: '',
     email: ''
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File>();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string>();
   const [imageError, setImageError] = useState<string>();
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isSendingVerification, setIsSendingVerification] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
 
-  const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
+  const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
 
   useEffect(() => {
     const fetchDataAsync = async () => {
       const data = await getUserDataForFront();
-      setUserData(data);
-      setImagePreviewUrl(data.image)
-      setFormData({
-        name: data.name,
-        email: data.email
-      });
+      if (data) {
+        setUserData(data);
+        setImagePreviewUrl(data.image);
+        setFormData({
+          name: data.name,
+          email: data.email
+        });
+      }
     }
-    fetchDataAsync()
-
-  }, [])
-
+    fetchDataAsync();
+  }, []);
 
   useEffect(() => {
     if (selectedImage) {
@@ -59,155 +63,175 @@ export default function MainPageDefault() {
     }
   }, [selectedImage, userData.image]);
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+    // Сбрасываем сообщения при изменении данных
+    setSaveSuccess(false);
+    setSaveError('');
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setImageError(undefined);
+    setSaveSuccess(false);
 
     if (event.target.files && event.target.files[0]) {
       const imageFile = event.target.files[0];
 
       if (imageFile.size > MAX_IMAGE_SIZE) {
-        setImageError("Image size exceeds the maximum allowed size (2MB).");
-        setSelectedImage(undefined);
-        setImagePreviewUrl(undefined);
+        setImageError("Размер файла не должен превышать 2 МБ.");
         return;
       }
 
-      if (imageFile.type !== 'image/png') {
-        setImageError("Only PNG images are allowed.");
-        setSelectedImage(undefined);
-        setImagePreviewUrl(undefined);
+      if (!['image/png', 'image/jpeg', 'image/webp'].includes(imageFile.type)) {
+        setImageError("Допускаются только изображения PNG, JPG или WEBP.");
         return;
       }
-
       setSelectedImage(imageFile);
-    } else {
-      setSelectedImage(undefined);
-      setImagePreviewUrl(undefined);
     }
   };
-
 
   const handleSave = async () => {
     setIsSaving(true);
     setSaveError('');
-    setUploadProgress(0);
+    setSaveSuccess(false);
+
+    if (imageError) {
+      setIsSaving(false);
+      return;
+    }
 
     try {
-      if (imageError) {
-        return;
-      }
-
-      const payload = {
-        name: formData.name,
-        email: formData.email,
-        image: selectedImage
-      };
-
-      await updateUserData(payload.name, payload.email, payload.image)
-
+      await updateUserData(formData.name, formData.email, selectedImage);
       setUserData(prev => ({ ...prev, name: formData.name, email: formData.email }));
-    } catch (error: any) {
+      setSaveSuccess(true);
+      // Если было выбрано новое изображение, обновим `userData.image` после успешной загрузки
+      // Это потребует от `updateUserData` возвращать новый URL изображения
+      if (selectedImage) {
+          const data = await getUserDataForFront(); // Получаем свежие данные
+          setImagePreviewUrl(data.image)
+      }
+      setSelectedImage(undefined) // Сбрасываем выбранный файл
 
-      setSaveError('сохранение не удалось');
+    } catch (error: any) {
+      setSaveError('Не удалось сохранить изменения. Попробуйте снова.');
     } finally {
       setIsSaving(false);
-      setUploadProgress(0);
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    setIsSendingVerification(true);
+    setVerificationError('');
+    setVerificationSent(false);
+    try {
+      await sendLetter(userData.email, 'Код верификации'); // Можно передавать реальный код
+      setVerificationSent(true);
+    } catch (error) {
+      setVerificationError('Не удалось отправить письмо для подтверждения.');
+    } finally {
+      setIsSendingVerification(false);
     }
   };
 
   return (
-    <section className="flex flex-row h-full w-full p-5 gap-5">
-      <div className="flex flex-col justify-between h-full w-1/2">
-        <div className="flex flex-col w-full h-min rounded-2xl border p-6 shadow-lg border-gray-200 bg-gray-50">
-          <h2 className="text-3xl font-extrabold mb-6 text-gray-900 tracking-tight">Привет!</h2>
+    <section className="flex flex-col lg:flex-row h-full w-full p-4 md:p-6 gap-6 bg-slate-50">
+      
+      {/* Левая колонка: Профиль пользователя */}
+      <div className="flex flex-col w-full lg:w-1/2 space-y-6">
+        <div className="flex-grow flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8">
+          <h2 className="text-3xl font-bold mb-8 text-gray-900">Ваш профиль</h2>
 
-          <div className="mb-4">
-            <div className="w-32 h-32 rounded-full overflow-hidden mb-3">
-              {imagePreviewUrl ? (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Аватар</label>
+              <div className="flex items-center gap-4">
                 <img
-                  src={imagePreviewUrl}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
+                  src={imagePreviewUrl || '/default-avatar.png'} // запасное изображение
+                  alt="Аватар"
+                  className="w-20 h-20 rounded-full object-cover bg-gray-200 border-2 border-white shadow-md"
+                  onError={(e) => { e.currentTarget.src = '/default-avatar.png'; }} // обработка ошибки загрузки
                 />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
-                  No Image
-                </div>
-              )}
+                <label htmlFor="image-upload" className="cursor-pointer bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm transition-colors duration-200">
+                  Изменить фото
+                </label>
+                <input id="image-upload" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleImageChange} />
+              </div>
+              {imageError && <p className="text-red-500 text-xs mt-2">{imageError}</p>}
             </div>
 
-            <label htmlFor="image" className="block text-gray-700 text-sm font-bold mb-2">Аватар:</label>
-            <input
-              type="file"
-              id="image"
-              accept="image/png"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              onChange={handleImageChange}
-            />
-            {imageError && (
-              <p className="text-red-500 text-sm mt-1">{imageError}</p>
-            )}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Имя пользователя</label>
+              <input
+                type="text"
+                id="name"
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Электронная почта</label>
+              <input
+                type="email"
+                id="email"
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
           </div>
-
-          <div className="mb-6">
-            <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Никнейм:</label>
-            <input
-              type="text"
-              id="name"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={formData.name}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Электронная почта:</label>
-            <input
-              type="email"
-              id="email"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-
-
-          <button
-            className="bg-[#7242f5] hover:bg-[#5835d5] text-white font-bold py-2 px-4 rounded mt-4 focus:outline-none focus:shadow-outline disabled:opacity-50"
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Сохранение...' : 'Сохранить'}
-          </button>
-          {uploadProgress > 0 && uploadProgress < 100 && (
-            <div className="mt-2">
-              Загрузка: {uploadProgress}%
+          
+          {/* Блок верификации почты */}
+          {!userData.emailVerified && formData.email && (
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <p className="text-sm font-medium text-yellow-800">Ваша почта не подтверждена.</p>
+                <button
+                    className="flex-shrink-0 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-4 rounded-md text-sm transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                    onClick={handleVerifyEmail}
+                    disabled={isSendingVerification}
+                >
+                    {isSendingVerification ? 'Отправка...' : 'Подтвердить почту'}
+                </button>
             </div>
           )}
-          {saveError && (
-            <div className="text-red-500 text-sm mt-2">{saveError}</div>
-          )}
+          {verificationSent && <div className="text-green-600 text-sm mt-2">Письмо для подтверждения успешно отправлено!</div>}
+          {verificationError && <div className="text-red-600 text-sm mt-2">{verificationError}</div>}
+
+
+          {/* Кнопки управления */}
+          <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="h-6">
+                {saveSuccess && <div className="text-green-600 font-medium text-sm">Изменения успешно сохранены!</div>}
+                {saveError && <div className="text-red-600 font-medium text-sm">{saveError}</div>}
+            </div>
+            <button
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Сохранение...' : 'Сохранить'}
+            </button>
+          </div>
         </div>
-
-
-        <div className="flex flex-row gap-2 h-1/6 rounded-xl border p-4">
-          <Link href={'/main'} className="hover:shadow-lg transition duration-200 bg-[#f3f3f6] rounded-xl flex flex-row w-1/4 h-full justify-center items-center text-center border text-3xl text-[#7242f5]">
-            <FaTelegramPlane size={60} />
+        
+        <div className="flex flex-row gap-4">
+          <Link href={'/main'} className="group flex-1 hover:shadow-lg transition-shadow duration-300 bg-white border border-gray-200 rounded-xl flex items-center justify-center p-4 text-indigo-500 hover:text-indigo-600">
+            <FaTelegramPlane size={40} />
+            <span className="ml-3 font-semibold text-lg text-gray-700 group-hover:text-indigo-600">Интеграция</span>
           </Link>
         </div>
       </div>
 
-
-      <div className="flex flex-col w-1/2 h-full rounded-2xl bg-[#f3f3f6] border p-5 space-y-4">
-        <MainMenuElement name="Примеры" href="/main/preview/" description="Варианты использования и интеграций для ваших продуктов" />
+      {/* Правая колонка: Навигация */}
+      <div className="flex flex-col w-full lg:w-1/2 space-y-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8 space-y-4">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Полезно</h2>
+          <MainMenuElement name="Примеры" href="/main/preview/" description="Варианты использования и интеграций для ваших продуктов" />
+          {/* Здесь можно добавить другие элементы MainMenuElement */}
+        </div>
       </div>
-
     </section>
   );
 }
