@@ -231,6 +231,21 @@ export async function createSession(userID: string) {
 
 }
 
+export async function createEmailSession(userID: string) {
+    const expiresAt = new Date(Date.now() + 60 * 1000)
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("sessions");
+
+    const data = await collection.insertOne({
+        "user": userID,
+        "expiresAt": expiresAt
+    })
+
+    const session = data.insertedId.toString()
+    return session
+}
+
 export async function addNewHistory(history: ChatState) {
     client.connect()
     const database = client.db("api-manager");

@@ -55,7 +55,11 @@ export default function ({ contents, formData }: { contents: any, formData: (a: 
     }, [])
 
     useEffect(() => {
-        formData({ nodes: nodes, edges: edges })
+        formData({
+            nodes: nodes,
+            edges: edges,
+            pathStatistics: contents.pathStatistics
+        })
     }, [nodes, edges])
 
 
@@ -246,7 +250,7 @@ export default function ({ contents, formData }: { contents: any, formData: (a: 
                             Переменная
                         </button>
                         {avalibleModules?.map((m, i) => {
-                            let color =''
+                            let color = ''
                             let text = ''
                             switch (m.type) {
                                 case 'module':

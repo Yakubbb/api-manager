@@ -135,7 +135,7 @@ export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule
     const resolvedHistories = await Promise.all(historiesPromises);
     const resolvedPrompts = await Promise.all(promptsPromises);
 
-    const historiesModules: { id: string, data: IDiagramModule, type:string }[] = resolvedHistories.map(h => {
+    const historiesModules: { id: string, data: IDiagramModule, type: string }[] = resolvedHistories.map(h => {
         return ({
             id: h.item._id,
             data: {
@@ -155,9 +155,9 @@ export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule
             type: h.item.type
         })
 
-    }) as { id: string, data: IDiagramModule, type:string }[]
+    }) as { id: string, data: IDiagramModule, type: string }[]
 
-    const promptsModules: { id: string, data: IDiagramModule, type:string }[] = resolvedPrompts.map(h => {
+    const promptsModules: { id: string, data: IDiagramModule, type: string }[] = resolvedPrompts.map(h => {
         return ({
             id: h.item._id,
             data: {
@@ -177,10 +177,18 @@ export async function getAllConsts(): Promise<{ id: string, data: IDiagramModule
             type: h.item.type
         })
 
-    }) as { id: string, data: IDiagramModule, type:string }[]
+    }) as { id: string, data: IDiagramModule, type: string }[]
 
     return promptsModules.concat(historiesModules)
 
+}
+
+export async function getAllUsersPaths() {
+    const user = await getUserFromSession()
+    const paths = await database.collection<ICustomItem>('paths').find({
+        'authorId': user?._id
+    }).toArray()
+    return paths
 }
 
 export async function getAllCustomIems(byUser: boolean): Promise<any[]> {
@@ -255,7 +263,7 @@ export async function convertCustomItem(item: ICustomItem, userId: ObjectId) {
     const author = await database.collection<{ name: string }>('users').findOne({ _id: item.authorId })
 
     const authorName = author ? author.name : 'аккаунт удалён'
-    const authorPhoto = await getUserPhotoById(author?item.authorId.toString():'')
+    const authorPhoto = await getUserPhotoById(author ? item.authorId.toString() : '')
 
     const isLikedByUser = item.likes.find(l => l.toString() == userId.toString()) ? true : false
     const role = (await getUserDataForFront()).role

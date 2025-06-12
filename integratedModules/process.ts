@@ -5,6 +5,7 @@ import { IHandleData } from "@/diagramComponents/moduleComponent";
 import { MODULES_FUNCTIONS } from "./integrated-modules-functions";
 
 export async function processPath(
+    
     nodes: {
         id: string, type: string, data: IDiagramModule
     }[],

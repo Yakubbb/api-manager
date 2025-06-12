@@ -1,9 +1,26 @@
 'use server'
 
+import { ObjectId } from 'mongodb';
 import nodemailer from 'nodemailer';
 import { SendMailOptions } from 'nodemailer';
+import { getUserIdFromSession } from './database-getter';
+import { createEmailSession, createSession, validateCookie } from './database-handler';
 
-export async function sendLetter(adress: string, code: string) {
+export async function checkIfEmail(email: string) {
+
+}
+
+
+export async function verifyEmail(code: string) {
+    const isOk = await validateCookie(code)
+    return isOk
+}
+
+export async function sendLetter(adress: string) {
+    const userId = await getUserIdFromSession()
+
+    const sessionCode = await createEmailSession(userId)
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -14,19 +31,17 @@ export async function sendLetter(adress: string, code: string) {
 
     const mailOptions: SendMailOptions = {
         from: {
-            name: 'AAAAAAAAAAAAA',
+            name: 'api-manager',
             address: process.env.GOOGLE_MAIL_USER!,
         },
         to: adress,
         subject: 'Ваш код подтверждения',
-        text: `Ваш код подтверждения: ${code}`,
+        text: `Ваш код подтверждения: ${sessionCode}`,
         html: `
             <p>Здравствуйте!</p>
             <p>Вот ваш код подтверждения:</p>
-            <h2 style="color: #333; background-color: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block;">${code}</h2>
+            <h2 style="color: #333; background-color: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block;">${sessionCode}</h2>
             <p>Пожалуйста, используйте этот код для подтверждения вашей учетной записи.</p>
-            <p>С уважением,</p>
-            <p>Ваша команда</p>
         `,
     };
 
@@ -40,4 +55,5 @@ export async function sendLetter(adress: string, code: string) {
     };
 
     sendMail(mailOptions);
+    return sessionCode
 }

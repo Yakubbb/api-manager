@@ -13,8 +13,8 @@ import { getAllTags, getUserDataForFront } from "@/server-side/database-handler"
 import TagSelector from "@/components/tag-selector";
 import { ITag } from "@/custom-types";
 import Tag from "@/components/tag";
-import PathContent from "@/customComponentsViews/path-content";
 import PathContent2 from "@/customComponentsViews/path-content-2";
+
 
 const initialFormData = {
     _id: null,
@@ -49,8 +49,9 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
     const [tags, setTags] = useState<any[]>([])
     const [avalibleTags, setAvalibleTags] = useState<any[]>([])
 
+
     useEffect(() => {
-        console.log('dasdsadsad', formData)
+
     }, [formData])
 
     const handlers = {
@@ -91,7 +92,12 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                                     deletable: false
                                 }
                             ],
-                            edges: []
+                            edges: [],
+                            pathStatistics: {
+                                uniqueUsers: [],
+                                usesCount: 0,
+                                errors: []
+                            }
                         };
                         break;
                     default:
@@ -148,7 +154,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
         handleSave: async () => {
             let contentsToSave = formData.contents;
-            console.log(contentsToSave, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+
             if (formData.type === 'history') {
                 if (!Array.isArray(contentsToSave)) {
                     setError("Ошибка: Содержимое истории не является массивом.");
@@ -188,7 +194,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
         },
 
         handleUpdate: async () => {
-            console.log('bbbbbbbb', formData)
+
             if (!formData._id) {
                 setError("Невозможно обновить: отсутствует ID элемента.");
                 return;
@@ -214,7 +220,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                     contentsToUpdate = String(contentsToUpdate ?? '');
                 }
             }
-            console.log('ABOBAOBA', contentsToUpdate)
+
 
             setUpdateStatus('updating');
             setError(null);
@@ -258,12 +264,12 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
     }
 
     useEffect(() => {
-        formData.comments = comments
+        setFormData((prev: any) => ({ ...prev, comments: comments }));
         handlers.handleUpdate()
     }, [comments])
 
     useEffect(() => {
-        formData.tags = tags
+        setFormData((prev: any) => ({ ...prev, tags: tags }));
     }, [tags])
 
     useEffect(() => {
@@ -403,7 +409,6 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
     const renderError = () => {
         if (!error) return null;
-        // Отображаем ошибку только если она не связана с успешным обновлением/отправкой
         if (updateStatus === 'success' || commentPostStatus === 'posted') return null;
         return <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg text-sm">{error}</div>
     }
@@ -412,9 +417,8 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
     return (
         <div className="h-screen flex font-sans antialiased">
-            {/* Левая панель (метаданные) */}
-            <div className="w-1/5 max-w-md flex-shrink-0 h-full p-6 border-r border-gray-200 overflow-y-auto bg-white shadow-lg flex flex-col gap-5">
-                <h1 className="text-2xl font-bold mb-1 text-gray-800">
+            <div className="w-1/5 min-w-[250px] max-w-md flex-shrink-0 h-full p-4 border-r border-gray-200 overflow-y-auto bg-white shadow-lg flex flex-col gap-3">
+                <h1 className="text-xl font-bold mb-1 text-gray-800">
                     {viewMode === 'create' ? 'Создать новый пресет' : 'Детали пресета'}
                 </h1>
                 {renderError()}
@@ -427,11 +431,11 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             name="name"
                             value={formData.name}
                             onChange={handlers.handleInputChange}
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#7242f5] focus:border-[#7242f5] outline-none"
+                            className="w-full p-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#7242f5] focus:border-[#7242f5] outline-none"
                             disabled={updateStatus === 'updating'}
                         />
                     ) : (
-                        <p className="text-gray-800 p-2 bg-gray-50 rounded-lg">{formData.name || <span className="italic text-gray-400">Не указано</span>}</p>
+                        <p className="text-gray-800 p-1.5 text-sm bg-gray-50 rounded-lg">{formData.name || <span className="italic text-gray-400">Не указано</span>}</p>
                     )}
                 </div>
 
@@ -442,12 +446,12 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             name="description"
                             value={formData.description}
                             onChange={handlers.handleInputChange}
-                            rows={4}
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#7242f5] focus:border-[#7242f5] outline-none"
+                            rows={3}
+                            className="w-full p-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#7242f5] focus:border-[#7242f5] outline-none"
                             disabled={updateStatus === 'updating'}
                         />
                     ) : (
-                        <p className="text-gray-700 whitespace-pre-wrap break-words p-2 bg-gray-50 rounded-lg">{formData.description || <span className="italic text-gray-400">Нет описания</span>}</p>
+                        <p className="text-gray-700 whitespace-pre-wrap break-words p-1.5 text-sm bg-gray-50 rounded-lg">{formData.description || <span className="italic text-gray-400">Нет описания</span>}</p>
                     )}
                 </div>
 
@@ -479,14 +483,10 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
                         </div>
                     ) : (
-                        <div>
-                            {tags.map(t => {
-                                return (
-                                    <div>
-                                        <Tag value={t} onClick={() => { }} />
-                                    </div>
-                                )
-                            })}
+                        <div className="flex flex-wrap gap-1 p-1.5 bg-gray-50 rounded-lg">
+                            {tags.length > 0 ? tags.map(t => (
+                                <Tag key={t._id} value={t} onClick={() => { }} />
+                            )) : <span className="italic text-gray-400 text-sm">Нет тегов</span>}
                         </div>
                     )}
                 </div>
@@ -498,7 +498,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             name="type"
                             value={formData.type}
                             onChange={handlers.handleInputChange}
-                            className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-[#7242f5] focus:border-[#7242f5] outline-none"
+                            className="w-full p-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-[#7242f5] focus:border-[#7242f5] outline-none"
                             disabled={updateStatus === 'updating'}
                         >
                             <option value="prompt">Запрос</option>
@@ -508,7 +508,7 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             <option value="path">Маршрут</option>
                         </select>
                     ) : (
-                        <p className="text-gray-700 capitalize p-2 bg-gray-50 rounded-lg">
+                        <p className="text-gray-700 capitalize p-1.5 text-sm bg-gray-50 rounded-lg">
                             {formData.type === 'prompt' ? 'Запрос' : formData.type === 'systemPrompt' ? 'Системный запрос' : formData.type === 'history' ? 'История' : formData.type === 'module' ? 'Модуль' : formData.type}
                         </p>
                     )}
@@ -533,8 +533,8 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
 
                 {viewMode !== 'create' && (
                     <>
-                        <hr className="my-3 border-gray-200" />
-                        <div className="space-y-2 text-sm">
+                        <hr className="my-2 border-gray-200" />
+                        <div className="space-y-1 text-sm">
                             <p className="text-gray-600">
                                 <strong className="text-gray-800 font-medium">Автор:</strong> {authorName || 'Неизвестен'}
                             </p>
@@ -558,12 +558,12 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                     </>
                 )}
 
-                <div className="mt-auto pt-5 border-t border-gray-200">
+                <div className="mt-auto pt-3 border-t border-gray-200">
                     {viewMode === 'create' && (
                         <button
                             onClick={handlers.handleSave}
                             style={{ backgroundColor: FUNCTIONAL_COLOR }}
-                            className="w-full px-4 py-2.5 text-white rounded-lg hover:opacity-90 transition-opacity font-semibold shadow-sm"
+                            className="w-full px-3 py-2 text-white rounded-lg hover:opacity-90 transition-opacity font-semibold shadow-sm"
                             disabled={updateStatus === 'updating'}
                         >
                             {updateStatus === 'updating' ? 'Сохранение...' : 'Сохранить новый пресет'}
@@ -575,12 +575,12 @@ export default function CustomItemPage({ params }: { params: Promise<{ id: strin
                             style={{
                                 backgroundColor: updateStatus === 'success' ? '#4caf50' : FUNCTIONAL_COLOR
                             }}
-                            className={`w-full px-4 py-2.5 text-white rounded-lg transition-all duration-200 font-semibold shadow-sm ${updateStatus === 'updating'
+                            className={`w-full px-3 py-2 text-white rounded-lg font-semibold shadow-sm ${updateStatus === 'updating'
                                 ? 'opacity-70 cursor-not-allowed'
                                 : updateStatus === 'success'
-                                    ? 'opacity-100'
+                                    ? 'bg-[#4caf50]'
                                     : updateStatus === 'error'
-                                        ? 'bg-red-500 hover:bg-red-600'
+                                        ? 'bg-red-500'
                                         : 'hover:opacity-90'
                                 }`}
                             disabled={updateStatus === 'updating'}
