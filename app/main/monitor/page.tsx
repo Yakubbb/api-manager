@@ -86,7 +86,7 @@ export default function ChartPage() {
                                         data={[
                                             ["Тип", "Количество"],
                                             ["Уникальные", path.uniqueUsers.length],
-                                            ["Повторные (для визуализации)", path.usesCount - path.uniqueUsers.length > 0 ? path.usesCount - path.uniqueUsers.length : 0]
+                                            ["Повторные", path.usesCount - path.uniqueUsers.length > 0 ? path.usesCount - path.uniqueUsers.length : 0]
                                         ]}
                                         options={{
                                             title: '',

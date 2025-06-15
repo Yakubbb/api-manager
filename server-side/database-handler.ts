@@ -18,6 +18,21 @@ const uri = process.env.MONGODB_URI as string
 
 const client = new MongoClient(uri);
 
+export async function getUserIdFromSessionById(id: string) {
+
+    try {
+        const database = client.db('api-manager')
+        const collection = database.collection("sessions");
+        const session = await collection.findOne({ _id: new ObjectId(id) });
+
+
+        return session?.user as string
+    }
+    catch {
+        return ''
+    }
+}
+
 export async function getUserFromSession() {
 
     const database = client.db('api-manager')
@@ -104,21 +119,29 @@ export async function getUserDataForFront() {
     return { role: role, name: name, email: email, image: image, id: user?._id.toString() };
 }
 
-export async function updateUserData(name: string, email: string, image?: File) {
-    const database = client.db('api-manager')
-    const user = await getUserFromSession()
+export async function updateUserData(name: string, email: string, image?: File): Promise<{ success?: string, error?: string }> {
+    try {
+        const database = client.db('api-manager')
+        const user = await getUserFromSession()
 
-    if (image) {
-        const buffer = Buffer.from(await image.arrayBuffer());
-        const filename = `${user?._id.toString()}.png`;
-        await writeFile(
-            path.join(process.cwd(), "public/avatars/" + filename),
-            buffer
-        );
+        if (image) {
+            const buffer = Buffer.from(await image.arrayBuffer());
+            const filename = `${user?._id.toString()}.png`;
+            await writeFile(
+                path.join(process.cwd(), "public/avatars/" + filename),
+                buffer
+            );
+        }
+
+
+        database.collection('users').updateOne({ _id: user?._id }, { $set: { name: name, email: email } })
+        return { success: 'произошла ошибка на сервере' }
+    }
+    catch (e) {
+        return { error: 'произошла ошибка на сервере' }
     }
 
 
-    database.collection('users').updateOne({ _id: user?._id }, { $set: { name: name, email: email } })
 
 }
 
@@ -148,6 +171,12 @@ export async function getAllUsersChats() {
     const collection: Collection<{
         chats: IChat[]
     }> = database.collection('users')
+    return collection
+}
+
+export async function getAllPaths() {
+    const database = client.db('api-manager')
+    const collection = database.collection('paths')
     return collection
 }
 
@@ -231,8 +260,15 @@ export async function createSession(userID: string) {
 
 }
 
+export async function getAllEmails() {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("users");
+    const emails = collection.find().map(e => { return { email: e.email, userId: e._id.toString() } }).toArray()
+    return emails
+}
 export async function createEmailSession(userID: string) {
-    const expiresAt = new Date(Date.now() + 60 * 1000)
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
     client.connect()
     const database = client.db("api-manager");
     const collection = database.collection("sessions");
@@ -452,6 +488,18 @@ export async function validateCookie(sessionId: string) {
     }
     return false;
 
+}
+
+export async function updateUserPassword(userID: string, unhashedPassword: string): Promise<{ message: string, error?: string, success?: string }> {
+    try {
+        client.connect()
+        const database = client.db("api-manager");
+        const hashedPassword = hashSync(unhashedPassword, genSaltSync(10))
+        database.collection('users').updateOne({ _id: new ObjectId(userID) }, { $set: { password: hashedPassword } })
+        return { message: 'пароль изменен', success: 'пароль изменен' }
+    } catch (e) {
+        return { message: 'произошла ошибка на сервере', error: 'произошла ошибка на сервере' }
+    }
 }
 
 export async function createUser(state: any, formData: FormData) {

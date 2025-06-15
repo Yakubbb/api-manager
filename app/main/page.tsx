@@ -25,7 +25,7 @@ export default function MainPageDefault() {
     name: '',
     email: ''
   });
-  const initialEmail = useRef<string>(''); // Используем useRef для хранения изначального email
+  const initialEmail = useRef<string>('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -41,6 +41,8 @@ export default function MainPageDefault() {
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [codeVerificationError, setCodeVerificationError] = useState('');
+  const [emailVerificationSuccess, setEmailVerificationSuccess] = useState(false);
+
 
   const [corrVer, setCorrver] = useState('');
 
@@ -51,7 +53,7 @@ export default function MainPageDefault() {
       const data = await getUserDataForFront();
       if (data) {
         setUserData(data);
-        initialEmail.current = data.email; // Сохраняем изначальный email
+        initialEmail.current = data.email;
         setFormData({
           name: data.name,
           email: data.email
@@ -78,13 +80,21 @@ export default function MainPageDefault() {
     setSaveSuccess(false);
     setSaveError('');
 
-    // Если email меняется, сбрасываем статус верификации
-    if (id === 'email' && value !== userData.email) {
+    if (id === 'email' && value !== initialEmail.current) {
       setUserData(prev => ({ ...prev, emailVerified: false }));
-      setVerificationSent(false); // Сбрасываем отправку письма
-      setVerificationCode(''); // Сбрасываем код
-      setCodeVerificationError(''); // Сбрасываем ошибку кода
-      setVerificationError(''); // Сбрасываем ошибку отправки
+      setVerificationSent(false);
+      setVerificationCode('');
+      setCodeVerificationError('');
+      setVerificationError('');
+      setEmailVerificationSuccess(false);
+    } else if (id === 'email' && value === initialEmail.current) {
+       // If email is changed back to the original, reset verification states but keep original verified status
+       setUserData(prev => ({ ...prev, emailVerified: userData.emailVerified }));
+       setVerificationSent(false);
+       setVerificationCode('');
+       setCodeVerificationError('');
+       setVerificationError('');
+       setEmailVerificationSuccess(false);
     }
   };
 
@@ -112,13 +122,13 @@ export default function MainPageDefault() {
     setIsSaving(true);
     setSaveError('');
     setSaveSuccess(false);
+    setEmailVerificationSuccess(false);
 
     if (imageError) {
       setIsSaving(false);
       return;
     }
 
-    // Проверяем, изменился ли email и не подтвержден ли он
     if (formData.email !== initialEmail.current && !userData.emailVerified) {
       setSaveError('Пожалуйста, подтвердите новую электронную почту.');
       setIsSaving(false);
@@ -127,14 +137,9 @@ export default function MainPageDefault() {
 
     try {
       await updateUserData(formData.name, formData.email, selectedImage);
-      setUserData(prev => ({ ...prev, name: formData.name, email: formData.email, emailVerified: userData.emailVerified }));
-      initialEmail.current = formData.email; // Обновляем изначальный email после сохранения
+      setUserData(prev => ({ ...prev, name: formData.name, email: formData.email }));
+      initialEmail.current = formData.email;
       setSaveSuccess(true);
-      if (selectedImage) {
-        const data = await getUserDataForFront();
-        setImagePreviewUrl(data.image)
-      }
-      setSelectedImage(undefined)
 
     } catch (error: any) {
       setSaveError('Не удалось сохранить изменения. Попробуйте снова.');
@@ -149,9 +154,10 @@ export default function MainPageDefault() {
     setVerificationSent(false);
     setCodeVerificationError('');
     setVerificationCode('');
+    setEmailVerificationSuccess(false);
 
     try {
-      const verificationCode = await sendLetter(formData.email); // Отправляем на email из formData
+      const verificationCode = await sendLetter(formData.email);
       setCorrver(verificationCode);
       setVerificationSent(true);
     } catch (error) {
@@ -164,18 +170,18 @@ export default function MainPageDefault() {
   const handleVerifyCode = async () => {
     setIsVerifyingCode(true);
     setCodeVerificationError('');
-    
+
     if (verificationCode === corrVer) {
       setUserData(prev => ({ ...prev, emailVerified: true }));
       setVerificationSent(false);
       setVerificationCode('');
+      setEmailVerificationSuccess(true);
     } else {
       setCodeVerificationError('Неверный код верификации. Попробуйте снова.');
     }
     setIsVerifyingCode(false);
   };
 
-  // Определяем, нужно ли показывать блок верификации
   const shouldShowVerification = formData.email !== initialEmail.current && !userData.emailVerified;
 
   return (
@@ -191,7 +197,6 @@ export default function MainPageDefault() {
               <div className="flex items-center gap-4">
                 <img
                   src={imagePreviewUrl || '/default-avatar.png'}
-                  alt="Аватар"
                   className="w-24 h-24 rounded-full object-cover bg-gray-200 border-4 border-[#7242f5] shadow-md transform transition-transform hover:scale-105 duration-300"
                   onError={(e) => { e.currentTarget.src = '/default-avatar.png'; }}
                 />
@@ -226,6 +231,9 @@ export default function MainPageDefault() {
               {formData.email === initialEmail.current && userData.emailVerified && (
                 <p className="text-sm font-medium text-green-700 flex items-center gap-2 mt-2"><FaCheckCircle className="text-green-500" />Почта подтверждена.</p>
               )}
+               {emailVerificationSuccess && (
+                <p className="text-sm font-medium text-green-700 flex items-center gap-2 mt-2 animate-bounceIn"><FaCheckCircle className="text-green-500" />Новая почта успешно подтверждена!</p>
+              )}
             </div>
           </div>
 
@@ -253,6 +261,7 @@ export default function MainPageDefault() {
                     onChange={(e) => {
                       setVerificationCode(e.target.value);
                       setCodeVerificationError('');
+                      setEmailVerificationSuccess(false);
                     }}
                     disabled={isVerifyingCode}
                   />

@@ -1,6 +1,7 @@
 'use server'
+import { updateChatHistory } from "./chat-handler"
 import { getAllCustomIems, getAllUsersPaths } from "./custom-items-database-handler"
-import { getAllUsersChats } from "./database-handler"
+import { getAllPaths, getAllUsersChats, getUserFromSession } from "./database-handler"
 
 export interface PathStatistics {
     id: string,
@@ -24,4 +25,19 @@ export async function getUserPathsStats(): Promise<PathStatistics[]> {
         return element
     })
     return pathStatistics
+}
+
+export async function updateStatistics(id: string) {
+    const paths = await getAllPaths();
+    const user = await getUserFromSession();
+    /*
+        try {
+            await paths.updateOne(
+                { _id: new ObjectId(user._id), "chats._id": new ObjectId(chatId) },
+                { $set: { "chats.$.messages": messages } }
+            );
+        } catch (error) {
+            console.error("Error updating chat history:", error);
+        }
+    */
 }

@@ -6,23 +6,23 @@ import { cookies } from 'next/headers'
 const canBeWithoutCookie = [
     '/',
     '/login',
-    '/register'
+    '/register',
 ]
 
-// This function can be marked `async` if using `await` inside
+
 export async function middleware(req: NextRequest) {
     const cookie = (await cookies()).get('session')?.value
-    console.log(cookie)
-    const isNotProtected = canBeWithoutCookie.includes(req.nextUrl.pathname)
+    const isDropRoute = req.nextUrl.pathname.startsWith('/drop/');
 
+    if (canBeWithoutCookie.includes(req.nextUrl.pathname) || isDropRoute) {
 
-    if (isNotProtected) {
-        if (cookie) {
+        if (cookie && !isDropRoute) {
             return NextResponse.redirect(new URL('/main/', req.url))
         }
         return
     }
     else {
+        console.log(req.nextUrl.pathname)
         if (!cookie) {
             return NextResponse.redirect(new URL('/', req.url))
         }
@@ -30,7 +30,6 @@ export async function middleware(req: NextRequest) {
 
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
     matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
 }

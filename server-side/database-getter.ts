@@ -38,6 +38,17 @@ export async function getPathFromCollection(id: string) {
     client.connect()
     const database = client.db("api-manager");
     const collection = database.collection("paths");
-    const doc: any = await collection.findOne({ _id: new ObjectId(id) }) as any
-    return { edges: doc.contents.edges, nodes: doc.contents.nodes }
+    const doc: any = await collection.findOne({ _id: new ObjectId(id) })
+    return { edges: doc.contents.edges, nodes: doc.contents.nodes, id: doc?._id.toString() }
+}
+
+export async function getPathsClean(id: string) {
+    client.connect()
+    const database = client.db("api-manager");
+    const collection = database.collection("paths");
+    //await collection.updateOne(
+    //   { _id: new ObjectId(id)},
+    //   { $set: { "chats.$.messages": messages } }
+    //);
+    return collection
 }

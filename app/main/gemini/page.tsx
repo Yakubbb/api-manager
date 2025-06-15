@@ -45,13 +45,6 @@ export default async function MainPageDefault() {
           />
 
           <GeminiInfoMessage
-            name="Облачное хранение"
-            description="Если вы храните ваш ключ на нашем сервере, вы можете использовать его"
-            href="/main/keys"
-            Icon={AiOutlineCloudServer}
-          />
-
-          <GeminiInfoMessage
             name="Наш ключ"
             description="Если вы доверенный пользователь, вы можете использовать ключ, предоставляемый нами"
             href="/main/keys"

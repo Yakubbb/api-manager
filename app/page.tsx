@@ -3,13 +3,13 @@ import { GiSandsOfTime } from "react-icons/gi";
 import { FaCheckCircle, FaRegUser } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithubAlt } from "react-icons/fa";
-import { FcGoodDecision } from "react-icons/fc";
-import { validateUserCreds } from "@/server-side/database-handler"; // Предполагается, что это ваша серверная функция
+import { validateUserCreds } from "@/server-side/database-handler";
 import { useActionState, useState } from "react";
 import { MdError } from "react-icons/md";
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { FaEnvelope } from "react-icons/fa"; // Иконка для email
+import { FaEnvelope } from "react-icons/fa";
+import { ifEmailClaimed, sendNewPasswordLetter } from "@/server-side/mail-server";
 
 export default function LoginPage() {
 
@@ -23,7 +23,7 @@ export default function LoginPage() {
   const [forgotPasswordError, setForgotPasswordError] = useState('');
   const [isSendingPasswordReset, setIsSendingPasswordReset] = useState(false);
 
-  const functionalColor = '#7242f5'; // Ваш функциональный цвет
+  const functionalColor = '#7242f5';
 
   const handleForgotPasswordSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -37,25 +37,25 @@ export default function LoginPage() {
       return;
     }
 
-    // Здесь будет ваша серверная логика для отправки письма
-    // Пока что выводим в консоль
-    console.log(`Sending password reset email to: ${forgotPasswordEmail}`);
-    // Имитация задержки отправки письма
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    if (! (await ifEmailClaimed(forgotPasswordEmail))) {
+      setForgotPasswordError('Пользователя с таким email нет');
+      setIsSendingPasswordReset(false);
+      return;
+    }
 
-    // Предположим, что отправка успешна
+    await sendNewPasswordLetter(forgotPasswordEmail)
     setForgotPasswordMessage(`Ссылка для сброса пароля отправлена на ${forgotPasswordEmail}. Проверьте вашу почту.`);
     setIsSendingPasswordReset(false);
-    setForgotPasswordEmail(''); // Очищаем поле после отправки
+    setForgotPasswordEmail('');
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-100 p-4 font-sans">
+    <div className="flex min-h-screen w-full items-center justify-center bg-white p-4 font-sans">
       <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl transition-all duration-300 hover:shadow-3xl">
 
         <div className="flex flex-col gap-8">
 
-          <div className="text-center text-4xl font-extrabold text-gray-800">
+          <div className="text-center text-4xl font-extrabold text-gray-800 font-main2">
             {showForgotPassword ? 'Сброс пароля' : 'Добро пожаловать!'}
           </div>
 
@@ -84,7 +84,7 @@ export default function LoginPage() {
             <>
               <form className="flex flex-col gap-5" action={action}>
                 <div>
-                  <label htmlFor="login" className="block text-sm font-semibold text-gray-700 mb-2">Логин</label>
+                  <label htmlFor="login" className="block text-sm font-medium text-gray-700 mb-2">Логин</label>
                   <div className="relative">
                     <FaRegUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -99,7 +99,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">Пароль</label>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Пароль</label>
                   <div className="relative">
                     <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     <input
@@ -117,7 +117,7 @@ export default function LoginPage() {
                   type="submit"
                   disabled={pending}
                   style={{ backgroundColor: functionalColor }}
-                  className={`w-full flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3 text-lg font-semibold text-white shadow-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#7242f5] focus:ring-offset-2 transition-all duration-300 ${pending ? 'opacity-60 cursor-not-allowed' : 'transform hover:-translate-y-0.5'}`}
+                  className={`w-full flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3 text-lg font-medium text-white shadow-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#7242f5] focus:ring-offset-2 transition-all duration-300 ${pending ? 'opacity-60 cursor-not-allowed' : 'transform hover:-translate-y-0.5'}`}
                 >
                   {pending ? (
                     <>
@@ -162,16 +162,15 @@ export default function LoginPage() {
 
               <div className="mt-4 text-center text-sm text-gray-600">
                 Нет аккаунта?
-                <Link href="/register" className="ml-1 font-semibold text-[#7242f5] hover:text-[#5a2ed1] transition-colors duration-200">
+                <Link href="/register" className="ml-1 font-medium text-[#7242f5] hover:text-[#5a2ed1] transition-colors duration-200">
                   Зарегистрироваться
                 </Link>
               </div>
             </>
           ) : (
-            // Forgot Password Form
             <form className="flex flex-col gap-5" onSubmit={handleForgotPasswordSubmit}>
               <div>
-                <label htmlFor="forgot-email" className="block text-sm font-semibold text-gray-700 mb-2">Ваш Email</label>
+                <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-2">Ваш Email</label>
                 <div className="relative">
                   <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
@@ -190,7 +189,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={isSendingPasswordReset}
                 style={{ backgroundColor: functionalColor }}
-                className={`w-full flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3 text-lg font-semibold text-white shadow-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#7242f5] focus:ring-offset-2 transition-all duration-300 ${isSendingPasswordReset ? 'opacity-60 cursor-not-allowed' : 'transform hover:-translate-y-0.5'}`}
+                className={`w-full flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3 text-lg font-medium text-white shadow-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#7242f5] focus:ring-offset-2 transition-all duration-300 ${isSendingPasswordReset ? 'opacity-60 cursor-not-allowed' : 'transform hover:-translate-y-0.5'}`}
               >
                 {isSendingPasswordReset ? (
                   <>
